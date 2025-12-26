@@ -1240,7 +1240,7 @@ async function shareCurrentWeeklyStat() {
       await s.actions.composeCast({
         text,
         // Keep within the common 2-embed limit.
-        embeds: [shareUrl, HOME_URL]
+        embeds: [shareUrl]
       });
       return;
     }
