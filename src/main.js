@@ -108,7 +108,7 @@ const BASE_CHAIN_ID_HEX = "0x2105";
 const CONTRACT = "0xB331328F506f2D35125e367A190e914B1b6830cF";
 
 // Builder Code from your screenshot (must match Base.dev)
-const BUILDER_CODE = "bc_nkm4ufdx";
+const BUILDER_CODE = "bc_frzfbuzy";
 /* dataSuffix is computed lazily via ensureAttribution() */
 // On-chain action name (bytes32)
 function _stringToBytes32Hex(str) {
