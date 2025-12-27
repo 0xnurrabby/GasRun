@@ -1,0 +1,631 @@
+:root{
+  --bg:#0f0f14;
+  --panel:#151522;
+  --panel2:#1b1b2b;
+  --text:#e8e8ef;
+  --muted:#a9a9bc;
+  --accent:#ff8200;
+  --good:#38d36f;
+  --mint:#00e6c8;
+  --mint2:#2affd8;
+  --danger:#ff4d6d;
+  --shadow: 0 12px 40px rgba(0,0,0,.5);
+  --radius:18px;
+
+  /* Leaderboard layout tuning */
+  --lb-row:56px;   /* approx single entry height */
+  --lb-gap:8px;    /* matches .boardList gap */
+}
+
+*{box-sizing:border-box}
+
+/* --- Default UI font (American Captain Patrius) --- */
+@font-face{
+  font-family: "AmericanCaptainPatrius";
+  src: url("/assets/fonts/AmericanCaptainPatrius02FRE.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+@font-face{
+  font-family: "Akando";
+  src: url("/assets/fonts/Akando-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+html,body{height:100%; margin:0; background:var(--bg); color:var(--text); font-family: "Akando", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";}
+#app{height:100%; width:100%; display:flex; align-items:stretch; justify-content:center;}
+.shell{width:100%; max-width:540px; height:100%; padding:12px 12px 18px; display:flex; flex-direction:column; gap:10px; position:relative;}
+
+.topbar{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+.iconBtn{border:0; background:transparent; color:var(--text); padding:10px; border-radius:14px; display:flex; align-items:center; justify-content:center;}
+.iconBtn:active{transform:scale(.98)}
+.badge{font-size:12px; color:var(--muted); padding:6px 10px; background:rgba(255,255,255,.06); border-radius:999px; border:1px solid rgba(255,255,255,.08);}
+
+.gameCard{flex:1; background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.08); border-radius:24px; box-shadow:var(--shadow); padding:12px; position:relative; overflow:hidden;}
+.canvasWrap{position:absolute; inset:12px; border-radius:18px; overflow:hidden; background: radial-gradient(120% 80% at 50% 20%, rgba(255,130,0,.14), rgba(0,0,0,0) 60%), #0b0b12; border:1px solid rgba(255,255,255,.08);}
+canvas{display:block; width:100%; height:100%;}
+
+.hud{position:absolute; left:18px; top:18px; padding:10px 12px; border-radius:16px; background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.10); backdrop-filter: blur(6px); min-width:170px}
+.hudTitle{font-weight:700; font-size:16px}
+.hudRow{margin-top:6px; display:flex; gap:10px; flex-wrap:wrap; font-size:13px; color:var(--muted)}
+.hudRow b{color:var(--text); font-weight:700}
+
+.bottomBar{display:flex; align-items:center; justify-content:center; gap:10px; padding-bottom: max(0px, env(safe-area-inset-bottom));}
+.controls{display:flex; gap:10px; width:100%; max-width:460px; margin:0 auto;}
+.ctrlBtn{flex:1; padding:18px 16px; border-radius:18px; border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.06); color:var(--text); font-weight:800; letter-spacing:.4px; touch-action:none; user-select:none; -webkit-user-select:none; box-shadow:0 10px 22px rgba(0,0,0,.22), inset 0 0 0 1px rgba(0,0,0,.25);} 
+/* Premium strokes for Left/Right */
+.ctrlBtn:not(.primary){border-color:rgba(120,200,255,.35); box-shadow:0 10px 22px rgba(0,0,0,.22), inset 0 0 0 1px rgba(120,200,255,.18);} 
+.ctrlBtn.primary{background:rgba(255,130,0,.16); border-color:rgba(255,130,0,.45); box-shadow:0 10px 22px rgba(0,0,0,.22), inset 0 0 0 1px rgba(255,130,0,.18)}
+.ctrlBtn:active{transform:scale(.985)}
+
+.sheet{position:absolute; inset:0; background:rgba(0,0,0,.62); display:none;
+  /* Keep the bottom-sheet clear of mobile safe areas (iOS home indicator etc.) */
+  padding: 18px 18px calc(18px + env(safe-area-inset-bottom));
+  align-items:flex-end; justify-content:center;
+}
+.sheet.open{display:flex}
+.sheetPanel{width:100%; max-width:540px; background:var(--panel); border:1px solid rgba(255,255,255,.10); border-radius:22px; box-shadow:var(--shadow); overflow:hidden;}
+.sheetHeader{display:flex; align-items:center; justify-content:space-between; padding:14px 14px 10px; border-bottom:1px solid rgba(255,255,255,.08)}
+.sheetHeader h3{margin:0; font-size:16px}
+.sheetBody{padding:14px; color:var(--muted); font-size:14px; line-height:1.4}
+.kv{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 0; border-bottom:1px dashed rgba(255,255,255,.10)}
+.kv:last-child{border-bottom:0}
+.kv span{color:var(--text); font-weight:700}
+.row{display:flex; gap:10px; margin-top:12px}
+.btn{flex:1; border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.06); color:var(--text); padding:12px 12px; border-radius:16px; font-weight:800}
+.btn.accent{background:rgba(255,130,0,.16); border-color:rgba(255,130,0,.45)}
+.btn.danger{background:rgba(255,77,109,.14); border-color:rgba(255,77,109,.45)}
+.btn:active{transform:scale(.985)}
+.mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:12px; color:#cfcfe6}
+
+.toast{position:absolute; left:50%; transform:translateX(-50%); bottom:106px; background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.12); color:var(--text); padding:10px 12px; border-radius:14px; font-size:13px; display:none; max-width:92%; text-align:center; backdrop-filter: blur(6px);}
+.toast.show{display:block}
+
+
+/* --- Menu / Sheet professional UI (added) --- */
+.btnRow{display:flex; gap:10px; margin-top:10px}
+/* give the long commit button a bit more breathing room */
+.commitWrap{margin-top:12px}
+.pill{
+  flex:1;
+  appearance:none;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.06);
+  color:var(--text);
+  padding:12px 12px;
+  border-radius:16px;
+  font-weight:800;
+  font-size:14px;
+  text-align:center;
+  box-shadow:0 8px 22px rgba(0,0,0,.22), inset 0 0 0 1px rgba(0,0,0,.25);
+}
+.pill.primary{
+  background:linear-gradient(180deg, rgba(255,130,0,.22), rgba(255,130,0,.10));
+  border-color:rgba(255,130,0,.45);
+}
+.pill:active{transform:scale(.985)}
+.pill[disabled]{opacity:.55; pointer-events:none}
+
+
+/* Menu buttons: use AmericanCaptainPatrius font + slightly larger text */
+#btnConnect,#btnLeaderboards,#btnConvert,#btnCommit{
+  font-family: "AmericanCaptainPatrius", "Akando", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  font-size:16px;
+  letter-spacing:.2px;
+}
+.copy{margin-top:10px; color:var(--muted); font-size:14px; line-height:1.45}
+.fineprint{margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,.08); font-size:12px; color:var(--muted); line-height:1.45}
+
+.board{margin-top:14px; padding:12px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.10); border-radius:18px}
+.boardTitle{display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:13px; color:var(--muted); margin-bottom:10px}
+.boardList{max-height:320px; overflow:auto; display:flex; flex-direction:column; gap:8px; padding-right:4px}
+.entry{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 10px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.10); border-radius:14px}
+.entry.entryRow{
+  background: linear-gradient(180deg, var(--rowBg, rgba(255,255,255,.06)), var(--rowBg2, rgba(255,255,255,.04)));
+  border-color: var(--rowBorder, rgba(255,255,255,.14));
+  box-shadow:
+    0 10px 26px rgba(0,0,0,.22),
+    0 0 0 1px rgba(0,0,0,.18),
+    0 0 18px var(--rowGlow, rgba(0,0,0,0));
+}
+.entry.entryRow .rankBadge{
+  background: rgba(0,0,0,.22);
+  border-color: rgba(255,255,255,.18);
+}
+.entry .left{display:flex; align-items:center; gap:8px; min-width:0; flex:1}
+.rankBadge{flex:0 0 auto; font-size:12px; color:var(--text); background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.14); padding:4px 8px; border-radius:999px}
+.addr{font-weight:800; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0}
+.addrColor{color:var(--addrColor)}
+/* For "Last week": use background color (not text color), and allow full address wrapping. */
+.addrBg{background:var(--addrBg); padding:3px 8px; border-radius:12px}
+.addrBreak{white-space:normal; overflow:visible; text-overflow:clip; word-break:break-all; line-height:1.15}
+
+/* Full wallet address style (keep rows compact on mobile) */
+.addr.addrFull{
+  font-weight:900;
+  font-size:12px;
+  font-family: inherit;
+opacity:.95;
+}
+
+.points{font-weight:900; flex:0 0 auto; text-align:right}
+.subcopy{margin-top:8px; font-size:12px; color:var(--muted)}
+
+/* --- Leaderboards: keep the sheet within viewport and make EACH section scrollable --- */
+#sheet[data-view="boards"] .sheetPanel{
+  display:flex;
+  flex-direction:column;
+  /* Prefer dynamic viewport units on mobile, with a vh fallback */
+  max-height: calc(100vh - 36px);
+  max-height: calc(100dvh - 36px);
+}
+
+#sheet[data-view="boards"] .sheetBody{
+  flex:1;
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  overflow:hidden; /* prevent whole-sheet scrolling */
+}
+
+#sheet[data-view="boards"] .boardsWrap{
+  flex:1;
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  /* Allow vertical scrolling for multiple sections (Weekly + All-time + Last week)
+     so the bottom section is always reachable on small screens. */
+  overflow-y:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+
+  /* Make sure the last section isn't hidden behind the OS home indicator */
+  padding-bottom: max(14px, env(safe-area-inset-bottom));
+
+  /* Firefox scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: #2d6bff rgba(255,255,255,.06);
+}
+
+/* WebKit (Chrome/Safari/iOS): style the OUTER (section) scrollbar too */
+#sheet[data-view="boards"] .boardsWrap::-webkit-scrollbar{ width: 10px; }
+#sheet[data-view="boards"] .boardsWrap::-webkit-scrollbar-track{
+  background: rgba(255,255,255,.06);
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+}
+#sheet[data-view="boards"] .boardsWrap::-webkit-scrollbar-thumb{
+  border-radius: 999px;
+  border: 2px solid rgba(0,0,0,.25);
+  background: linear-gradient(180deg, #00f5d4 0%, #2d6bff 55%, #9b5cff 100%);
+  box-shadow: 0 0 14px rgba(0,245,212,.22);
+}
+#sheet[data-view="boards"] .boardsWrap::-webkit-scrollbar-thumb:hover{
+  background: linear-gradient(180deg, #17ffe0 0%, #3b7bff 55%, #b06bff 100%);
+  box-shadow: 0 0 18px rgba(0,245,212,.32);
+}
+#sheet[data-view="boards"] .boardsWrap::-webkit-scrollbar-thumb:active{
+  background: linear-gradient(180deg, #5dffea 0%, #6aa0ff 55%, #c58cff 100%);
+}
+
+/* Extra safety: if the host app scrolls the panel/body instead of .boardsWrap, keep it themed */
+#sheet[data-view="boards"] .sheetPanel,
+#sheet[data-view="boards"] .sheetBody{
+  scrollbar-width: thin;
+  scrollbar-color: #2d6bff rgba(255,255,255,.06);
+}
+
+#sheet[data-view="boards"] .sheetPanel::-webkit-scrollbar,
+#sheet[data-view="boards"] .sheetBody::-webkit-scrollbar{ width: 10px; }
+
+#sheet[data-view="boards"] .sheetPanel::-webkit-scrollbar-track,
+#sheet[data-view="boards"] .sheetBody::-webkit-scrollbar-track{
+  background: rgba(255,255,255,.06);
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+}
+
+#sheet[data-view="boards"] .sheetPanel::-webkit-scrollbar-thumb,
+#sheet[data-view="boards"] .sheetBody::-webkit-scrollbar-thumb{
+  border-radius: 999px;
+  border: 2px solid rgba(0,0,0,.25);
+  background: linear-gradient(180deg, #00f5d4 0%, #2d6bff 55%, #9b5cff 100%);
+  box-shadow: 0 0 14px rgba(0,245,212,.22);
+}
+
+#sheet[data-view="boards"] .board{margin-top:0}
+
+/* Show ~4 entries and scroll inside the list (not the whole sheet) */
+#sheet[data-view="boards"] .boardList{
+  /* "max 4" rows, but also clamp by viewport so 3 sections fit on small screens */
+  max-height: min(24dvh, calc(var(--lb-row) * 4 + var(--lb-gap) * 3));
+  overflow-y:auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  scrollbar-gutter: stable;
+
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: #2d6bff rgba(255,255,255,.06); /* thumb, track */
+}
+
+/* WebKit (Chrome/Safari/iOS): neon gradient scrollbar */
+#sheet[data-view="boards"] .boardList::-webkit-scrollbar{
+  width: 10px;
+}
+
+#sheet[data-view="boards"] .boardList::-webkit-scrollbar-track{
+  background: rgba(255,255,255,.06);
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+}
+
+#sheet[data-view="boards"] .boardList::-webkit-scrollbar-thumb{
+  border-radius: 999px;
+  border: 2px solid rgba(0,0,0,.25);
+  background: linear-gradient(180deg, #00f5d4 0%, #2d6bff 55%, #9b5cff 100%);
+  box-shadow: 0 0 14px rgba(0,245,212,.22);
+}
+
+#sheet[data-view="boards"] .boardList::-webkit-scrollbar-thumb:hover{
+  background: linear-gradient(180deg, #17ffe0 0%, #3b7bff 55%, #b06bff 100%);
+  box-shadow: 0 0 18px rgba(0,245,212,.32);
+}
+
+#sheet[data-view="boards"] .boardList::-webkit-scrollbar-thumb:active{
+  background: linear-gradient(180deg, #5dffea 0%, #6aa0ff 55%, #c58cff 100%);
+}
+
+/* The last section gets a slightly smaller list on very short screens */
+#sheet[data-view="boards"] .board.winners .boardList{
+  max-height: min(20dvh, calc(var(--lb-row) * 4 + var(--lb-gap) * 3));
+}
+
+/* Red warning / immediate action text with glow + fade in/out */
+.alertRed{
+  margin-top:12px;
+  padding:12px 12px;
+  border-radius:14px;
+  border:1px solid rgba(255,77,109,.55);
+  background: rgba(255,77,109,.12);
+  color:#ff4d6d;
+  font-weight:900;
+  font-size:13px;
+  line-height:1.35;
+
+  /* animation */
+  animation: alertPulse 1.6s ease-in-out infinite;
+}
+
+/* Fade + Glow pulse */
+@keyframes alertPulse{
+  0%{
+    opacity: .25;
+    filter: drop-shadow(0 0 0 rgba(255,77,109,0));
+    box-shadow: 0 0 0 rgba(255,77,109,0);
+  }
+  50%{
+    opacity: 1;
+    filter: drop-shadow(0 0 10px rgba(255,77,109,.55));
+    box-shadow: 0 0 18px rgba(255,77,109,.25);
+  }
+  100%{
+    opacity: .25;
+    filter: drop-shadow(0 0 0 rgba(255,77,109,0));
+    box-shadow: 0 0 0 rgba(255,77,109,0);
+  }
+}
+/* Red warning / immediate action text with glow + fade in/out */
+.alertRed{
+  margin-top:12px;
+  padding:12px 12px;
+  border-radius:14px;
+  border:1px solid rgba(255,77,109,.55);
+  background: rgba(255,77,109,.12);
+  color:#ff4d6d;
+  font-weight:900;
+  font-size:13px;
+  line-height:1.35;
+
+  /* animation */
+  animation: alertPulse 1.6s ease-in-out infinite;
+}
+
+/* Fade + Glow pulse */
+@keyframes alertPulse{
+  0%{
+    opacity: .25;
+    filter: drop-shadow(0 0 0 rgba(255,77,109,0));
+    box-shadow: 0 0 0 rgba(255,77,109,0);
+  }
+  50%{
+    opacity: 1;
+    filter: drop-shadow(0 0 10px rgba(255,77,109,.55));
+    box-shadow: 0 0 18px rgba(255,77,109,.25);
+  }
+  100%{
+    opacity: .25;
+    filter: drop-shadow(0 0 0 rgba(255,77,109,0));
+    box-shadow: 0 0 0 rgba(255,77,109,0);
+  }
+}
+
+
+.weekCountdownWrap{
+  margin-left: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: rgba(255,255,255,.55);
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* Canvas-based 7-seg countdown (red glow, no external font needed) */
+.segCanvas{
+  display: inline-block;
+  vertical-align: middle;
+  transform: translateY(1px);
+  filter: drop-shadow(0 0 10px rgba(255,70,70,.18));
+}
+
+
+/* --- Pixel / Minecraft-style font (SuperPixel) --- */
+@font-face{
+  font-family: "SuperPixel";
+  src: url("/assets/fonts/SuperPixel-m2L8j.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* --- Rebellion Squad (ONLY for "How it works") --- */
+@font-face{
+  font-family: "RebellionSquad";
+  src: url("/assets/fonts/RebellionSquad-ZpprZ.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Share stats font */
+@font-face{
+  font-family: "ShareStatsFont";
+  src: url("/assets/fonts/ShareStatsFont.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Top title pixel style */
+.title.mcFont{
+  font-family: "SuperPixel", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  color: rgba(255,255,255,0.92);
+  letter-spacing: 1px;
+  font-size: 11px;
+  line-height: 1.1;
+  text-transform: uppercase;
+
+  /* crisp pixel look */
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+  text-rendering: geometricPrecision;
+
+  text-shadow:
+    0 2px 0 rgba(0,0,0,0.55),
+    0 0 14px rgba(255,255,255,0.10);
+
+  animation: titlePixelPulse 2.2s ease-in-out infinite;
+}
+
+.title .mcRed{
+  color: #ff3b3b;
+  text-shadow:
+    0 2px 0 rgba(0,0,0,0.65),
+    0 0 12px rgba(255,59,59,0.35);
+}
+
+@keyframes titlePixelPulse{
+  0%,100%{ opacity: .86; filter: drop-shadow(0 0 0 rgba(255,59,59,0)); }
+  50%{ opacity: 1;   filter: drop-shadow(0 0 10px rgba(255,59,59,.18)); }
+}
+
+/* How it works button: keep other buttons unchanged, apply NEW font only here */
+.pill.pillHow{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  font-family:"RebellionSquad", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  font-size:18px;
+  letter-spacing:1.2px;
+  text-transform:none;
+
+  color: #38d36f; /* ✅ green */
+  text-shadow: 0 0 12px rgba(56,211,111,.35); /* ✅ green glow */
+}
+
+
+.pill.pillHow .pillIcon{
+  width: 35px;
+  height: 35px;
+  flex: 0 0 35px;
+  object-fit: contain;
+  border-radius: 14px;
+  padding: 4px;
+  background: rgba(255,255,255,.06);
+  box-shadow: 0 8px 18px rgba(0,0,0,.28);
+  filter: drop-shadow(0 0 10px rgba(56,211,111,.25));
+}
+
+/* Leaderboards: Share block (button + meta counter) */
+.shareBlock{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.shareBlock .pill{
+  width:100%;
+  flex:0 0 auto;
+}
+.pill.sharePill{
+  position: relative;
+  font-family:"ShareStatsFont","RebellionSquad", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  font-size:16px;
+  letter-spacing: .8px;
+  padding:12px 12px;
+  border-radius:16px;
+  border:1px solid rgba(56,211,111,.45);
+  background: linear-gradient(180deg, rgba(56,211,111,.28), rgba(56,211,111,.10));
+  color: rgba(234,255,242,.95);
+  text-shadow: 0 0 12px rgba(56,211,111,.35);
+  box-shadow: 0 10px 26px rgba(0,0,0,.28), inset 0 0 0 1px rgba(0,0,0,.25);
+}
+.pill.sharePill:active{
+  transform: translateY(1px);
+}
+.pill.sharePill.disabled,
+.pill.sharePill:disabled{
+  opacity:.55;
+  filter: grayscale(.35);
+  cursor:not-allowed;
+  text-shadow:none;
+}
+.shareMeta{
+  text-align:center;
+  font-family:"ShareStatsFont","RebellionSquad", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  font-size:12px;
+  letter-spacing:.6px;
+  opacity:.92;
+  user-select:none;
+}
+
+.shareCooldown{
+  text-align:center;
+  /* Use the app's default font (Akando) */
+  font-family: inherit;
+  font-size:12px;
+  letter-spacing:.2px;
+  opacity:.85;
+  user-select:none;
+  min-height:14px;
+}
+
+.shareUsed{
+  color: var(--danger);
+  font-weight: 900;
+}
+
+/* Boards: tighten header area and balance Back/Share/Refresh buttons */
+#sheet[data-view="boards"] .btnRow{
+  gap:12px;
+  margin-top:8px;
+  align-items:center;
+}
+#sheet[data-view="boards"] #backMenu.pill,
+#sheet[data-view="boards"] #refreshBoards.pill{
+  flex:0 0 30%;
+  /* Match the "Share your stat" button typography (font + size) */
+  font-family:"ShareStatsFont","RebellionSquad", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  font-size:16px;
+  letter-spacing:.8px;
+  padding:14px 10px;
+  border-radius:18px;
+  background: linear-gradient(180deg, rgba(0,230,200,.18), rgba(0,230,200,.08));
+  border-color: rgba(0,230,200,.35);
+  box-shadow: 0 10px 26px rgba(0,0,0,.30), inset 0 0 0 1px rgba(0,0,0,.35), inset 0 0 22px rgba(0,230,200,.10);
+}
+#sheet[data-view="boards"] #backMenu.pill:active,
+#sheet[data-view="boards"] #refreshBoards.pill:active{
+  transform: scale(.985);
+}
+#sheet[data-view="boards"] .shareBlock{
+  flex:0 0 36%;
+}
+
+.shareMax{
+  color: var(--good);
+  font-weight: 900;
+}
+
+
+/* Leaderboards header reward banner (replaces toast) */
+.boardsNotice{
+  display:none;
+  margin-top:0px;
+  padding:8px 12px;
+  border-radius:14px;
+  border:1px solid rgba(56,211,111,.30);
+  background: linear-gradient(180deg, rgba(20,28,34,.75), rgba(12,16,20,.55));
+  box-shadow: 0 12px 30px rgba(0,0,0,.35), inset 0 0 0 1px rgba(0,0,0,.35);
+  font-family:"ShareStatsFont","RebellionSquad", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  font-size:14px;
+  letter-spacing:.7px;
+  color: rgba(238,248,255,.92);
+  opacity:0;
+  transform: translateY(-8px) scale(.98);
+  pointer-events:none;
+}
+
+.boardsNotice.show{
+  display:block;
+  opacity:1;
+  transform: translateY(0) scale(1);
+  animation: boardsNoticePop .38s ease-out;
+}
+
+.boardsNotice.reward{
+  border-color: rgba(56,211,111,.55);
+  background: linear-gradient(180deg, rgba(26,44,34,.78), rgba(10,14,18,.55));
+}
+
+.boardsNotice .rewardPlus{
+  color: rgba(56,211,111,.98);
+  text-shadow: 0 0 12px rgba(56,211,111,.35);
+}
+
+.boardsNotice .rewardTxt{
+  color: rgba(238,248,255,.92);
+}
+
+@keyframes boardsNoticePop{
+  0% { opacity:0; transform: translateY(-10px) scale(.96); filter: blur(.6px); }
+  65% { opacity:1; transform: translateY(1px) scale(1.01); filter: blur(0); }
+  100% { opacity:1; transform: translateY(0) scale(1); }
+}
+
+.sharePill:hover{
+  border-color: rgba(56,211,111,.70);
+  box-shadow: 0 14px 34px rgba(0,0,0,.40), 0 0 0 2px rgba(56,211,111,.12), inset 0 0 0 1px rgba(0,0,0,.25);
+  transform: translateY(-1px);
+}
+.sharePill:active{
+  transform: translateY(0);
+  box-shadow: 0 10px 26px rgba(0,0,0,.28), inset 0 0 0 1px rgba(0,0,0,.25);
+}
+
+
+/* --- MENU ONLY: increase text sizes (no font changes) --- */
+#sheet[data-view="menu"] .sheetHeader h3{ font-size:18px; }
+#sheet[data-view="menu"] .sheetBody{ font-size:15px; line-height:1.45; }
+
+#sheet[data-view="menu"] .menuGrid .kv .k,
+#sheet[data-view="menu"] .menuGrid .kv .v{
+  font-size:16px;
+}
+
+#sheet[data-view="menu"] .alertRed{
+  font-size:15px;
+  line-height:1.45;
+}
