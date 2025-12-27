@@ -10,12 +10,12 @@
     "iconUrl": "https://gasrun.vercel.app/assets/icon-512.png",
     "homeUrl": "https://gasrun.vercel.app/",
     "imageUrl": "https://gasrun.vercel.app/assets/embed-3x2.png",
-    "buttonTitle": "Play GasRun and contribute on Base",
+    "buttonTitle": "Play GasRun🏎",
     "splashImageUrl": "https://gasrun.vercel.app/assets/splash-200.png",
     "splashBackgroundColor": "#0f0f14",
 
     "subtitle": "Run & earn on Base",
-    "description": "Dodge traffic, collect coins, and save points on-chain. Weekly & all-time leaderboards included.",
+    "description": "Dodge traffic, collect coins, and save points on-chain. Earn on base",
     "primaryCategory": "games",
     "tags": ["games", "base", "web3", "car", "runner"],
 
