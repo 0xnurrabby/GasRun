@@ -1114,7 +1114,7 @@ function openMainMenu() {
     </div>
 
     <div class="btnRow">
-      <button class="pill" id="btnConvert">Convert coins → points</button>
+      <button class="pill" id="btnConvert">Convert coins</button>
       <button class="pill pillHow" id="btnHow">
         <img class="pillIcon" src="/assets/bag.png" alt="" aria-hidden="true" />
         Earn
