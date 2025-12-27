@@ -1,0 +1,34 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjE0MTU3NzUsInR5cGUiOiJhdXRoIiwia2V5IjoiMHhkRDQ3RTYwRjllMjc0ODQ0NjdjODY4NDQ3M2M0RTRjQjU1MkNmMDczIn0",
+    "payload": "eyJkb21haW4iOiJnYXNydW4udmVyY2VsLmFwcCJ9",
+    "signature": "tQgvth/n4Grl9/dgaPQliiOn8vLZNKPDodtf0Fg6+MgfWYATY3hqVD5PiB5Bbadv20dI00u3n2rP57rfQEX+Ohs="
+  },
+  "frame": {
+    "version": "1",
+    "name": "GasRun",
+    "iconUrl": "https://gasrun.vercel.app/assets/icon-512.png",
+    "homeUrl": "https://gasrun.vercel.app/",
+    "imageUrl": "https://gasrun.vercel.app/assets/embed-3x2.png",
+    "buttonTitle": "Play GasRun and contribute on Base",
+    "splashImageUrl": "https://gasrun.vercel.app/assets/splash-200.png",
+    "splashBackgroundColor": "#0f0f14",
+
+    "subtitle": "Run & earn on Base",
+    "description": "Dodge traffic, collect coins, and save points on-chain. Weekly & all-time leaderboards included.",
+    "primaryCategory": "games",
+    "tags": ["games", "base", "web3", "car", "runner"],
+
+    "tagline": "Dodge. Collect. Earn.",
+    "heroImageUrl": "https://gasrun.vercel.app/assets/embed-3x2.png",
+    "screenshotUrls": [
+      "https://gasrun.vercel.app/assets/embed-3x2.png"
+    ],
+
+    "ogTitle": "GasRun",
+    "ogDescription": "Run, collect coins, and save points on Base.",
+    "ogImageUrl": "https://gasrun.vercel.app/assets/embed-3x2.png",
+
+    "noindex": false
+  }
+}
