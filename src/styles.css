@@ -466,8 +466,13 @@ opacity:.95;
   letter-spacing:2.5px;
   text-transform:none;
 
-  color: #38d36f; /* ✅ green */
-  text-shadow: 0 0 2px rgba(56,211,111,.35); /* ✅ green glow */
+   color:#38d36f;
+  /* crisp edge + subtle glow */
+  text-shadow:
+    0 1px 0 rgba(0,0,0,.45),
+    0 0 6px rgba(56,211,111,.18);
+  /* optional: আরও sharp করতে চাইলে */
+  -webkit-text-stroke: .6px rgba(0,0,0,.25);
 }
 
 
