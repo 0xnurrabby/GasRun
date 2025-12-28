@@ -1319,6 +1319,10 @@ function openHowView() {
     "Earn & Know how it works",
     `
     <div class="copy">
+      <p>>Soon weekly earning function will be live...</p>
+      <p>But for that I need users. This is not possible without sufficient ranking. Please play it yourself and share it with your friends.❤️</p>
+      <p>BTW, </p>
+      
       <p><b>Play short runs.</b> Your <b>Run</b> points grow while you survive.</p>
       <p><b>Save</b> moves Run → <b>Bank</b> instantly (no transaction).</p>
       <p><b>Bank decays</b>: every <b>15 minutes</b>, Bank is reduced by <b>25%</b>.</p>
