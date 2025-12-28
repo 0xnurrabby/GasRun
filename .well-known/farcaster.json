@@ -14,7 +14,7 @@
     "splashImageUrl": "https://gasrun.vercel.app/assets/splash-200.png",
     "splashBackgroundColor": "#0f0f14",
 
-    "subtitle": "Run & earn on Base",
+    "subtitle": "GasRunOnBase",
     "description": "Dodge traffic, collect coins, and save points on-chain. Earn on base",
     "primaryCategory": "games",
     "tags": ["games", "base", "web3", "car", "runner"],
