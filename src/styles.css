@@ -467,7 +467,7 @@ opacity:.95;
   text-transform:none;
 
   color: #38d36f; /* ✅ green */
-  text-shadow: 0 0 9px rgba(56,211,111,.35); /* ✅ green glow */
+  text-shadow: 0 0 2px rgba(56,211,111,.35); /* ✅ green glow */
 }
 
 
