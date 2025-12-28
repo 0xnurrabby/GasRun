@@ -462,8 +462,8 @@ opacity:.95;
   justify-content:center;
   gap:10px;
   font-family:"RebellionSquad", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-  font-size:18px;
-  letter-spacing:1.2px;
+  font-size:24px;
+  letter-spacing:1.7px;
   text-transform:none;
 
   color: #38d36f; /* ✅ green */
@@ -472,8 +472,8 @@ opacity:.95;
 
 
 .pill.pillHow .pillIcon{
-  width: 35px;
-  height: 35px;
+  width: 40px;
+  height: 40px;
   flex: 0 0 35px;
   object-fit: contain;
   border-radius: 14px;
