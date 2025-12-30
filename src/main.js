@@ -1677,7 +1677,7 @@ async function openLeaderboardsView(forceRefresh = false) {
     <div class="btnRow" style="margin-top:12px">
       <button class="pill" id="backMenu">Back</button>
       <div class="shareBlock">
-  <button class="pill sharePill" id="shareStat">Share your stat</button>
+  <button class="pill sharePill" id="shareStat">Share your stat for 10k point/per</button>
   <div class="shareMeta" id="shareMeta">
     Shared <span class="shareUsed" id="shareUsed">0</span> / <span class="shareMax" id="shareMax">10</span>
   </div>
