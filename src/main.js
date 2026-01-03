@@ -88,7 +88,7 @@ function prefetchWeb3Deps() {
 // =====================================================
 // HARD INPUTS
 // =====================================================
-const TOP_TITLE = "👈🏻Click for m0re Dear";
+const TOP_TITLE = " ";
 const HUD_TITLE = "Live Statistics";
 const HOME_URL = "https://gasrun.vercel.app/";
 
