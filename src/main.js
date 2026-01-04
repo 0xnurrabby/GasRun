@@ -1019,56 +1019,92 @@ async function commitWeeklyOnchain() {
       functionName: "logAction",
       args: [ACTION_WEEKLY_ADD, payload]
     });
+    const call = { to: CONTRACT, value: "0x0", data };
 
-    const params = {
+    const buildSendCallsParams = (usePaymaster) => ({
       version: "2.0.0",
       from: account,
       chainId,
       atomicRequired: true,
-      calls: [{ to: CONTRACT, value: "0x0", data }],
+      calls: [call],
       capabilities: (() => {
-      const caps = {};
-      // Keep your Builder attribution (ERC-8021)
-      if (dataSuffix) caps.dataSuffix = dataSuffix;
-      // Add Paymaster sponsorship (ERC-7677) via your backend proxy
-      caps.paymasterService = { url: new URL('/api/paymaster', window.location.origin).toString() };
-      return caps;
-    })()
+        const caps = {};
+        // Keep your Builder attribution (ERC-8021)
+        if (dataSuffix) caps.dataSuffix = dataSuffix;
+        // Optionally add Paymaster sponsorship (ERC-7677) via your backend proxy
+        if (usePaymaster) {
+          caps.paymasterService = { url: new URL("/api/paymaster", window.location.origin).toString() };
+        }
+        return caps;
+      })()
+    });
+
+    const isSendCallsUnsupported = (low) =>
+      low.includes("wallet_sendcalls") ||
+      low.includes("method not found") ||
+      low.includes("unknown method") ||
+      low.includes("not supported") ||
+      low.includes("unsupported") ||
+      low.includes("capability");
+
+    const sendEthTx = async () => {
+      toast("Sending normal transaction (gas required)…", 1600);
+      return await p.request({
+        method: "eth_sendTransaction",
+        params: [
+          {
+            from: account,
+            to: CONTRACT,
+            value: "0x0",
+            data
+          }
+        ]
+      });
     };
 
+    // Flow:
+    // 1) wallet_sendCalls with paymaster
+    // 2) if paymaster-related fail -> wallet_sendCalls without paymaster
+    // 3) if wallet_sendCalls unsupported -> eth_sendTransaction fallback
     try {
-      await p.request({ method: "wallet_sendCalls", params: [params] });
-    } catch (e) {
-      const msg = String(e?.message || e || "");
-      const low = msg.toLowerCase();
+      await p.request({ method: "wallet_sendCalls", params: [buildSendCallsParams(true)] });
+    } catch (e1) {
+      const msg1 = String(e1?.message || e1 || "");
+      const low1 = msg1.toLowerCase();
 
-      if (low.includes("rejected")) {
+      if (low1.includes("rejected")) {
         toast("Transaction rejected");
         return;
       }
 
-      // If the wallet doesn't support EIP-5792 / ERC-7677, this is the most common failure mode.
-      if (low.includes("wallet_sendcalls") || low.includes("method not found") || low.includes("unsupported") || low.includes("capability")) {
-        // Help you debug whether the proxy is reachable.
+      if (isSendCallsUnsupported(low1)) {
         const proxy = await checkPaymasterProxy();
-        console.error("wallet_sendCalls failed:", e, { proxy });
+        console.warn("wallet_sendCalls unsupported -> fallback eth_sendTransaction", { proxy, err: e1 });
+        await sendEthTx();
+      } else {
+        // paymaster/proxy/erc-7677 failed -> retry without paymaster
+        toast("Gasless failed — retrying without paymaster…", 1600);
+        try {
+          await p.request({ method: "wallet_sendCalls", params: [buildSendCallsParams(false)] });
+        } catch (e2) {
+          const msg2 = String(e2?.message || e2 || "");
+          const low2 = msg2.toLowerCase();
 
-        throw new Error(
-          "Paymaster sponsorship didn’t apply. " +
-          "Most likely your connected wallet/provider does NOT support gasless paymaster transactions (EIP-5792 + ERC-7677) in this environment. " +
-          "Try using a Smart Wallet/Base Account (Coinbase smart wallet) and retry. " +
-          "Proxy check: " + (proxy.ok ? "OK" : ("FAILED (status " + proxy.status + ")")) 
-        );
+          if (low2.includes("rejected")) {
+            toast("Transaction rejected");
+            return;
+          }
+
+          // final fallback: old-school tx
+          const proxy = await checkPaymasterProxy();
+          console.warn("wallet_sendCalls failed even without paymaster -> fallback eth_sendTransaction", { proxy, err: e2 });
+          await sendEthTx();
+        }
       }
-
-      // No fallback to eth_sendTransaction here—fallback would require user gas and defeats paymaster.
-      const proxy = await checkPaymasterProxy();
-      console.error("wallet_sendCalls failed:", e, { proxy });
-      throw new Error("Paymaster sponsorship failed: " + msg.slice(0, 180));
     }
 
-
     profile.bankPoints = 0;
+
     persistProfile();
     toast("Committed on-chain! Updating leaderboard…", 2200);
 
