@@ -1,0 +1,34 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjE0MTU3NzUsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHhDYTZjMERBNDRFMjBCMkYwMUY5YTYwYjE0RjkzNTE3NUQ1NkU5MWNBIn0",
+    "payload": "eyJkb21haW4iOiJnYXNydW4udmVyY2VsLmFwcCJ9",
+    "signature": "SumnHk4lpKmxTLLeJ0NjcEGI2J5VOfyn3QtSS8ATF/gXeRD1Q/SAeMd4PwNcwpCaGlkX6/sOpUSCd/7m0Fayhxs="
+  },
+  "frame": {
+    "version": "1",
+    "name": "GasRun",
+    "iconUrl": "https://www.gasrun.online/assets/icon-512.png",
+    "homeUrl": "https://www.gasrun.online/",
+    "imageUrl": "https://www.gasrun.online/assets/embed-3x2.png",
+    "buttonTitle": "Play GasRun🏎",
+    "splashImageUrl": "https://www.gasrun.online/assets/splash-200.png",
+    "splashBackgroundColor": "#0f0f14",
+
+    "subtitle": "GasRunOnBase",
+    "description": "Dodge traffic, collect coins, and save points on-chain. Earn on base",
+    "primaryCategory": "games",
+    "tags": ["games", "base", "web3", "car", "runner"],
+
+    "tagline": "Dodge. Collect. Earn.",
+    "heroImageUrl": "https://www.gasrun.online/assets/embed-3x2.png",
+    "screenshotUrls": [
+      "https://www.gasrun.online/assets/embed-3x2.png"
+    ],
+
+    "ogTitle": "GasRun",
+    "ogDescription": "Run, collect coins, and save points on Base.",
+    "ogImageUrl": "https://www.gasrun.online/assets/embed-3x2.png",
+
+    "noindex": false
+  }
+}
