@@ -112,7 +112,7 @@ let weekCountdownRAF = 0;
 let weekCountdownActive = false;
 
 const BASE_CHAIN_ID_HEX = "0x2105";
-const CONTRACT = "0xB331328F506f2D35125e367A190e914B1b6830cF";
+const CONTRACT = "0x5B53e9A0659dC71cd69eA6261420295B48EF3095";
 
 // Builder Code from your screenshot (must match Base.dev)
 const BUILDER_CODE = "bc_ox3c2ez4";
