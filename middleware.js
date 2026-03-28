@@ -1,3 +1,9 @@
+import { next } from '@vercel/functions';
+
+export const config = {
+  matcher: '/:path*',
+};
+
 export default function middleware(request) {
   const url = new URL(request.url);
 
@@ -6,17 +12,15 @@ export default function middleware(request) {
   const keyFromUrl = url.searchParams.get('key');
 
   if (!maintenanceMode) {
-    return;
+    return next();
   }
 
-  // maintenance page allow
   if (url.pathname === '/maintenance.html') {
-    return;
+    return next();
   }
 
-  // secret key মিললে ঢুকতে দাও
   if (bypassKey && keyFromUrl === bypassKey) {
-    return;
+    return next();
   }
 
   return Response.redirect(new URL('/maintenance.html', request.url), 307);
