@@ -1,3 +1,5 @@
+import { NextResponse } from 'next/server';
+
 export const config = {
   matcher: '/:path*',
 };
@@ -9,21 +11,29 @@ export default function middleware(request) {
   const bypassKey = process.env.MAINTENANCE_BYPASS_KEY || '';
   const keyFromUrl = url.searchParams.get('key');
 
-  // Maintenance off -> main site
   if (!maintenanceMode) {
-    return fetch(request);
+    return NextResponse.next();
   }
 
-  // Maintenance page itself -> allow
+  // maintenance page itself allow
   if (url.pathname === '/maintenance.html') {
-    return fetch(request);
+    return NextResponse.next();
   }
 
-  // Secret key diye bypass
+  // static assets allow
+  if (
+    url.pathname.startsWith('/assets/') ||
+    url.pathname.startsWith('/api/') ||
+    url.pathname === '/favicon.ico' ||
+    url.pathname.includes('.')
+  ) {
+    return NextResponse.next();
+  }
+
+  // secret key diye bypass
   if (bypassKey && keyFromUrl === bypassKey) {
-    return fetch(request);
+    return NextResponse.next();
   }
 
-  // Sobai maintenance page dekhbe
   return Response.redirect(new URL('/maintenance.html', request.url), 307);
 }
