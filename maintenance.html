@@ -12,7 +12,6 @@
       --ink:#131313;
       --muted:#4b4b4b;
       --line:#151515;
-      --red:#ef6a5b;
       --yellow:#f4c84f;
       --green:#98d58a;
       --blue:#84b6f4;
@@ -84,7 +83,7 @@
     .dash{
       width:96px;height:18px;
       border-radius:999px;
-      background:var(--red);
+      background:#ef6a5b;
       border:3px solid var(--line);
       right:14%; top:34%;
       transform:rotate(-18deg);
@@ -120,7 +119,7 @@
     .left{
       padding:22px;
       display:grid;
-      grid-template-rows:auto auto auto auto auto 1fr;
+      grid-template-rows:auto auto auto auto 1fr;
       gap:14px;
       min-height:0;
     }
@@ -209,37 +208,6 @@
     }
 
     .ticker-track span{display:inline-block;margin-right:28px}
-
-    .actions{
-      display:flex;
-      flex-wrap:wrap;
-      gap:12px;
-    }
-
-    .btn{
-      min-height:52px;
-      padding:0 18px;
-      border:3px solid var(--line);
-      border-radius:18px;
-      text-decoration:none;
-      color:var(--ink);
-      font-weight:900;
-      font-size:15px;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      box-shadow:4px 4px 0 #151515;
-      transition:transform .15s ease, box-shadow .15s ease;
-    }
-
-    .btn:hover{
-      transform:translate(-2px,-2px);
-      box-shadow:7px 7px 0 #151515;
-    }
-
-    .btn-primary{background:var(--red)}
-    .btn-secondary{background:#fff}
-    .btn-tertiary{background:var(--green)}
 
     .note{
       padding:14px 16px;
@@ -432,8 +400,6 @@
 
     @media (max-width: 700px){
       .cards{grid-template-columns:1fr}
-      .actions{flex-direction:column}
-      .btn{width:100%}
       h1{font-size:52px}
       .desc{font-size:16px}
       .scene{height:560px}
@@ -498,12 +464,6 @@
             <span>🏁 patching the ride</span>
             <span>🔧 fixing tiny weird stuff</span>
           </div>
-        </div>
-
-        <div class="actions">
-          <a class="btn btn-primary" href="https://x.com/" target="_blank" rel="noreferrer">Follow updates</a>
-          <a class="btn btn-secondary" href="mailto:hello@gasrun.online">Say hello</a>
-          <a class="btn btn-tertiary" href="/">Try again later</a>
         </div>
 
         <div class="note">
