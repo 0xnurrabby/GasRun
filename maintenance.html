@@ -10,7 +10,7 @@
       --bg:#f6f1e8;
       --paper:#fffaf1;
       --ink:#131313;
-      --muted:#5d5d5d;
+      --muted:#4b4b4b;
       --line:#151515;
       --red:#ef6a5b;
       --yellow:#f4c84f;
@@ -18,20 +18,20 @@
       --blue:#84b6f4;
       --pink:#efb2d5;
       --cream:#f1e7d2;
-      --shadow: 8px 8px 0 #151515;
-      --radius: 28px;
-      --radius-sm: 20px;
-      --max: 1180px;
+      --shadow: 7px 7px 0 #151515;
+      --radius: 26px;
+      --max: 1220px;
     }
 
     *{box-sizing:border-box}
     html,body{height:100%}
+
     body{
       margin:0;
       background:var(--bg);
       color:var(--ink);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      overflow-x:hidden;
+      overflow:hidden;
     }
 
     .bg-doodles{
@@ -39,12 +39,10 @@
       inset:0;
       pointer-events:none;
       overflow:hidden;
-      opacity:.95;
+      z-index:0;
     }
 
-    .blob, .star, .ring, .dash{
-      position:absolute;
-    }
+    .blob,.star,.ring,.dash{position:absolute}
 
     .blob{
       border:3px solid var(--line);
@@ -52,44 +50,43 @@
       background:var(--cream);
     }
     .blob.one{
-      width:240px;height:180px;
-      left:-60px; top:60px;
+      width:180px;height:132px;
+      left:-55px; top:82px;
       transform:rotate(-12deg);
     }
     .blob.two{
-      width:160px;height:160px;
-      right:40px; top:90px;
+      width:120px;height:120px;
+      right:36px; top:110px;
       background:var(--pink);
-      transform:rotate(18deg);
     }
     .blob.three{
-      width:220px;height:150px;
-      right:-60px; bottom:60px;
+      width:180px;height:120px;
+      right:-58px; bottom:44px;
       background:var(--green);
-      transform:rotate(-14deg);
+      transform:rotate(-12deg);
     }
 
     .star{
-      width:72px;height:72px;
+      width:54px;height:54px;
       background:var(--yellow);
       border:3px solid var(--line);
       clip-path:polygon(50% 0%, 61% 35%, 100% 50%, 61% 65%, 50% 100%, 39% 65%, 0% 50%, 39% 35%);
     }
-    .star.one{left:14%; top:18%}
-    .star.two{right:18%; bottom:18%; transform:rotate(18deg)}
+    .star.one{left:14%; top:22%}
+    .star.two{right:18%; bottom:18%}
 
     .ring{
-      width:88px;height:88px;border-radius:999px;
-      border:10px solid var(--blue);
+      width:68px;height:68px;border-radius:999px;
+      border:8px solid var(--blue);
       left:8%; bottom:16%;
     }
 
     .dash{
-      width:120px;height:22px;
+      width:96px;height:18px;
       border-radius:999px;
       background:var(--red);
       border:3px solid var(--line);
-      right:14%; top:30%;
+      right:14%; top:34%;
       transform:rotate(-18deg);
     }
 
@@ -97,16 +94,17 @@
       min-height:100dvh;
       display:grid;
       place-items:center;
-      padding:28px;
+      padding:18px;
       position:relative;
-      z-index:2;
+      z-index:1;
     }
 
     .board{
       width:min(100%, var(--max));
+      height:min(92dvh, 860px);
       display:grid;
       grid-template-columns: 1.06fr .94fr;
-      gap:24px;
+      gap:18px;
       align-items:stretch;
     }
 
@@ -115,64 +113,30 @@
       border:3px solid var(--line);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
-      position:relative;
       overflow:hidden;
+      position:relative;
     }
 
     .left{
-      padding:28px;
-      display:flex;
-      flex-direction:column;
-      gap:20px;
-      min-height:700px;
-    }
-
-    .tag-row{
-      display:flex;
-      flex-wrap:wrap;
-      gap:12px;
-      align-items:center;
-    }
-
-    .tag{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      min-height:46px;
-      padding:0 16px;
-      border:3px solid var(--line);
-      border-radius:999px;
-      background:white;
-      font-weight:800;
-      font-size:14px;
-      box-shadow:4px 4px 0 #151515;
-    }
-
-    .dot{
-      width:12px;height:12px;border-radius:999px;
-      background:var(--green);
-      border:2px solid var(--line);
-      animation:bob 1.8s ease-in-out infinite;
-    }
-
-    .hero{
+      padding:22px;
       display:grid;
-      grid-template-columns: 1fr;
+      grid-template-rows:auto auto auto auto auto 1fr;
       gap:14px;
+      min-height:0;
     }
 
     h1{
       margin:0;
-      font-size:clamp(46px, 8vw, 102px);
-      line-height:.9;
+      font-size:clamp(40px, 5vw, 76px);
+      line-height:.88;
       letter-spacing:-.06em;
       font-weight:1000;
-      max-width:8ch;
+      max-width:7.8ch;
     }
 
     .line{
       display:inline;
-      padding:.02em .12em .10em;
+      padding:.02em .12em .08em;
       box-decoration-break:clone;
       -webkit-box-decoration-break:clone;
     }
@@ -180,29 +144,28 @@
     .hl-yellow{background:var(--yellow)}
     .hl-pink{background:var(--pink)}
     .hl-blue{background:var(--blue)}
-    .hl-green{background:var(--green)}
 
     .desc{
-      max-width:660px;
       margin:0;
-      font-size:clamp(17px, 2vw, 21px);
-      line-height:1.65;
-      color:#343434;
-      font-weight:600;
+      max-width:620px;
+      font-size:clamp(15px, 1.5vw, 18px);
+      line-height:1.55;
+      color:var(--muted);
+      font-weight:700;
     }
 
     .cards{
       display:grid;
       grid-template-columns:repeat(3,1fr);
-      gap:14px;
+      gap:12px;
     }
 
     .mini{
       border:3px solid var(--line);
-      border-radius:24px;
-      padding:18px;
-      min-height:132px;
-      box-shadow:5px 5px 0 #151515;
+      border-radius:22px;
+      padding:14px 14px 12px;
+      min-height:108px;
+      box-shadow:4px 4px 0 #151515;
       display:flex;
       flex-direction:column;
       justify-content:space-between;
@@ -213,91 +176,88 @@
     .mini:nth-child(3){background:var(--pink)}
 
     .mini .k{
-      font-size:12px;
+      font-size:11px;
       font-weight:900;
       letter-spacing:.12em;
       text-transform:uppercase;
     }
 
     .mini .v{
-      font-size:28px;
-      line-height:1.05;
+      font-size:clamp(20px, 2vw, 28px);
+      line-height:1;
       font-weight:950;
-      max-width:8ch;
     }
 
     .ticker{
       border:3px solid var(--line);
-      border-radius:22px;
+      border-radius:20px;
       background:#fff;
-      min-height:72px;
+      min-height:56px;
       display:flex;
       align-items:center;
       overflow:hidden;
-      box-shadow:5px 5px 0 #151515;
+      box-shadow:4px 4px 0 #151515;
     }
 
     .ticker-track{
       white-space:nowrap;
       display:inline-block;
       font-weight:900;
-      font-size:20px;
+      font-size:18px;
       padding-left:100%;
       animation:marquee 18s linear infinite;
     }
 
-    .ticker-track span{
-      display:inline-block;
-      margin-right:34px;
-    }
+    .ticker-track span{display:inline-block;margin-right:28px}
 
     .actions{
       display:flex;
       flex-wrap:wrap;
-      gap:14px;
+      gap:12px;
     }
 
     .btn{
-      min-height:60px;
-      padding:0 22px;
+      min-height:52px;
+      padding:0 18px;
       border:3px solid var(--line);
       border-radius:18px;
       text-decoration:none;
       color:var(--ink);
       font-weight:900;
-      font-size:16px;
+      font-size:15px;
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      box-shadow:5px 5px 0 #151515;
+      box-shadow:4px 4px 0 #151515;
       transition:transform .15s ease, box-shadow .15s ease;
     }
 
     .btn:hover{
       transform:translate(-2px,-2px);
-      box-shadow:8px 8px 0 #151515;
+      box-shadow:7px 7px 0 #151515;
     }
 
-    .btn-primary{background:var(--red); color:#111}
+    .btn-primary{background:var(--red)}
     .btn-secondary{background:#fff}
     .btn-tertiary{background:var(--green)}
 
     .note{
-      padding:18px 20px;
+      padding:14px 16px;
       border:3px dashed var(--line);
-      border-radius:22px;
+      border-radius:20px;
       background:#fff8eb;
-      font-size:15px;
-      line-height:1.65;
+      font-size:14px;
+      line-height:1.55;
       color:#444;
       font-weight:700;
+      align-self:end;
     }
 
     .right{
-      padding:22px;
+      padding:16px;
       display:grid;
       place-items:center;
-      min-height:700px;
+      min-height:0;
       background:
         linear-gradient(0deg, transparent 24px, rgba(0,0,0,.04) 24px 27px, transparent 27px),
         linear-gradient(90deg, transparent 24px, rgba(0,0,0,.04) 24px 27px, transparent 27px);
@@ -306,46 +266,35 @@
     }
 
     .scene{
-      width:min(100%, 460px);
-      aspect-ratio: 4 / 5;
+      width:min(100%, 410px);
+      height:min(100%, 610px);
       position:relative;
       border:3px solid var(--line);
-      border-radius:34px;
+      border-radius:30px;
       background:#fff;
-      box-shadow:7px 7px 0 #151515;
+      box-shadow:6px 6px 0 #151515;
       overflow:hidden;
     }
 
-    .scene-top{
+    .sticker{
       position:absolute;
-      inset:0 0 auto 0;
-      height:92px;
-      background:var(--yellow);
-      border-bottom:3px solid var(--line);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:16px 18px;
-    }
-
-    .pill{
       border:3px solid var(--line);
-      border-radius:999px;
-      background:#fff;
-      min-height:42px;
-      padding:0 14px;
-      display:inline-flex;
-      align-items:center;
+      border-radius:16px;
+      padding:8px 12px;
       font-weight:900;
       font-size:13px;
+      background:var(--pink);
       box-shadow:4px 4px 0 #151515;
+      z-index:6;
     }
+    .sticker.one{left:14px; top:16px; transform:rotate(-8deg)}
+    .sticker.two{right:14px; bottom:14px; background:var(--yellow); transform:rotate(8deg)}
 
     .road-wrap{
       position:absolute;
-      left:24px; right:24px; top:118px; bottom:24px;
+      left:22px; right:22px; top:26px; bottom:22px;
       border:3px solid var(--line);
-      border-radius:30px;
+      border-radius:28px;
       overflow:hidden;
       background:#2a2a2a;
     }
@@ -353,7 +302,7 @@
     .road-edge-left,
     .road-edge-right{
       position:absolute;
-      top:0; bottom:0; width:26px;
+      top:0; bottom:0; width:24px;
       background:var(--cream);
       z-index:1;
     }
@@ -364,11 +313,7 @@
       position:absolute;
       top:-60px; bottom:-60px;
       width:6px;
-      background:repeating-linear-gradient(
-        to bottom,
-        #fff 0 28px,
-        transparent 28px 56px
-      );
+      background:repeating-linear-gradient(to bottom,#fff 0 26px,transparent 26px 52px);
       animation:road 1.2s linear infinite;
       z-index:2;
     }
@@ -378,39 +323,39 @@
 
     .car{
       position:absolute;
-      width:62px;
-      height:104px;
+      width:56px;
+      height:96px;
       border:3px solid var(--line);
-      border-radius:20px;
+      border-radius:18px;
       z-index:4;
-      box-shadow:5px 5px 0 rgba(0,0,0,.18);
+      box-shadow:4px 4px 0 rgba(0,0,0,.18);
     }
 
     .car::before,
     .car::after{
       content:"";
       position:absolute;
-      width:10px;height:24px;
+      width:10px;height:22px;
       background:#111;
-      top:16px;
+      top:15px;
       border-radius:10px;
-      box-shadow:0 44px 0 #111;
+      box-shadow:0 42px 0 #111;
     }
     .car::before{left:-6px}
     .car::after{right:-6px}
 
     .car.player{
-      left:calc(50% - 31px);
-      bottom:28px;
+      left:calc(50% - 28px);
+      bottom:20px;
       background:var(--blue);
       animation:wobble 2s ease-in-out infinite;
     }
 
     .car.enemy{
-      right:42px;
-      top:42px;
-      width:54px;
-      height:94px;
+      right:34px;
+      top:48px;
+      width:50px;
+      height:88px;
       background:var(--green);
       animation:enemyMove 2.6s ease-in-out infinite;
     }
@@ -418,20 +363,20 @@
     .message{
       position:absolute;
       left:50%;
-      top:48%;
+      top:49%;
       transform:translate(-50%,-50%) rotate(-2deg);
-      width:min(82%, 300px);
+      width:min(80%, 270px);
       background:#fff;
       border:3px solid var(--line);
-      border-radius:26px;
-      box-shadow:7px 7px 0 #151515;
-      padding:18px 18px 16px;
+      border-radius:24px;
+      box-shadow:6px 6px 0 #151515;
+      padding:16px 16px 14px;
       z-index:5;
       text-align:center;
     }
 
     .message .small{
-      font-size:12px;
+      font-size:11px;
       font-weight:900;
       text-transform:uppercase;
       letter-spacing:.12em;
@@ -440,84 +385,59 @@
 
     .message h2{
       margin:0 0 8px;
-      font-size:42px;
+      font-size:clamp(34px, 4vw, 50px);
       line-height:.92;
       letter-spacing:-.05em;
     }
 
     .message p{
       margin:0;
-      font-size:15px;
-      line-height:1.55;
+      font-size:14px;
+      line-height:1.5;
       color:#444;
       font-weight:700;
     }
 
-    .sticker{
-      position:absolute;
-      border:3px solid var(--line);
-      border-radius:18px;
-      padding:10px 12px;
-      font-weight:900;
-      font-size:13px;
-      background:var(--pink);
-      box-shadow:4px 4px 0 #151515;
-      z-index:6;
-    }
-    .sticker.one{left:16px; top:106px; transform:rotate(-8deg)}
-    .sticker.two{right:16px; bottom:16px; background:var(--yellow); transform:rotate(8deg)}
-
     @keyframes road{
       from{transform:translateY(0)}
-      to{transform:translateY(56px)}
+      to{transform:translateY(52px)}
     }
-
     @keyframes wobble{
       0%,100%{transform:translateY(0) rotate(0)}
       25%{transform:translateY(-3px) rotate(-2deg)}
       75%{transform:translateY(2px) rotate(2deg)}
     }
-
     @keyframes enemyMove{
       0%,100%{transform:translateY(0)}
       50%{transform:translateY(12px)}
     }
-
-    @keyframes bob{
-      0%,100%{transform:translateY(0)}
-      50%{transform:translateY(-2px)}
-    }
-
     @keyframes marquee{
       0%{transform:translateX(0)}
       100%{transform:translateX(-100%)}
     }
 
-    @media (max-width: 1040px){
+    @media (max-width: 1180px){
+      body{overflow:auto}
+      .wrap{padding:16px}
       .board{
+        height:auto;
         grid-template-columns:1fr;
       }
-      .left,.right{
-        min-height:auto;
-      }
-      .cards{
-        grid-template-columns:1fr;
-      }
+      .left,.right{min-height:auto}
       .scene{
-        width:min(100%, 540px);
+        width:min(100%, 520px);
+        height:620px;
       }
     }
 
-    @media (max-width: 640px){
-      .wrap{padding:18px}
-      .left{padding:20px}
-      .right{padding:16px}
-      h1{font-size:52px}
-      .desc{font-size:16px}
+    @media (max-width: 700px){
+      .cards{grid-template-columns:1fr}
       .actions{flex-direction:column}
       .btn{width:100%}
-      .tag{font-size:13px}
-      .message h2{font-size:34px}
+      h1{font-size:52px}
+      .desc{font-size:16px}
+      .scene{height:560px}
+      .blob,.star,.ring,.dash{opacity:.45}
     }
 
     @media (prefers-reduced-motion: reduce){
@@ -542,27 +462,17 @@
   <main class="wrap">
     <section class="board">
       <article class="panel left">
-        <div class="tag-row">
-          <div class="tag">
-            <span class="dot"></span>
-            Maintenance mode is on
-          </div>
-          <div class="tag">Cute little pit stop</div>
-        </div>
+        <h1>
+          <span class="line hl-yellow">Oops!</span><br>
+          <span class="line">GasRun is</span><br>
+          <span class="line hl-pink">in the garage</span><br>
+          <span class="line hl-blue">getting prettier.</span>
+        </h1>
 
-        <div class="hero">
-          <h1>
-            <span class="line hl-yellow">Oops!</span><br>
-            <span class="line">GasRun is</span><br>
-            <span class="line hl-pink">in the garage</span><br>
-            <span class="line hl-blue">getting prettier.</span>
-          </h1>
-
-          <p class="desc">
-            We’re fixing stuff, polishing details, and making the whole ride feel nicer.
-            Take a tiny break — the track will open again very soon.
-          </p>
-        </div>
+        <p class="desc">
+          We’re fixing stuff, polishing details, and making the whole ride feel nicer.
+          Take a tiny break — the track will open again very soon.
+        </p>
 
         <div class="cards">
           <div class="mini">
@@ -587,7 +497,6 @@
             <span>🛞 polishing the track</span>
             <span>🏁 patching the ride</span>
             <span>🔧 fixing tiny weird stuff</span>
-            <span>✨ making the UI happier</span>
           </div>
         </div>
 
@@ -605,11 +514,6 @@
 
       <aside class="panel right">
         <div class="scene">
-          <div class="scene-top">
-            <div class="pill">GasRun Garage</div>
-            <div class="pill">Back soon</div>
-          </div>
-
           <div class="sticker one">tiny break</div>
           <div class="sticker two">vroom later</div>
 
