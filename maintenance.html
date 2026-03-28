@@ -2,546 +2,639 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, viewport-fit=cover"
-  />
-  <title>GasRun — Pit Stop</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>GasRun — Under Maintenance</title>
 
   <style>
     :root{
-      --bg-1:#eef4ff;
-      --bg-2:#e9fff4;
-      --bg-3:#f7ecff;
-      --card:#ffffffcc;
-      --stroke:rgba(255,255,255,.55);
-      --text:#0f172a;
-      --muted:#475569;
-      --accent:#7c3aed;
-      --accent-2:#06b6d4;
-      --accent-3:#22c55e;
-      --shadow:0 25px 80px rgba(31,41,55,.14);
-      --radius:28px;
-      --btn-radius:18px;
-      --max:1120px;
+      --bg:#f6f1e8;
+      --paper:#fffaf1;
+      --ink:#131313;
+      --muted:#5d5d5d;
+      --line:#151515;
+      --red:#ef6a5b;
+      --yellow:#f4c84f;
+      --green:#98d58a;
+      --blue:#84b6f4;
+      --pink:#efb2d5;
+      --cream:#f1e7d2;
+      --shadow: 8px 8px 0 #151515;
+      --radius: 28px;
+      --radius-sm: 20px;
+      --max: 1180px;
     }
 
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
       margin:0;
-      font-family:Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(circle at 15% 20%, rgba(124,58,237,.18), transparent 26%),
-        radial-gradient(circle at 82% 18%, rgba(6,182,212,.18), transparent 22%),
-        radial-gradient(circle at 50% 82%, rgba(34,197,94,.14), transparent 22%),
-        linear-gradient(135deg, var(--bg-1), var(--bg-2) 45%, var(--bg-3));
-      overflow:hidden;
+      background:var(--bg);
+      color:var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      overflow-x:hidden;
     }
 
-    .noise{
+    .bg-doodles{
       position:fixed;
       inset:0;
       pointer-events:none;
-      opacity:.05;
-      background-image:
-        radial-gradient(#000 0.7px, transparent 0.7px);
-      background-size:18px 18px;
-      mix-blend-mode:soft-light;
+      overflow:hidden;
+      opacity:.95;
     }
 
-    .orb{
-      position:fixed;
+    .blob, .star, .ring, .dash{
+      position:absolute;
+    }
+
+    .blob{
+      border:3px solid var(--line);
+      border-radius:44% 56% 61% 39% / 42% 38% 62% 58%;
+      background:var(--cream);
+    }
+    .blob.one{
+      width:240px;height:180px;
+      left:-60px; top:60px;
+      transform:rotate(-12deg);
+    }
+    .blob.two{
+      width:160px;height:160px;
+      right:40px; top:90px;
+      background:var(--pink);
+      transform:rotate(18deg);
+    }
+    .blob.three{
+      width:220px;height:150px;
+      right:-60px; bottom:60px;
+      background:var(--green);
+      transform:rotate(-14deg);
+    }
+
+    .star{
+      width:72px;height:72px;
+      background:var(--yellow);
+      border:3px solid var(--line);
+      clip-path:polygon(50% 0%, 61% 35%, 100% 50%, 61% 65%, 50% 100%, 39% 65%, 0% 50%, 39% 35%);
+    }
+    .star.one{left:14%; top:18%}
+    .star.two{right:18%; bottom:18%; transform:rotate(18deg)}
+
+    .ring{
+      width:88px;height:88px;border-radius:999px;
+      border:10px solid var(--blue);
+      left:8%; bottom:16%;
+    }
+
+    .dash{
+      width:120px;height:22px;
       border-radius:999px;
-      filter:blur(18px);
-      opacity:.55;
-      pointer-events:none;
-      animation:float 8s ease-in-out infinite;
-    }
-    .orb.one{
-      width:220px;height:220px;
-      background:linear-gradient(135deg, rgba(124,58,237,.30), rgba(6,182,212,.12));
-      top:8%;left:8%;
-    }
-    .orb.two{
-      width:280px;height:280px;
-      background:linear-gradient(135deg, rgba(34,197,94,.24), rgba(255,255,255,.06));
-      right:5%;top:14%;
-      animation-delay:1.5s;
-    }
-    .orb.three{
-      width:260px;height:260px;
-      background:linear-gradient(135deg, rgba(6,182,212,.22), rgba(124,58,237,.14));
-      left:18%;bottom:4%;
-      animation-delay:3s;
+      background:var(--red);
+      border:3px solid var(--line);
+      right:14%; top:30%;
+      transform:rotate(-18deg);
     }
 
     .wrap{
-      position:relative;
-      z-index:2;
       min-height:100dvh;
       display:grid;
       place-items:center;
-      padding:24px;
+      padding:28px;
+      position:relative;
+      z-index:2;
     }
 
-    .shell{
+    .board{
       width:min(100%, var(--max));
       display:grid;
-      grid-template-columns:1.1fr .9fr;
-      gap:28px;
+      grid-template-columns: 1.06fr .94fr;
+      gap:24px;
       align-items:stretch;
     }
 
-    .card{
-      position:relative;
-      overflow:hidden;
-      background:var(--card);
-      border:1px solid var(--stroke);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
+    .panel{
+      background:var(--paper);
+      border:3px solid var(--line);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
     }
 
     .left{
-      padding:34px 34px 30px;
+      padding:28px;
       display:flex;
       flex-direction:column;
-      justify-content:center;
-      min-height:560px;
+      gap:20px;
+      min-height:700px;
     }
 
-    .badge{
-      width:max-content;
+    .tag-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+    }
+
+    .tag{
       display:inline-flex;
       align-items:center;
       gap:10px;
-      padding:10px 14px;
+      min-height:46px;
+      padding:0 16px;
+      border:3px solid var(--line);
       border-radius:999px;
-      background:rgba(255,255,255,.78);
-      border:1px solid rgba(255,255,255,.9);
-      color:#0f172a;
-      font-weight:700;
+      background:white;
+      font-weight:800;
       font-size:14px;
-      letter-spacing:.01em;
-      box-shadow:0 10px 30px rgba(15,23,42,.08);
+      box-shadow:4px 4px 0 #151515;
     }
 
     .dot{
-      width:10px;height:10px;border-radius:999px;
-      background:linear-gradient(135deg, #22c55e, #10b981);
-      box-shadow:0 0 0 0 rgba(34,197,94,.6);
-      animation:pulse 2s infinite;
-      flex:0 0 auto;
+      width:12px;height:12px;border-radius:999px;
+      background:var(--green);
+      border:2px solid var(--line);
+      animation:bob 1.8s ease-in-out infinite;
+    }
+
+    .hero{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:14px;
     }
 
     h1{
-      margin:20px 0 12px;
-      font-size:clamp(38px, 7vw, 76px);
-      line-height:.94;
-      letter-spacing:-.05em;
-      font-weight:900;
+      margin:0;
+      font-size:clamp(46px, 8vw, 102px);
+      line-height:.9;
+      letter-spacing:-.06em;
+      font-weight:1000;
+      max-width:8ch;
     }
 
-    .gradient-text{
-      display:block;
-      background:linear-gradient(135deg, #0f172a 0%, #334155 26%, #7c3aed 60%, #06b6d4 100%);
-      -webkit-background-clip:text;
-      background-clip:text;
-      color:transparent;
+    .line{
+      display:inline;
+      padding:.02em .12em .10em;
+      box-decoration-break:clone;
+      -webkit-box-decoration-break:clone;
     }
 
-    .sub{
-      max-width:640px;
-      margin:0 0 26px;
-      font-size:clamp(16px, 2.5vw, 19px);
-      line-height:1.7;
-      color:var(--muted);
+    .hl-yellow{background:var(--yellow)}
+    .hl-pink{background:var(--pink)}
+    .hl-blue{background:var(--blue)}
+    .hl-green{background:var(--green)}
+
+    .desc{
+      max-width:660px;
+      margin:0;
+      font-size:clamp(17px, 2vw, 21px);
+      line-height:1.65;
+      color:#343434;
+      font-weight:600;
     }
 
-    .mini-grid{
+    .cards{
       display:grid;
-      grid-template-columns:repeat(3, minmax(0,1fr));
+      grid-template-columns:repeat(3,1fr);
       gap:14px;
-      margin-top:8px;
     }
 
     .mini{
-      padding:16px 16px 15px;
-      border-radius:22px;
-      background:rgba(255,255,255,.72);
-      border:1px solid rgba(255,255,255,.92);
-      box-shadow:0 12px 30px rgba(15,23,42,.06);
+      border:3px solid var(--line);
+      border-radius:24px;
+      padding:18px;
+      min-height:132px;
+      box-shadow:5px 5px 0 #151515;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
     }
 
-    .mini .label{
+    .mini:nth-child(1){background:var(--yellow)}
+    .mini:nth-child(2){background:var(--blue)}
+    .mini:nth-child(3){background:var(--pink)}
+
+    .mini .k{
       font-size:12px;
-      color:#64748b;
-      margin-bottom:8px;
-      font-weight:700;
+      font-weight:900;
+      letter-spacing:.12em;
       text-transform:uppercase;
-      letter-spacing:.08em;
     }
 
-    .mini .value{
-      font-size:18px;
-      font-weight:800;
-      color:#0f172a;
+    .mini .v{
+      font-size:28px;
+      line-height:1.05;
+      font-weight:950;
+      max-width:8ch;
+    }
+
+    .ticker{
+      border:3px solid var(--line);
+      border-radius:22px;
+      background:#fff;
+      min-height:72px;
+      display:flex;
+      align-items:center;
+      overflow:hidden;
+      box-shadow:5px 5px 0 #151515;
+    }
+
+    .ticker-track{
+      white-space:nowrap;
+      display:inline-block;
+      font-weight:900;
+      font-size:20px;
+      padding-left:100%;
+      animation:marquee 18s linear infinite;
+    }
+
+    .ticker-track span{
+      display:inline-block;
+      margin-right:34px;
     }
 
     .actions{
       display:flex;
       flex-wrap:wrap;
-      gap:12px;
-      margin-top:24px;
+      gap:14px;
     }
 
     .btn{
-      appearance:none;
-      border:0;
-      cursor:pointer;
+      min-height:60px;
+      padding:0 22px;
+      border:3px solid var(--line);
+      border-radius:18px;
       text-decoration:none;
+      color:var(--ink);
+      font-weight:900;
+      font-size:16px;
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      gap:10px;
-      min-height:52px;
-      padding:0 18px;
-      border-radius:var(--btn-radius);
-      font-weight:800;
-      transition:transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+      box-shadow:5px 5px 0 #151515;
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+
+    .btn:hover{
+      transform:translate(-2px,-2px);
+      box-shadow:8px 8px 0 #151515;
+    }
+
+    .btn-primary{background:var(--red); color:#111}
+    .btn-secondary{background:#fff}
+    .btn-tertiary{background:var(--green)}
+
+    .note{
+      padding:18px 20px;
+      border:3px dashed var(--line);
+      border-radius:22px;
+      background:#fff8eb;
       font-size:15px;
-      min-width:160px;
-    }
-
-    .btn:hover{transform:translateY(-2px)}
-    .btn:active{transform:translateY(0)}
-
-    .btn-primary{
-      color:white;
-      background:
-        linear-gradient(135deg, #7c3aed, #5b21b6 45%, #06b6d4);
-      box-shadow:0 18px 40px rgba(124,58,237,.28);
-      position:relative;
-      overflow:hidden;
-    }
-    .btn-primary::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      transform:translateX(-120%);
-      background:linear-gradient(90deg, transparent, rgba(255,255,255,.32), transparent);
-      animation:shine 3.8s linear infinite;
-    }
-
-    .btn-secondary{
-      color:#0f172a;
-      background:rgba(255,255,255,.72);
-      border:1px solid rgba(255,255,255,.95);
-      box-shadow:0 10px 28px rgba(15,23,42,.08);
+      line-height:1.65;
+      color:#444;
+      font-weight:700;
     }
 
     .right{
-      position:relative;
       padding:22px;
+      display:grid;
+      place-items:center;
+      min-height:700px;
+      background:
+        linear-gradient(0deg, transparent 24px, rgba(0,0,0,.04) 24px 27px, transparent 27px),
+        linear-gradient(90deg, transparent 24px, rgba(0,0,0,.04) 24px 27px, transparent 27px);
+      background-size:28px 28px;
+      background-color:#f9f3e7;
+    }
+
+    .scene{
+      width:min(100%, 460px);
+      aspect-ratio: 4 / 5;
+      position:relative;
+      border:3px solid var(--line);
+      border-radius:34px;
+      background:#fff;
+      box-shadow:7px 7px 0 #151515;
+      overflow:hidden;
+    }
+
+    .scene-top{
+      position:absolute;
+      inset:0 0 auto 0;
+      height:92px;
+      background:var(--yellow);
+      border-bottom:3px solid var(--line);
       display:flex;
       align-items:center;
-      justify-content:center;
-      min-height:560px;
+      justify-content:space-between;
+      padding:16px 18px;
     }
 
-    .visual{
-      position:relative;
-      width:min(100%, 420px);
-      aspect-ratio: 4 / 5;
-      border-radius:34px;
-      background:
-        linear-gradient(180deg, #dff7c9 0%, #bef0ad 16%, #7fdc7a 100%);
-      border:10px solid rgba(255,255,255,.72);
-      box-shadow:
-        inset 0 2px 0 rgba(255,255,255,.5),
-        0 30px 70px rgba(15,23,42,.18);
-      overflow:hidden;
+    .pill{
+      border:3px solid var(--line);
+      border-radius:999px;
+      background:#fff;
+      min-height:42px;
+      padding:0 14px;
+      display:inline-flex;
+      align-items:center;
+      font-weight:900;
+      font-size:13px;
+      box-shadow:4px 4px 0 #151515;
     }
 
-    .road{
+    .road-wrap{
       position:absolute;
-      inset:34px 26px;
-      border-radius:28px;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.0)),
-        #2d3341;
-      box-shadow:inset 0 10px 20px rgba(255,255,255,.03);
+      left:24px; right:24px; top:118px; bottom:24px;
+      border:3px solid var(--line);
+      border-radius:30px;
       overflow:hidden;
+      background:#2a2a2a;
     }
+
+    .road-edge-left,
+    .road-edge-right{
+      position:absolute;
+      top:0; bottom:0; width:26px;
+      background:var(--cream);
+      z-index:1;
+    }
+    .road-edge-left{left:0;border-right:3px solid var(--line)}
+    .road-edge-right{right:0;border-left:3px solid var(--line)}
 
     .lane{
       position:absolute;
-      top:-20%;
-      bottom:-20%;
-      width:4px;
-      background:
-        repeating-linear-gradient(
-          to bottom,
-          rgba(255,255,255,.95) 0 24px,
-          transparent 24px 52px
-        );
-      opacity:.9;
-      animation:roadMove 1.6s linear infinite;
+      top:-60px; bottom:-60px;
+      width:6px;
+      background:repeating-linear-gradient(
+        to bottom,
+        #fff 0 28px,
+        transparent 28px 56px
+      );
+      animation:road 1.2s linear infinite;
+      z-index:2;
     }
-    .lane.l1{left:28%}
-    .lane.l2{left:50%}
-    .lane.l3{left:72%}
-
-    .edge{
-      position:absolute;
-      top:0;bottom:0;width:8px;
-      background:linear-gradient(180deg,#ffd84d,#f59e0b);
-    }
-    .edge.left{left:10px}
-    .edge.right{right:10px}
+    .lane.a{left:34%}
+    .lane.b{left:50%}
+    .lane.c{left:66%}
 
     .car{
       position:absolute;
-      width:54px;
-      height:92px;
-      border-radius:18px;
-      box-shadow:
-        inset 0 -12px 18px rgba(0,0,0,.18),
-        0 14px 28px rgba(0,0,0,.20);
+      width:62px;
+      height:104px;
+      border:3px solid var(--line);
+      border-radius:20px;
+      z-index:4;
+      box-shadow:5px 5px 0 rgba(0,0,0,.18);
     }
+
     .car::before,
     .car::after{
       content:"";
       position:absolute;
-      width:10px;height:20px;
-      background:#111827;
-      border-radius:6px;
-      top:14px;
-      box-shadow:0 42px 0 #111827;
+      width:10px;height:24px;
+      background:#111;
+      top:16px;
+      border-radius:10px;
+      box-shadow:0 44px 0 #111;
     }
-    .car::before{left:-4px}
-    .car::after{right:-4px}
+    .car::before{left:-6px}
+    .car::after{right:-6px}
 
     .car.player{
-      left:40%;
-      bottom:48px;
-      background:linear-gradient(180deg,#7dd3fc,#2563eb);
-      animation:carBob 2.4s ease-in-out infinite;
+      left:calc(50% - 31px);
+      bottom:28px;
+      background:var(--blue);
+      animation:wobble 2s ease-in-out infinite;
     }
 
     .car.enemy{
-      right:16%;
-      top:54px;
-      width:46px;height:82px;
-      background:linear-gradient(180deg,#86efac,#10b981);
-      animation:enemyFloat 3.2s ease-in-out infinite;
+      right:42px;
+      top:42px;
+      width:54px;
+      height:94px;
+      background:var(--green);
+      animation:enemyMove 2.6s ease-in-out infinite;
     }
 
-    .panel{
+    .message{
       position:absolute;
       left:50%;
       top:48%;
-      transform:translate(-50%,-50%);
-      width:min(78%, 300px);
+      transform:translate(-50%,-50%) rotate(-2deg);
+      width:min(82%, 300px);
+      background:#fff;
+      border:3px solid var(--line);
+      border-radius:26px;
+      box-shadow:7px 7px 0 #151515;
       padding:18px 18px 16px;
-      border-radius:24px;
-      background:rgba(15,23,42,.78);
-      border:1px solid rgba(255,255,255,.08);
-      color:white;
+      z-index:5;
       text-align:center;
-      box-shadow:0 18px 40px rgba(0,0,0,.25);
     }
-    .panel .eyebrow{
+
+    .message .small{
       font-size:12px;
-      letter-spacing:.14em;
+      font-weight:900;
       text-transform:uppercase;
-      color:#93c5fd;
+      letter-spacing:.12em;
       margin-bottom:8px;
-      font-weight:800;
     }
-    .panel h2{
+
+    .message h2{
       margin:0 0 8px;
-      font-size:32px;
-      line-height:1;
-      letter-spacing:-.04em;
+      font-size:42px;
+      line-height:.92;
+      letter-spacing:-.05em;
     }
-    .panel p{
+
+    .message p{
       margin:0;
-      color:rgba(255,255,255,.82);
-      line-height:1.6;
-      font-size:14px;
+      font-size:15px;
+      line-height:1.55;
+      color:#444;
+      font-weight:700;
     }
 
-    .chip-row{
+    .sticker{
       position:absolute;
-      left:18px;
-      right:18px;
-      top:18px;
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-    }
-
-    .chip{
+      border:3px solid var(--line);
+      border-radius:18px;
       padding:10px 12px;
-      border-radius:16px;
-      background:rgba(255,255,255,.7);
-      color:#0f172a;
-      font-size:12px;
-      font-weight:800;
-      border:1px solid rgba(255,255,255,.9);
-      box-shadow:0 10px 20px rgba(15,23,42,.08);
-      backdrop-filter: blur(10px);
-    }
-
-    .footer-note{
-      margin-top:16px;
-      color:#64748b;
+      font-weight:900;
       font-size:13px;
-      line-height:1.6;
+      background:var(--pink);
+      box-shadow:4px 4px 0 #151515;
+      z-index:6;
     }
+    .sticker.one{left:16px; top:106px; transform:rotate(-8deg)}
+    .sticker.two{right:16px; bottom:16px; background:var(--yellow); transform:rotate(8deg)}
 
-    @keyframes float{
-      0%,100%{transform:translateY(0)}
-      50%{transform:translateY(-14px)}
-    }
-    @keyframes pulse{
-      0%{box-shadow:0 0 0 0 rgba(34,197,94,.55)}
-      70%{box-shadow:0 0 0 12px rgba(34,197,94,0)}
-      100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}
-    }
-    @keyframes shine{
-      0%{transform:translateX(-120%)}
-      100%{transform:translateX(130%)}
-    }
-    @keyframes roadMove{
+    @keyframes road{
       from{transform:translateY(0)}
-      to{transform:translateY(52px)}
-    }
-    @keyframes carBob{
-      0%,100%{transform:translateY(0)}
-      50%{transform:translateY(-8px)}
-    }
-    @keyframes enemyFloat{
-      0%,100%{transform:translateY(0)}
-      50%{transform:translateY(14px)}
+      to{transform:translateY(56px)}
     }
 
-    @media (max-width: 980px){
-      body{overflow:auto}
+    @keyframes wobble{
+      0%,100%{transform:translateY(0) rotate(0)}
+      25%{transform:translateY(-3px) rotate(-2deg)}
+      75%{transform:translateY(2px) rotate(2deg)}
+    }
+
+    @keyframes enemyMove{
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(12px)}
+    }
+
+    @keyframes bob{
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(-2px)}
+    }
+
+    @keyframes marquee{
+      0%{transform:translateX(0)}
+      100%{transform:translateX(-100%)}
+    }
+
+    @media (max-width: 1040px){
+      .board{
+        grid-template-columns:1fr;
+      }
+      .left,.right{
+        min-height:auto;
+      }
+      .cards{
+        grid-template-columns:1fr;
+      }
+      .scene{
+        width:min(100%, 540px);
+      }
+    }
+
+    @media (max-width: 640px){
       .wrap{padding:18px}
-      .shell{grid-template-columns:1fr;gap:18px}
-      .left,.right{min-height:auto}
-      .left{padding:24px}
-      .right{padding:14px}
-      .mini-grid{grid-template-columns:1fr}
-      .visual{width:min(100%, 520px);aspect-ratio: 4 / 4.7}
+      .left{padding:20px}
+      .right{padding:16px}
+      h1{font-size:52px}
+      .desc{font-size:16px}
       .actions{flex-direction:column}
       .btn{width:100%}
-    }
-
-    @media (max-width: 560px){
-      h1{font-size:42px}
-      .sub{font-size:15px}
-      .badge{font-size:13px}
-      .panel h2{font-size:26px}
-      .chip-row{flex-direction:column;align-items:flex-start}
+      .tag{font-size:13px}
+      .message h2{font-size:34px}
     }
 
     @media (prefers-reduced-motion: reduce){
       *, *::before, *::after{
         animation:none !important;
         transition:none !important;
-        scroll-behavior:auto !important;
       }
     }
   </style>
 </head>
 <body>
-  <div class="noise"></div>
-  <div class="orb one"></div>
-  <div class="orb two"></div>
-  <div class="orb three"></div>
+  <div class="bg-doodles">
+    <div class="blob one"></div>
+    <div class="blob two"></div>
+    <div class="blob three"></div>
+    <div class="star one"></div>
+    <div class="star two"></div>
+    <div class="ring"></div>
+    <div class="dash"></div>
+  </div>
 
   <main class="wrap">
-    <section class="shell">
-      <div class="card left">
-        <div class="badge">
-          <span class="dot"></span>
-          Live maintenance in progress
+    <section class="board">
+      <article class="panel left">
+        <div class="tag-row">
+          <div class="tag">
+            <span class="dot"></span>
+            Maintenance mode is on
+          </div>
+          <div class="tag">Cute little pit stop</div>
         </div>
 
-        <h1>
-          Quick pit stop.
-          <span class="gradient-text">We’re tuning GasRun.</span>
-        </h1>
+        <div class="hero">
+          <h1>
+            <span class="line hl-yellow">Oops!</span><br>
+            <span class="line">GasRun is</span><br>
+            <span class="line hl-pink">in the garage</span><br>
+            <span class="line hl-blue">getting prettier.</span>
+          </h1>
 
-        <p class="sub">
-          We’re polishing the track, boosting performance, and making the ride
-          smoother for everyone. Sit tight — the game will be back online very soon.
-        </p>
+          <p class="desc">
+            We’re fixing stuff, polishing details, and making the whole ride feel nicer.
+            Take a tiny break — the track will open again very soon.
+          </p>
+        </div>
 
-        <div class="mini-grid">
+        <div class="cards">
           <div class="mini">
-            <div class="label">Status</div>
-            <div class="value">Upgrading gameplay</div>
+            <div class="k">Now doing</div>
+            <div class="v">UI cleanup</div>
           </div>
           <div class="mini">
-            <div class="label">Focus</div>
-            <div class="value">UI polish + fixes</div>
+            <div class="k">Also doing</div>
+            <div class="v">Bug smashing</div>
           </div>
           <div class="mini">
-            <div class="label">Mood</div>
-            <div class="value">Almost ready ✨</div>
+            <div class="k">Vibe</div>
+            <div class="v">Cute chaos</div>
+          </div>
+        </div>
+
+        <div class="ticker">
+          <div class="ticker-track">
+            <span>🏁 patching the ride</span>
+            <span>🔧 fixing tiny weird stuff</span>
+            <span>✨ making the UI happier</span>
+            <span>🛞 polishing the track</span>
+            <span>🏁 patching the ride</span>
+            <span>🔧 fixing tiny weird stuff</span>
+            <span>✨ making the UI happier</span>
           </div>
         </div>
 
         <div class="actions">
-          <a class="btn btn-primary" href="https://x.com/" target="_blank" rel="noreferrer">
-            Follow updates
-          </a>
-          <a class="btn btn-secondary" href="mailto:hello@gasrun.online">
-            Contact team
-          </a>
+          <a class="btn btn-primary" href="https://x.com/" target="_blank" rel="noreferrer">Follow updates</a>
+          <a class="btn btn-secondary" href="mailto:hello@gasrun.online">Say hello</a>
+          <a class="btn btn-tertiary" href="/">Try again later</a>
         </div>
 
-        <div class="footer-note">
-          Thanks for your patience. We’re making this stop worth it.
+        <div class="note">
+          Thanks for hanging around. We’re giving the game a nicer face, smoother feel,
+          and less weirdness before we let everyone back in.
         </div>
-      </div>
+      </article>
 
-      <div class="card right">
-        <div class="visual">
-          <div class="chip-row">
-            <div class="chip">GasRun • Maintenance</div>
-            <div class="chip">Back soon</div>
+      <aside class="panel right">
+        <div class="scene">
+          <div class="scene-top">
+            <div class="pill">GasRun Garage</div>
+            <div class="pill">Back soon</div>
           </div>
 
-          <div class="road">
-            <div class="edge left"></div>
-            <div class="edge right"></div>
+          <div class="sticker one">tiny break</div>
+          <div class="sticker two">vroom later</div>
 
-            <div class="lane l1"></div>
-            <div class="lane l2"></div>
-            <div class="lane l3"></div>
+          <div class="road-wrap">
+            <div class="road-edge-left"></div>
+            <div class="road-edge-right"></div>
+
+            <div class="lane a"></div>
+            <div class="lane b"></div>
+            <div class="lane c"></div>
 
             <div class="car enemy"></div>
             <div class="car player"></div>
 
-            <div class="panel">
-              <div class="eyebrow">Pit stop</div>
-              <h2>Back soon</h2>
+            <div class="message">
+              <div class="small">pit stop</div>
+              <h2>Back<br>soon</h2>
               <p>
-                We’re improving the experience so your next run feels faster,
-                smoother, and cleaner.
+                We’re tuning the experience so the next run feels cleaner,
+                smoother, and more fun.
               </p>
             </div>
           </div>
         </div>
-      </div>
+      </aside>
     </section>
   </main>
 </body>
