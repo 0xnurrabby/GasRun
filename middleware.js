@@ -1,5 +1,3 @@
-import { next } from '@vercel/functions';
-
 export const config = {
   matcher: '/:path*',
 };
@@ -11,17 +9,21 @@ export default function middleware(request) {
   const bypassKey = process.env.MAINTENANCE_BYPASS_KEY || '';
   const keyFromUrl = url.searchParams.get('key');
 
+  // Maintenance off -> main site
   if (!maintenanceMode) {
-    return next();
+    return fetch(request);
   }
 
+  // Maintenance page itself -> allow
   if (url.pathname === '/maintenance.html') {
-    return next();
+    return fetch(request);
   }
 
+  // Secret key diye bypass
   if (bypassKey && keyFromUrl === bypassKey) {
-    return next();
+    return fetch(request);
   }
 
+  // Sobai maintenance page dekhbe
   return Response.redirect(new URL('/maintenance.html', request.url), 307);
 }
