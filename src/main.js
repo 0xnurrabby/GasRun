@@ -3400,3 +3400,74 @@ function render() {
 
   ctx.restore(); // final (matches the very first ctx.save())
 }
+
+
+// =====================================================
+// MAIN GAME LOOP (MISSING — critical fix)
+// - Drives update(dt) + render() every animation frame.
+// - Uses capped dt for stable behavior when tab regains focus.
+// - Also handles "tap to restart" on Game Over.
+// =====================================================
+(function startGameLoop() {
+  let lastTs = performance.now();
+  let running = true;
+
+  function frame(nowTs) {
+    try {
+      // Cap dt so very large pauses (tab switch) don't break physics.
+      const rawDt = (nowTs - lastTs) / 1000;
+      const dt = Math.max(0, Math.min(0.05, rawDt)); // cap at 50ms (~20fps floor)
+      lastTs = nowTs;
+
+      if (typeof update === "function") update(dt);
+      if (typeof render === "function") render();
+    } catch (e) {
+      // Never let a render error stop the loop — log and continue.
+      console.error("[gameLoop]", e);
+    }
+    if (running) requestAnimationFrame(frame);
+  }
+
+  // Pause/resume on visibility change to save battery.
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      running = false;
+    } else if (!running) {
+      running = true;
+      lastTs = performance.now(); // reset dt baseline so no jump
+      requestAnimationFrame(frame);
+    }
+  });
+
+  requestAnimationFrame(frame);
+})();
+
+// =====================================================
+// TAP-TO-RESTART on Game Over
+// - When game.over is true, any pointer down on the canvas restarts.
+// =====================================================
+(function bindTapToRestart() {
+  const canvasEl = els && els.c;
+  if (!canvasEl) return;
+  canvasEl.addEventListener(
+    "pointerdown",
+    (ev) => {
+      if (!game || !game.over) return; // only when dead
+      ev.preventDefault();
+      ev.stopPropagation();
+      try { hapticTap(); } catch {}
+      try { resetRun(); } catch {}
+    },
+    { passive: false, capture: true } // capture so it runs before swipe handler
+  );
+})();
+
+// =====================================================
+// FORCE a resize + first render so canvas is never blank
+// even before the very first animation frame kicks in.
+// =====================================================
+(function forceFirstPaint() {
+  try { if (typeof resize === "function") resize(); } catch {}
+  try { if (typeof render === "function") render(); } catch {}
+})();
+
