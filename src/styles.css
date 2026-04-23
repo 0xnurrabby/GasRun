@@ -600,22 +600,26 @@ canvas{
    TOAST
    ============================================================ */
 .toast{
-  position:absolute; left:50%;
-  transform:translateX(-50%) translateY(8px);
-  bottom:110px;
+  position:fixed;                              /* fixed to viewport, not overlap sheet */
+  left:50%;
+  top:max(16px, env(safe-area-inset-top));     /* top of screen, safe-area aware */
+  transform:translateX(-50%) translateY(-12px);
   background:var(--ink);
   border:var(--bw) solid var(--race-yellow);
   color:#fff;
-  padding:12px 18px;
+  padding:11px 16px;
   border-radius:var(--radius-sharp);
-  font-size:13px; font-weight:900; letter-spacing:.5px;
-  text-transform:uppercase;
-  display:none; max-width:92%; text-align:center;
+  font-size:12.5px; font-weight:800; letter-spacing:.4px;
+  text-transform:none;                          /* keep message readable, not shouty */
+  line-height:1.45;
+  display:none; max-width:min(92vw, 440px);
+  text-align:center;
   box-shadow: 5px 5px 0 var(--race-orange);
   opacity:0;
-  transition: opacity .15s ease, transform .15s ease;
-  z-index:50;
+  transition: opacity .18s ease, transform .18s ease;
+  z-index:9999;                                 /* above everything incl. sheet */
   font-family:"Akando",system-ui;
+  pointer-events:none;
 }
 .toast.show{
   display:block; opacity:1;
