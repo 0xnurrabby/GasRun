@@ -62,6 +62,99 @@ async function ensureAttribution() {
   dataSuffix = Attribution.toDataSuffix({ codes: [BUILDER_CODE] });
 }
 
+// =====================================================
+// WALLETCONNECT (v2) — mobile browser QR / deep-link wallet support
+// Lazy-loaded only when user actually picks WalletConnect.
+// =====================================================
+// 👇👇👇 IMPORTANT: put your WalletConnect (Reown) Project ID here.
+// Get one free at https://cloud.reown.com  (takes 1 minute)
+const WALLETCONNECT_PROJECT_ID = "REPLACE_WITH_YOUR_PROJECT_ID";
+
+let _wcProviderPromise = null;
+let _wcProvider = null;
+
+async function getWalletConnectProvider() {
+  if (_wcProvider) return _wcProvider;
+  if (_wcProviderPromise) return _wcProviderPromise;
+
+  _wcProviderPromise = (async () => {
+    if (!WALLETCONNECT_PROJECT_ID || WALLETCONNECT_PROJECT_ID === "REPLACE_WITH_YOUR_PROJECT_ID") {
+      throw new Error("WalletConnect Project ID not set. Get one at https://cloud.reown.com");
+    }
+
+    // Load WalletConnect Ethereum Provider from CDN (ESM)
+    const mod = await import("https://esm.sh/@walletconnect/ethereum-provider@2.17.0");
+    const EthereumProvider = mod.EthereumProvider || mod.default?.EthereumProvider || mod.default;
+
+    const provider = await EthereumProvider.init({
+      projectId: WALLETCONNECT_PROJECT_ID,
+      chains: [8453], // Base Mainnet
+      optionalChains: [8453, 1],
+      showQrModal: true,
+      qrModalOptions: {
+        themeMode: document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light",
+        themeVariables: {
+          "--wcm-z-index": "9999",
+          "--wcm-accent-color": "#ff6b35",
+          "--wcm-background-color": "#0d0d14"
+        }
+      },
+      metadata: {
+        name: "GasRun",
+        description: "Onchain arcade racer on Base",
+        url: typeof window !== "undefined" ? window.location.origin : "https://gasrun.online",
+        icons: ["https://gasrun.online/assets/icon.png"]
+      },
+      rpcMap: {
+        8453: "https://mainnet.base.org"
+      }
+    });
+
+    // Bridge events so the rest of the app gets account/chain change notifications.
+    try {
+      provider.on("accountsChanged", (accs) => {
+        account = accs?.[0] || null;
+        if (!account) {
+          ethProvider = null;
+          activeWalletId = null;
+          activeWalletLabel = "Base";
+        }
+        try { renderStatus(); } catch {}
+      });
+      provider.on("disconnect", () => {
+        if (activeWalletId === "walletconnect") {
+          account = null;
+          ethProvider = null;
+          activeWalletId = null;
+          activeWalletLabel = "Base";
+          try { renderStatus(); } catch {}
+          try { toast("Wallet disconnected"); } catch {}
+        }
+      });
+    } catch {}
+
+    _wcProvider = provider;
+    return provider;
+  })();
+
+  try {
+    return await _wcProviderPromise;
+  } catch (e) {
+    _wcProviderPromise = null; // allow retry
+    throw e;
+  }
+}
+
+async function disconnectWalletConnectIfAny() {
+  try {
+    if (_wcProvider && typeof _wcProvider.disconnect === "function") {
+      await _wcProvider.disconnect();
+    }
+  } catch {}
+  _wcProvider = null;
+  _wcProviderPromise = null;
+}
+
 // One shared "warm" promise so clicks feel instant even if the deps are still loading.
 function warmWeb3Deps() {
   if (web3WarmReady) return Promise.resolve();
@@ -579,7 +672,19 @@ async function getProvider(source = "active") {
     return p;
   }
 
+  if (source === "walletconnect") {
+    try {
+      const wc = await getWalletConnectProvider();
+      // For WalletConnect, events are already bridged inside getWalletConnectProvider.
+      return wc;
+    } catch (e) {
+      toast(e?.message || "WalletConnect unavailable", 3000);
+      return null;
+    }
+  }
+
   if (ethProvider) return ethProvider;
+
 
   const mini = await getMiniAppProvider();
   if (mini) {
@@ -711,11 +816,30 @@ async function connectWallet(source = "miniapp", walletLabel = null) {
   }
 
   try {
-    const accs = await p.request({ method: "eth_requestAccounts", params: [] });
+    let accs;
+    if (source === "walletconnect") {
+      // WalletConnect v2 uses .connect() which triggers the QR modal / deep-link.
+      if (typeof p.connect === "function" && !p.accounts?.length) {
+        await p.connect();
+      }
+      accs = p.accounts && p.accounts.length
+        ? p.accounts
+        : await p.request({ method: "eth_requestAccounts", params: [] });
+    } else {
+      accs = await p.request({ method: "eth_requestAccounts", params: [] });
+    }
+
     account = accs?.[0] || null;
     ethProvider = p;
     activeWalletId = source;
-    activeWalletLabel = normalizeWalletLabel(walletLabel || (source === "miniapp" ? "Base" : "Browser Wallet"), "Base");
+    activeWalletLabel = normalizeWalletLabel(
+      walletLabel || (
+        source === "miniapp" ? "Base" :
+        source === "walletconnect" ? "WalletConnect" :
+        "Browser Wallet"
+      ),
+      "Base"
+    );
     try { refreshWalletCapabilities(p); } catch {}
     await cacheConnectedUserLabel();
     renderStatus();
@@ -724,6 +848,10 @@ async function connectWallet(source = "miniapp", walletLabel = null) {
     const code = e?.code;
     if (code === 4001) toast("Wallet connection cancelled.");
     else toast(e?.message || "Wallet connection failed.", 2400);
+    // If WalletConnect session failed, cleanup so retry works
+    if (source === "walletconnect") {
+      try { await disconnectWalletConnectIfAny(); } catch {}
+    }
     return null;
   }
 }
@@ -750,10 +878,27 @@ async function openWalletConnectFlow() {
     });
   }
 
+  // Always offer WalletConnect — works on mobile browser via QR / deep-link
+  // to MetaMask, Trust, Rainbow, OKX, Zerion, Coinbase Wallet, etc.
+  options.push({
+    id: "walletconnect",
+    label: "WalletConnect",
+    sub: "Scan QR or open your mobile wallet (MetaMask, Trust, Rainbow, OKX…)",
+    recommended: !isMiniHost && injected.length === 0
+  });
+
   if (!options.length) {
     toast("No wallet detected. Install MetaMask/Coinbase Wallet or open inside Base/Farcaster.", 2600);
     return;
   }
+
+
+  const iconFor = (id) => {
+    if (id === "walletconnect") return "🔗";
+    if (id === "miniapp") return "🟢";
+    if (id.startsWith("injected:")) return "🦊";
+    return "👛";
+  };
 
   openSheet(
     "Connect wallet",
@@ -761,13 +906,21 @@ async function openWalletConnectFlow() {
     <div class="connectWalletSheet">
       <div class="walletOptionList">
         ${options.map((opt) => `
-          <button class="walletOption" data-wallet-id="${opt.id}" data-wallet-label="${opt.label.replace(/"/g, '&quot;')}">
-            <span class="walletOptionTitle">${opt.label}</span>
-            <span class="walletOptionSub">${opt.sub}</span>
+          <button class="walletOption ${opt.recommended ? "recommended" : ""}" data-wallet-id="${opt.id}" data-wallet-label="${opt.label.replace(/"/g, '&quot;')}">
+            <span class="walletOptionIcon">${iconFor(opt.id)}</span>
+            <span class="walletOptionBody">
+              <span class="walletOptionTitle">
+                ${opt.label}
+                ${opt.recommended ? '<span class="walletRecBadge">Recommended</span>' : ''}
+              </span>
+              <span class="walletOptionSub">${opt.sub}</span>
+            </span>
           </button>
         `).join("")}
       </div>
-      <div class="walletHint">Inside Mini Apps the host wallet can already be authorized, so the host may connect immediately without showing a wallet-picker dialog.</div>
+      <div class="walletHint">
+        <b>On mobile browser?</b> Pick <b>WalletConnect</b> — it'll open your installed wallet app (MetaMask, Trust, Rainbow, OKX, etc.) or show a QR to scan.
+      </div>
     </div>
   `,
     "wallet-connect"
