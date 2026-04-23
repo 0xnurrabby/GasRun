@@ -1,680 +1,543 @@
-/*
-  Light UI refresh (keeps gameplay logic untouched)
-  Goal: avoid the heavy dark theme and improve first impression.
-*/
-:root{
-  --bg:#f2f6ff;
-  --panel:rgba(255,255,255,.94);
-  --panel2:rgba(255,255,255,.88);
-  --text:#0f172a;
-  --muted:#475569;
-  --border:rgba(15,23,42,.10);
-  --border2:rgba(15,23,42,.14);
-  --accent:#ff8200;
-  --good:#18a957;
-  --mint:#00bfa6;
-  --mint2:#00d2b6;
-  --danger:#e11d48;
-  --shadow: 0 14px 40px rgba(2,6,23,.18);
-  --radius:18px;
+/* ============================================================
+   GasRun — Premium Neon Racing UI (v2)
+   Aggressive cyberpunk theme matching the embed artwork.
+   Gameplay logic untouched — pure visual overhaul.
+   ============================================================ */
 
-  /* Leaderboard layout tuning */
-  --lb-row:56px;   /* approx single entry height */
-  --lb-gap:8px;    /* matches .boardList gap */
+:root{
+  /* Core palette — dark neon racing */
+  --bg-0:#05060d;
+  --bg-1:#0a0d1a;
+  --bg-2:#11152a;
+  --panel:rgba(16,20,38,.82);
+  --panel-solid:#101426;
+  --panel-border:rgba(124,140,255,.18);
+  --panel-border-hot:rgba(255,60,140,.35);
+
+  --text:#eef1ff;
+  --text-dim:#a6adcf;
+  --muted:#7a84a8;
+
+  /* Neon accents */
+  --neon-cyan:#00e5ff;
+  --neon-cyan-2:#22f2ff;
+  --neon-magenta:#ff2bd6;
+  --neon-pink:#ff3b82;
+  --neon-purple:#8a5cff;
+  --neon-orange:#ff8a1f;
+  --neon-yellow:#ffd23a;
+  --neon-green:#19f09a;
+  --danger:#ff3358;
+
+  /* Effects */
+  --glow-cyan: 0 0 14px rgba(0,229,255,.55), 0 0 36px rgba(0,229,255,.25);
+  --glow-magenta: 0 0 14px rgba(255,43,214,.55), 0 0 36px rgba(255,43,214,.22);
+  --glow-orange: 0 0 14px rgba(255,138,31,.6), 0 0 36px rgba(255,138,31,.25);
+
+  --shadow-deep: 0 20px 60px rgba(0,0,0,.55), 0 6px 20px rgba(0,0,0,.4);
+  --radius:20px;
+
+  --lb-row:56px;
+  --lb-gap:8px;
 }
 
 *{box-sizing:border-box}
+::selection{background:rgba(0,229,255,.35); color:#fff}
 
-/* --- Default UI font (American Captain Patrius) --- */
+/* ---------- Fonts ---------- */
 @font-face{
-  font-family: "AmericanCaptainPatrius";
-  src: url("/assets/fonts/AmericanCaptainPatrius02FRE.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
+  font-family:"AmericanCaptainPatrius";
+  src:url("/assets/fonts/AmericanCaptainPatrius02FRE.ttf") format("truetype");
+  font-weight:400; font-style:normal; font-display:swap;
 }
-
-
 @font-face{
-  font-family: "Akando";
-  src: url("/assets/fonts/Akando-Regular.otf") format("opentype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
+  font-family:"Akando";
+  src:url("/assets/fonts/Akando-Regular.otf") format("opentype");
+  font-weight:400; font-style:normal; font-display:swap;
 }
-html,body{height:100%; margin:0; background:var(--bg); color:var(--text); font-family: "Akando", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";min-height:100dvh;}
-#app{height:100%; width:100%; display:flex; align-items:stretch; justify-content:center;min-height:100dvh;}
-.shell{width:100%; max-width:540px; height:100%; padding:8px 10px 10px; display:flex; flex-direction:column; gap:8px; position:relative;}
-
-.topbar{display:flex; align-items:center; justify-content:space-between; gap:10px;}
-.iconBtn{border:0; background:transparent; color:var(--text); padding:10px; border-radius:14px; display:flex; align-items:center; justify-content:center;}
-.iconBtn:active{transform:scale(.98)}
-.badge{font-size:12px; color:var(--muted); padding:6px 10px; background:rgba(255,255,255,.75); border-radius:999px; border:1px solid var(--border); box-shadow:0 6px 18px rgba(2,6,23,.08);}
-
-.gameCard{flex:1; background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.78)); border:1px solid var(--border); border-radius:24px; box-shadow:var(--shadow); padding:8px; position:relative; overflow:hidden;}
-.canvasWrap{position:absolute; inset:8px; border-radius:18px; overflow:hidden; background: radial-gradient(120% 80% at 50% 20%, rgba(255,130,0,.10), rgba(255,255,255,0) 60%), #eaf2ff; border:1px solid var(--border);}
-canvas{
-  display:block;
-  width:100%;
-  height:100%;
-  /* Prevent the browser from hijacking gestures (scroll/zoom) while playing */
-  touch-action:none;
-  user-select:none;
-  -webkit-user-select:none;
-  -webkit-touch-callout:none;
+@font-face{
+  font-family:"RebellionSquad";
+  src:url("/assets/fonts/RebellionSquad-ZpprZ.ttf") format("truetype");
+  font-weight:400; font-style:normal; font-display:swap;
+}
+@font-face{
+  font-family:"SuperPixel";
+  src:url("/assets/fonts/SuperPixel-m2L8j.ttf") format("truetype");
+  font-weight:400; font-style:normal; font-display:swap;
 }
 
-.hud{position:absolute; left:14px; top:14px; padding:10px 12px; border-radius:16px; background:rgba(255,255,255,.78); border:1px solid var(--border2); backdrop-filter: blur(8px); min-width:170px; box-shadow:0 10px 26px rgba(2,6,23,.10)}
-.hudTitle{font-weight:700; font-size:16px}
-.hudRow{margin-top:6px; display:flex; gap:10px; flex-wrap:wrap; font-size:13px; color:var(--muted)}
-.hudRow b{color:var(--text); font-weight:700}
-
-.bottomBar{display:flex; align-items:center; justify-content:center; gap:10px; padding-bottom: max(0px, env(safe-area-inset-bottom));padding-top:2px;}
-.controls{display:flex; gap:10px; width:100%; max-width:460px; margin:0 auto;}
-.ctrlBtn{flex:1; padding:18px 16px; border-radius:18px; border:1px solid var(--border2); background:rgba(255,255,255,.78); color:var(--text); font-weight:900; letter-spacing:.4px; touch-action:none; user-select:none; -webkit-user-select:none; box-shadow:0 10px 22px rgba(2,6,23,.12), inset 0 0 0 1px rgba(255,255,255,.35);} 
-/* Premium strokes for Left/Right */
-.ctrlBtn:not(.primary){border-color:rgba(37,99,235,.24); box-shadow:0 10px 22px rgba(2,6,23,.12), inset 0 0 0 1px rgba(37,99,235,.10);} 
-.ctrlBtn.primary{background:linear-gradient(180deg, rgba(255,130,0,.22), rgba(255,130,0,.12)); border-color:rgba(255,130,0,.35); box-shadow:0 10px 22px rgba(2,6,23,.12), inset 0 0 0 1px rgba(255,130,0,.12)}
-.ctrlBtn:active{transform:scale(.985)}
-
-.sheet{position:absolute; inset:0; background:rgba(2,6,23,.45); display:none;
-  /* Keep the bottom-sheet clear of mobile safe areas (iOS home indicator etc.) */
-  padding: 18px 18px calc(18px + env(safe-area-inset-bottom));
-  align-items:flex-end; justify-content:center;
-}
-.sheet.open{display:flex}
-.sheetPanel{width:100%; max-width:540px; background:var(--panel); border:1px solid var(--border2); border-radius:22px; box-shadow:var(--shadow); overflow:hidden;}
-.sheetHeader{display:flex; align-items:center; justify-content:space-between; padding:14px 14px 10px; border-bottom:1px solid var(--border)}
-.sheetHeader h3{margin:0; font-size:16px}
-.sheetBody{padding:14px; color:var(--muted); font-size:14px; line-height:1.4}
-.kv{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 0; border-bottom:1px dashed var(--border)}
-.kv:last-child{border-bottom:0}
-.kv span{color:var(--text); font-weight:700}
-.row{display:flex; gap:10px; margin-top:12px}
-.btn{flex:1; border:1px solid var(--border2); background:rgba(255,255,255,.75); color:var(--text); padding:12px 12px; border-radius:16px; font-weight:900}
-.btn.accent{background:rgba(255,130,0,.16); border-color:rgba(255,130,0,.45)}
-.btn.danger{background:rgba(255,77,109,.14); border-color:rgba(255,77,109,.45)}
-.btn:active{transform:scale(.985)}
-.mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:12px; color:#cfcfe6}
-
-.toast{position:absolute; left:50%; transform:translateX(-50%); bottom:106px; background:rgba(255,255,255,.86); border:1px solid var(--border2); color:var(--text); padding:10px 12px; border-radius:14px; font-size:13px; display:none; max-width:92%; text-align:center; backdrop-filter: blur(8px); box-shadow:0 10px 26px rgba(2,6,23,.12);}
-.toast.show{display:block}
-
-
-/* --- Menu / Sheet professional UI (added) --- */
-.btnRow{display:flex; gap:10px; margin-top:10px}
-/* give the long commit button a bit more breathing room */
-.commitWrap{margin-top:12px}
-.pill{
-  flex:1;
-  appearance:none;
-  border:1px solid rgba(255,255,255,.14);
-  background:rgba(255,255,255,.06);
+/* ---------- Base ---------- */
+html,body{
+  height:100%; margin:0;
+  background:
+    radial-gradient(1200px 700px at 50% -10%, rgba(138,92,255,.22), transparent 60%),
+    radial-gradient(900px 600px at 10% 110%, rgba(0,229,255,.16), transparent 55%),
+    radial-gradient(900px 600px at 100% 100%, rgba(255,43,214,.14), transparent 55%),
+    linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 60%, var(--bg-2) 100%);
   color:var(--text);
-  padding:12px 12px;
-  border-radius:16px;
-  font-weight:800;
-  font-size:14px;
-  text-align:center;
-  box-shadow:0 8px 22px rgba(0,0,0,.22), inset 0 0 0 1px rgba(0,0,0,.25);
-}
-.pill.primary{
-  background:linear-gradient(180deg, rgba(255,130,0,.22), rgba(255,130,0,.10));
-  border-color:rgba(255,130,0,.45);
-}
-.pill:active{transform:scale(.985)}
-.pill[disabled]{opacity:.55; pointer-events:none}
-
-
-/* Menu buttons: use AmericanCaptainPatrius font + slightly larger text */
-#btnConnect,#btnLeaderboards,#btnConvert,#btnCommit{
-  font-family: "AmericanCaptainPatrius", "Akando", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  font-size:16px;
-  letter-spacing:.2px;
-}
-.copy{margin-top:10px; color:var(--muted); font-size:14px; line-height:1.45}
-.fineprint{margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,.08); font-size:12px; color:var(--muted); line-height:1.45}
-
-.board{margin-top:14px; padding:12px; background:rgba(2,6,23,.03); border:1px solid var(--border); border-radius:18px}
-.boardTitle{display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:13px; color:var(--muted); margin-bottom:10px}
-.boardList{max-height:320px; overflow:auto; display:flex; flex-direction:column; gap:8px; padding-right:4px}
-.entry{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 10px; background:rgba(255,255,255,.72); border:1px solid var(--border); border-radius:14px}
-.entry.entryRow{
-  background: linear-gradient(180deg, var(--rowBg, rgba(255,255,255,.06)), var(--rowBg2, rgba(255,255,255,.04)));
-  border-color: var(--rowBorder, rgba(255,255,255,.14));
-  box-shadow:
-    0 10px 26px rgba(0,0,0,.22),
-    0 0 0 1px rgba(0,0,0,.18),
-    0 0 18px var(--rowGlow, rgba(0,0,0,0));
-}
-.entry.entryRow .rankBadge{
-  background: rgba(0,0,0,.22);
-  border-color: rgba(255,255,255,.18);
-}
-.entry .left{display:flex; align-items:center; gap:8px; min-width:0; flex:1}
-.rankBadge{flex:0 0 auto; font-size:12px; color:var(--text); background:rgba(2,6,23,.04); border:1px solid var(--border); padding:4px 8px; border-radius:999px}
-.addr{font-weight:800; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0}
-.addrColor{color:var(--addrColor)}
-/* For "Last week": use background color (not text color), and allow full address wrapping. */
-.addrBg{background:var(--addrBg); padding:3px 8px; border-radius:12px}
-.addrBreak{white-space:normal; overflow:visible; text-overflow:clip; word-break:break-all; line-height:1.15}
-
-/* Full wallet address style (keep rows compact on mobile) */
-.addr.addrFull{
-  font-weight:900;
-  font-size:12px;
-  font-family: inherit;
-opacity:.95;
-}
-
-.points{font-weight:900; flex:0 0 auto; text-align:right}
-.subcopy{margin-top:8px; font-size:12px; color:var(--muted)}
-
-/* --- Leaderboards: keep the sheet within viewport and make EACH section scrollable --- */
-#sheet[data-view="boards"] .sheetPanel{
-  display:flex;
-  flex-direction:column;
-  /* Prefer dynamic viewport units on mobile, with a vh fallback */
-  max-height: calc(100vh - 36px);
-  max-height: calc(100dvh - 36px);
-}
-
-#sheet[data-view="boards"] .sheetBody{
-  flex:1;
-  min-height:0;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  overflow:hidden; /* prevent whole-sheet scrolling */
-}
-
-#sheet[data-view="boards"] .boardsWrap{
-  flex:1;
-  min-height:0;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  /* Allow vertical scrolling for multiple sections (Weekly + All-time + Last week)
-     so the bottom section is always reachable on small screens. */
-  overflow-y:auto;
+  font-family:"Akando", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  min-height:100dvh;
   overflow-x:hidden;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  scrollbar-gutter: stable;
-
-  /* Make sure the last section isn't hidden behind the OS home indicator */
-  padding-bottom: max(14px, env(safe-area-inset-bottom));
-
-  /* Firefox scrollbar */
-  scrollbar-width: thin;
-  scrollbar-color: #2d6bff rgba(255,255,255,.06);
-}
-
-/* WebKit (Chrome/Safari/iOS): style the OUTER (section) scrollbar too */
-#sheet[data-view="boards"] .boardsWrap::-webkit-scrollbar{ width: 10px; }
-#sheet[data-view="boards"] .boardsWrap::-webkit-scrollbar-track{
-  background: rgba(255,255,255,.06);
-  border-radius: 999px;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
-}
-#sheet[data-view="boards"] .boardsWrap::-webkit-scrollbar-thumb{
-  border-radius: 999px;
-  border: 2px solid rgba(0,0,0,.25);
-  background: linear-gradient(180deg, #00f5d4 0%, #2d6bff 55%, #9b5cff 100%);
-  box-shadow: 0 0 14px rgba(0,245,212,.22);
-}
-#sheet[data-view="boards"] .boardsWrap::-webkit-scrollbar-thumb:hover{
-  background: linear-gradient(180deg, #17ffe0 0%, #3b7bff 55%, #b06bff 100%);
-  box-shadow: 0 0 18px rgba(0,245,212,.32);
-}
-#sheet[data-view="boards"] .boardsWrap::-webkit-scrollbar-thumb:active{
-  background: linear-gradient(180deg, #5dffea 0%, #6aa0ff 55%, #c58cff 100%);
-}
-
-/* Extra safety: if the host app scrolls the panel/body instead of .boardsWrap, keep it themed */
-#sheet[data-view="boards"] .sheetPanel,
-#sheet[data-view="boards"] .sheetBody{
-  scrollbar-width: thin;
-  scrollbar-color: #2d6bff rgba(255,255,255,.06);
-}
-
-#sheet[data-view="boards"] .sheetPanel::-webkit-scrollbar,
-#sheet[data-view="boards"] .sheetBody::-webkit-scrollbar{ width: 10px; }
-
-#sheet[data-view="boards"] .sheetPanel::-webkit-scrollbar-track,
-#sheet[data-view="boards"] .sheetBody::-webkit-scrollbar-track{
-  background: rgba(255,255,255,.06);
-  border-radius: 999px;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
-}
-
-#sheet[data-view="boards"] .sheetPanel::-webkit-scrollbar-thumb,
-#sheet[data-view="boards"] .sheetBody::-webkit-scrollbar-thumb{
-  border-radius: 999px;
-  border: 2px solid rgba(0,0,0,.25);
-  background: linear-gradient(180deg, #00f5d4 0%, #2d6bff 55%, #9b5cff 100%);
-  box-shadow: 0 0 14px rgba(0,245,212,.22);
-}
-
-#sheet[data-view="boards"] .board{margin-top:0}
-
-/* Show ~4 entries and scroll inside the list (not the whole sheet) */
-#sheet[data-view="boards"] .boardList{
-  /* "max 4" rows, but also clamp by viewport so 3 sections fit on small screens */
-  max-height: min(24dvh, calc(var(--lb-row) * 4 + var(--lb-gap) * 3));
-  overflow-y:auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  touch-action: pan-y;
-  scrollbar-gutter: stable;
-
-  /* Firefox */
-  scrollbar-width: thin;
-  scrollbar-color: #2d6bff rgba(255,255,255,.06); /* thumb, track */
-}
-
-/* WebKit (Chrome/Safari/iOS): neon gradient scrollbar */
-#sheet[data-view="boards"] .boardList::-webkit-scrollbar{
-  width: 10px;
-}
-
-#sheet[data-view="boards"] .boardList::-webkit-scrollbar-track{
-  background: rgba(255,255,255,.06);
-  border-radius: 999px;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
-}
-
-#sheet[data-view="boards"] .boardList::-webkit-scrollbar-thumb{
-  border-radius: 999px;
-  border: 2px solid rgba(0,0,0,.25);
-  background: linear-gradient(180deg, #00f5d4 0%, #2d6bff 55%, #9b5cff 100%);
-  box-shadow: 0 0 14px rgba(0,245,212,.22);
-}
-
-#sheet[data-view="boards"] .boardList::-webkit-scrollbar-thumb:hover{
-  background: linear-gradient(180deg, #17ffe0 0%, #3b7bff 55%, #b06bff 100%);
-  box-shadow: 0 0 18px rgba(0,245,212,.32);
-}
-
-#sheet[data-view="boards"] .boardList::-webkit-scrollbar-thumb:active{
-  background: linear-gradient(180deg, #5dffea 0%, #6aa0ff 55%, #c58cff 100%);
-}
-
-/* The last section gets a slightly smaller list on very short screens */
-#sheet[data-view="boards"] .board.winners .boardList{
-  max-height: min(20dvh, calc(var(--lb-row) * 4 + var(--lb-gap) * 3));
-}
-
-/* Red warning / immediate action text with glow + fade in/out */
-.alertRed{
-  margin-top:12px;
-  padding:12px 12px;
-  border-radius:14px;
-  border:1px solid rgba(255,77,109,.55);
-  background: rgba(255,77,109,.12);
-  color:#ff4d6d;
-  font-weight:900;
-  font-size:13px;
-  line-height:1.35;
-
-  /* animation */
-  animation: alertPulse 1.6s ease-in-out infinite;
-}
-
-/* Fade + Glow pulse */
-@keyframes alertPulse{
-  0%{
-    opacity: .25;
-    filter: drop-shadow(0 0 0 rgba(255,77,109,0));
-    box-shadow: 0 0 0 rgba(255,77,109,0);
-  }
-  50%{
-    opacity: 1;
-    filter: drop-shadow(0 0 10px rgba(255,77,109,.55));
-    box-shadow: 0 0 18px rgba(255,77,109,.25);
-  }
-  100%{
-    opacity: .25;
-    filter: drop-shadow(0 0 0 rgba(255,77,109,0));
-    box-shadow: 0 0 0 rgba(255,77,109,0);
-  }
-}
-/* Red warning / immediate action text with glow + fade in/out */
-.alertRed{
-  margin-top:12px;
-  padding:12px 12px;
-  border-radius:14px;
-  border:1px solid rgba(255,77,109,.55);
-  background: rgba(255,77,109,.12);
-  color:#ff4d6d;
-  font-weight:900;
-  font-size:13px;
-  line-height:1.35;
-
-  /* animation */
-  animation: alertPulse 1.6s ease-in-out infinite;
-}
-
-/* Fade + Glow pulse */
-@keyframes alertPulse{
-  0%{
-    opacity: .25;
-    filter: drop-shadow(0 0 0 rgba(255,77,109,0));
-    box-shadow: 0 0 0 rgba(255,77,109,0);
-  }
-  50%{
-    opacity: 1;
-    filter: drop-shadow(0 0 10px rgba(255,77,109,.55));
-    box-shadow: 0 0 18px rgba(255,77,109,.25);
-  }
-  100%{
-    opacity: .25;
-    filter: drop-shadow(0 0 0 rgba(255,77,109,0));
-    box-shadow: 0 0 0 rgba(255,77,109,0);
-  }
-}
-
-
-.weekCountdownWrap{
-  margin-left: 6px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  color: rgba(255,255,255,.55);
-  font-size: 12px;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-/* Canvas-based 7-seg countdown (red glow, no external font needed) */
-.segCanvas{
-  display: inline-block;
-  vertical-align: middle;
-  transform: translateY(1px);
-  filter: drop-shadow(0 0 10px rgba(255,70,70,.18));
-}
-
-
-/* --- Pixel / Minecraft-style font (SuperPixel) --- */
-@font-face{
-  font-family: "SuperPixel";
-  src: url("/assets/fonts/SuperPixel-m2L8j.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* --- Rebellion Squad (ONLY for "How it works") --- */
-@font-face{
-  font-family: "RebellionSquad";
-  src: url("/assets/fonts/RebellionSquad-ZpprZ.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* Share stats font */
-@font-face{
-  font-family: "ShareStatsFont";
-  src: url("/assets/fonts/ShareStatsFont.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* Top title pixel style */
-.title.mcFont{
-  font-family: "SuperPixel", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-  color: var(--text);
-  letter-spacing: 1px;
-  font-size: 11px;
-  line-height: 1.1;
-  text-transform: uppercase;
-
-  /* crisp pixel look */
-  -webkit-font-smoothing: none;
-  font-smooth: never;
-  text-rendering: geometricPrecision;
-
-  text-shadow:
-    0 2px 0 rgba(255,255,255,0.75),
-    0 0 14px rgba(2,6,23,0.14);
-
-  animation: titlePixelPulse 2.2s ease-in-out infinite;
-}
-
-.title .mcRed{
-  color: #ff3b3b;
-  text-shadow:
-    0 2px 0 rgba(255,255,255,0.75),
-    0 0 12px rgba(255,59,59,0.30);
-}
-
-@keyframes titlePixelPulse{
-  0%,100%{ opacity: .86; filter: drop-shadow(0 0 0 rgba(255,59,59,0)); }
-  50%{ opacity: 1;   filter: drop-shadow(0 0 10px rgba(255,59,59,.18)); }
-}
-
-/* How it works button: keep other buttons unchanged, apply NEW font only here */
-.pill.pillHow{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  font-family:"RebellionSquad", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-  font-size:30px;
-  letter-spacing:2.5px;
-  text-transform:none;
-
-   color:#38d36f;
-  /* crisp edge + subtle glow */
-  text-shadow:
-    0 1px 0 rgba(0,0,0,.45),
-    0 0 6px rgba(56,211,111,.18);
-  /* optional: আরও sharp করতে চাইলে */
-  -webkit-text-stroke: .6px rgba(0,0,0,.25);
-}
-
-
-.pill.pillHow .pillIcon{
-  width: 40px;
-  height: 40px;
-  flex: 0 0 35px;
-  object-fit: contain;
-  border-radius: 14px;
-  padding: 4px;
-  background: rgba(255,255,255,.06);
-  box-shadow: 0 8px 18px rgba(0,0,0,.28);
-  filter: drop-shadow(0 0 10px rgba(56,211,111,.25));
-}
-
-/* Leaderboards: Share block (button + meta counter) */
-.shareBlock{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-}
-.shareBlock .pill{
-  width:100%;
-  flex:0 0 auto;
-}
-.pill.sharePill{
-  position: relative;
-  font-family:"ShareStatsFont","RebellionSquad", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-  font-size:16px;
-  letter-spacing: .8px;
-  padding:12px 12px;
-  border-radius:16px;
-  border:1px solid rgba(56,211,111,.45);
-  background: linear-gradient(180deg, rgba(56,211,111,.28), rgba(56,211,111,.10));
-  color: rgba(234,255,242,.95);
-  text-shadow: 0 0 12px rgba(56,211,111,.35);
-  box-shadow: 0 10px 26px rgba(0,0,0,.28), inset 0 0 0 1px rgba(0,0,0,.25);
-}
-.pill.sharePill:active{
-  transform: translateY(1px);
-}
-.pill.sharePill.disabled,
-.pill.sharePill:disabled{
-  opacity:.55;
-  filter: grayscale(.35);
-  cursor:not-allowed;
-  text-shadow:none;
-}
-.shareMeta{
-  text-align:center;
-  font-family:"ShareStatsFont","RebellionSquad", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-  font-size:12px;
-  letter-spacing:.6px;
-  opacity:.92;
-  user-select:none;
-}
-
-.shareCooldown{
-  text-align:center;
-  /* Use the app's default font (Akando) */
-  font-family: inherit;
-  font-size:12px;
   letter-spacing:.2px;
-  opacity:.85;
-  user-select:none;
-  min-height:14px;
 }
 
-.shareUsed{
-  color: var(--danger);
-  font-weight: 900;
+/* animated speed-lines background (very subtle) */
+body::before{
+  content:"";
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:
+    linear-gradient(90deg, transparent 49.5%, rgba(0,229,255,.05) 49.5% 50.5%, transparent 50.5%),
+    linear-gradient(90deg, transparent 49.5%, rgba(255,43,214,.04) 49.5% 50.5%, transparent 50.5%);
+  background-size: 180px 100%, 260px 100%;
+  background-position: 0 0, 80px 0;
+  opacity:.5;
+  mix-blend-mode:screen;
+  animation: scanMove 14s linear infinite;
+}
+@keyframes scanMove{
+  from{background-position: 0 0, 80px 0;}
+  to  {background-position: 180px 0, 340px 0;}
 }
 
-/* Boards: tighten header area and balance Back/Share/Refresh buttons */
-#sheet[data-view="boards"] .btnRow{
-  gap:12px;
-  margin-top:8px;
-  align-items:center;
-}
-#sheet[data-view="boards"] #backMenu.pill,
-#sheet[data-view="boards"] #refreshBoards.pill{
-  flex:0 0 30%;
-  /* Match the "Share your stat" button typography (font + size) */
-  font-family:"ShareStatsFont","RebellionSquad", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-  font-size:16px;
-  letter-spacing:.8px;
-  padding:14px 10px;
-  border-radius:18px;
-  background: linear-gradient(180deg, rgba(0,230,200,.18), rgba(0,230,200,.08));
-  border-color: rgba(0,230,200,.35);
-  box-shadow: 0 10px 26px rgba(0,0,0,.30), inset 0 0 0 1px rgba(0,0,0,.35), inset 0 0 22px rgba(0,230,200,.10);
-}
-#sheet[data-view="boards"] #backMenu.pill:active,
-#sheet[data-view="boards"] #refreshBoards.pill:active{
-  transform: scale(.985);
-}
-#sheet[data-view="boards"] .shareBlock{
-  flex:0 0 36%;
+#app{
+  height:100%; width:100%;
+  display:flex; align-items:stretch; justify-content:center;
+  min-height:100dvh;
+  position:relative; z-index:1;
 }
 
-.shareMax{
-  color: var(--good);
-  font-weight: 900;
+.shell{
+  width:100%; max-width:540px; height:100%;
+  padding:10px 12px 12px;
+  display:flex; flex-direction:column; gap:10px;
+  position:relative;
 }
 
-
-/* Leaderboards header reward banner (replaces toast) */
-.boardsNotice{
-  display:none;
-  margin-top:0px;
-  padding:8px 12px;
+/* ---------- Top bar ---------- */
+.topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px; padding:2px 4px;
+}
+.iconBtn{
+  border:1px solid var(--panel-border);
+  background:linear-gradient(180deg, rgba(30,36,64,.9), rgba(18,22,44,.9));
+  color:var(--text);
+  width:42px; height:42px; padding:0;
   border-radius:14px;
-  border:1px solid rgba(56,211,111,.30);
-  background: linear-gradient(180deg, rgba(20,28,34,.75), rgba(12,16,20,.55));
-  box-shadow: 0 12px 30px rgba(0,0,0,.35), inset 0 0 0 1px rgba(0,0,0,.35);
-  font-family:"ShareStatsFont","RebellionSquad", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-  font-size:14px;
-  letter-spacing:.7px;
-  color: rgba(238,248,255,.92);
-  opacity:0;
-  transform: translateY(-8px) scale(.98);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 6px 16px rgba(0,0,0,.45);
+  transition: transform .12s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.iconBtn:hover{border-color:rgba(0,229,255,.45); box-shadow: inset 0 1px 0 rgba(255,255,255,.08), var(--glow-cyan);}
+.iconBtn:active{transform:scale(.96)}
+
+.title{
+  flex:1; text-align:center;
+  font-family:"RebellionSquad","AmericanCaptainPatrius", Akando, system-ui;
+  font-size:18px; letter-spacing:2px;
+  color:var(--text);
+  text-shadow:
+    0 0 6px rgba(0,229,255,.55),
+    0 0 16px rgba(138,92,255,.35);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.mcFont{font-family:"RebellionSquad","AmericanCaptainPatrius","Akando",system-ui}
+
+.badge{
+  font-size:12px; font-weight:800; letter-spacing:.6px;
+  color:var(--text);
+  padding:9px 14px;
+  background:linear-gradient(135deg, rgba(0,229,255,.18), rgba(138,92,255,.22));
+  border:1px solid rgba(0,229,255,.45);
+  border-radius:999px;
+  box-shadow: var(--glow-cyan);
+  cursor:pointer;
+  transition: transform .12s ease, box-shadow .2s ease;
+  text-transform:uppercase;
+}
+.badge:hover{transform:translateY(-1px)}
+.badge:active{transform:translateY(0) scale(.98)}
+
+/* ---------- Game card ---------- */
+.gameCard{
+  flex:1;
+  background:
+    linear-gradient(180deg, rgba(22,28,56,.75), rgba(10,12,28,.85));
+  border:1px solid var(--panel-border);
+  border-radius:26px;
+  box-shadow:
+    var(--shadow-deep),
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 0 0 1px rgba(0,229,255,.06);
+  padding:10px;
+  position:relative; overflow:hidden;
+}
+/* Neon corner accents */
+.gameCard::before,
+.gameCard::after{
+  content:""; position:absolute; width:90px; height:90px; pointer-events:none;
+  border:2px solid transparent; border-radius:20px;
+  filter: drop-shadow(0 0 8px currentColor);
+}
+.gameCard::before{
+  top:-2px; left:-2px;
+  border-top-color:var(--neon-cyan); border-left-color:var(--neon-cyan);
+  color:var(--neon-cyan);
+  border-top-left-radius:26px;
+}
+.gameCard::after{
+  bottom:-2px; right:-2px;
+  border-bottom-color:var(--neon-magenta); border-right-color:var(--neon-magenta);
+  color:var(--neon-magenta);
+  border-bottom-right-radius:26px;
+}
+
+.canvasWrap{
+  position:absolute; inset:10px;
+  border-radius:18px; overflow:hidden;
+  background:#05060d;
+  border:1px solid rgba(124,140,255,.14);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.6), inset 0 0 60px rgba(0,0,0,.5);
+}
+canvas{
+  display:block; width:100%; height:100%;
+  touch-action:none; user-select:none;
+  -webkit-user-select:none; -webkit-touch-callout:none;
+}
+
+/* ---------- HUD (Live Statistics) ---------- */
+.hud{
+  position:absolute; left:18px; top:18px;
+  padding:12px 14px;
+  min-width:182px;
+  border-radius:14px;
+  background:linear-gradient(180deg, rgba(10,14,32,.88), rgba(6,8,20,.88));
+  border:1px solid rgba(0,229,255,.35);
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.55),
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 0 18px rgba(0,229,255,.18);
+  color:var(--text);
+}
+.hud::before{
+  content:""; position:absolute; left:10px; right:10px; top:0; height:2px;
+  background:linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+  filter: drop-shadow(0 0 6px var(--neon-cyan));
+  border-radius:2px;
+}
+.hudTitle{
+  font-family:"RebellionSquad","AmericanCaptainPatrius",Akando,system-ui;
+  font-weight:700; font-size:15px; letter-spacing:2px;
+  color:var(--neon-cyan);
+  text-shadow: 0 0 8px rgba(0,229,255,.55);
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+.hudRow{
+  display:flex; gap:12px; flex-wrap:wrap;
+  font-size:12px; color:var(--text-dim);
+  letter-spacing:.5px;
+}
+.hudRow + .hudRow{margin-top:6px}
+.hudRow > div{display:inline-flex; align-items:center; gap:4px}
+.hudRow b{
+  color:#fff; font-weight:800;
+  text-shadow: 0 0 6px rgba(255,255,255,.25);
+}
+
+/* ---------- Bottom controls ---------- */
+.bottomBar{
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  padding-bottom: max(4px, env(safe-area-inset-bottom));
+  padding-top:4px;
+}
+.controls{display:flex; gap:10px; width:100%; max-width:460px; margin:0 auto}
+
+.ctrlBtn{
+  flex:1; padding:18px 14px;
+  border-radius:16px;
+  border:1px solid rgba(124,140,255,.28);
+  background:linear-gradient(180deg, rgba(28,34,68,.95), rgba(14,18,38,.95));
+  color:var(--text);
+  font-weight:900; font-size:15px; letter-spacing:1px;
+  text-transform:uppercase;
+  touch-action:none; user-select:none; -webkit-user-select:none;
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 10px 22px rgba(0,0,0,.5),
+    0 0 0 1px rgba(0,229,255,.08);
+  transition: transform .1s ease, box-shadow .2s ease, border-color .2s ease;
+  position:relative; overflow:hidden;
+}
+.ctrlBtn::after{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(0,229,255,.08), transparent 60%);
   pointer-events:none;
 }
+.ctrlBtn .ctrlIcon{font-size:16px; line-height:1}
+.ctrlBtn:not(.primary):hover{
+  border-color:rgba(0,229,255,.55);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 10px 22px rgba(0,0,0,.5), var(--glow-cyan);
+}
+.ctrlBtn.primary{
+  background:linear-gradient(180deg, #ff9a3a, #ff6a1f 60%, #e2530c);
+  border-color:rgba(255,180,80,.8);
+  color:#1a0a00;
+  text-shadow:0 1px 0 rgba(255,255,255,.35);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.35),
+    0 10px 22px rgba(0,0,0,.55),
+    var(--glow-orange);
+}
+.ctrlBtn.primary:hover{filter:brightness(1.05)}
+.ctrlBtn:active{transform:scale(.97)}
 
-.boardsNotice.show{
-  display:block;
-  opacity:1;
-  transform: translateY(0) scale(1);
-  animation: boardsNoticePop .38s ease-out;
+/* ---------- Bottom sheet (menu/dialogs) ---------- */
+.sheet{
+  position:absolute; inset:0;
+  background:rgba(2,4,12,.65);
+  backdrop-filter: blur(6px);
+  display:none;
+  padding:18px 18px calc(18px + env(safe-area-inset-bottom));
+  align-items:flex-end; justify-content:center;
+  z-index:40;
+}
+.sheet.open{display:flex; animation: fadeIn .18s ease}
+@keyframes fadeIn{from{opacity:0} to{opacity:1}}
+
+.sheetPanel{
+  width:100%; max-width:540px;
+  background:linear-gradient(180deg, rgba(22,26,54,.98), rgba(10,12,28,.98));
+  border:1px solid var(--panel-border);
+  border-radius:22px;
+  box-shadow:
+    var(--shadow-deep),
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 0 40px rgba(0,229,255,.10);
+  overflow:hidden;
+  animation: slideUp .24s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes slideUp{from{transform:translateY(20px); opacity:.4} to{transform:translateY(0); opacity:1}}
+
+.sheetHeader{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 18px 12px;
+  border-bottom:1px solid rgba(124,140,255,.14);
+  background:linear-gradient(180deg, rgba(0,229,255,.06), transparent);
+}
+.sheetHeader h3{
+  margin:0; font-size:17px; font-weight:800;
+  letter-spacing:1.2px; text-transform:uppercase;
+  color:var(--neon-cyan);
+  text-shadow: 0 0 10px rgba(0,229,255,.45);
+}
+.sheetBody{
+  padding:16px 18px;
+  color:var(--text-dim); font-size:14px; line-height:1.55;
+  max-height:70vh; overflow-y:auto;
+}
+.sheetBody::-webkit-scrollbar{width:6px}
+.sheetBody::-webkit-scrollbar-thumb{background:rgba(0,229,255,.3); border-radius:6px}
+
+.kv{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px; padding:11px 0;
+  border-bottom:1px dashed rgba(124,140,255,.14);
+}
+.kv:last-child{border-bottom:0}
+.kv span{color:#fff; font-weight:700}
+
+.row{display:flex; gap:10px; margin-top:14px; flex-wrap:wrap}
+
+.btn{
+  flex:1; min-width:120px;
+  border:1px solid rgba(124,140,255,.28);
+  background:linear-gradient(180deg, rgba(30,36,68,.95), rgba(14,18,40,.95));
+  color:var(--text);
+  padding:12px 14px; border-radius:14px;
+  font-weight:800; font-size:13px; letter-spacing:.8px;
+  text-transform:uppercase;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 6px 16px rgba(0,0,0,.45);
+  transition: transform .1s ease, box-shadow .2s ease, border-color .2s ease;
+  cursor:pointer;
+}
+.btn:hover{border-color:rgba(0,229,255,.45); box-shadow: inset 0 1px 0 rgba(255,255,255,.08), var(--glow-cyan)}
+.btn.accent{
+  background:linear-gradient(180deg, #ff9a3a, #ff6a1f);
+  border-color:rgba(255,180,80,.8);
+  color:#1a0a00;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.3), var(--glow-orange);
+}
+.btn.accent:hover{filter:brightness(1.08)}
+.btn.danger{
+  background:linear-gradient(180deg, #ff4570, #d41b46);
+  border-color:rgba(255,90,130,.7);
+  color:#fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 0 14px rgba(255,51,88,.45);
+}
+.btn:active{transform:scale(.97)}
+
+.mono{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size:12px; color:#9cd3ff;
+  background:rgba(0,229,255,.06);
+  padding:2px 6px; border-radius:4px;
 }
 
-.boardsNotice.reward{
-  border-color: rgba(56,211,111,.55);
-  background: linear-gradient(180deg, rgba(26,44,34,.78), rgba(10,14,18,.55));
+/* ---------- Toast ---------- */
+.toast{
+  position:absolute; left:50%; transform:translateX(-50%) translateY(8px);
+  bottom:110px;
+  background:linear-gradient(180deg, rgba(10,14,32,.96), rgba(6,8,20,.96));
+  border:1px solid rgba(0,229,255,.5);
+  color:#fff;
+  padding:11px 16px;
+  border-radius:12px;
+  font-size:13px; font-weight:700; letter-spacing:.3px;
+  display:none; max-width:92%; text-align:center;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 26px rgba(0,0,0,.55), var(--glow-cyan);
+  opacity:0;
+  transition: opacity .2s ease, transform .2s ease;
+  z-index:50;
+}
+.toast.show{
+  display:block; opacity:1;
+  transform:translateX(-50%) translateY(0);
 }
 
-.boardsNotice .rewardPlus{
-  color: rgba(56,211,111,.98);
-  text-shadow: 0 0 12px rgba(56,211,111,.35);
+/* ---------- Reward popup ---------- */
+.rewardPlus{
+  color:var(--neon-green);
+  font-weight:900;
+  text-shadow:0 0 10px rgba(25,240,154,.6);
+}
+.rewardTxt{color:var(--text-dim); font-weight:600}
+
+/* ---------- Leaderboard ---------- */
+#boards{display:flex; flex-direction:column; gap:14px}
+.board{
+  background:linear-gradient(180deg, rgba(16,20,42,.88), rgba(10,12,28,.88));
+  border:1px solid var(--panel-border);
+  border-radius:16px;
+  padding:12px 14px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 6px 18px rgba(0,0,0,.35);
+}
+.boardTitle{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px;
+  font-weight:800; color:var(--neon-cyan);
+  text-transform:uppercase; letter-spacing:1px; font-size:13px;
+  margin-bottom:10px;
+  text-shadow:0 0 8px rgba(0,229,255,.35);
+}
+.weekCountdownWrap{font-weight:600; color:var(--text-dim)}
+.segCanvas{height:16px; vertical-align:middle}
+
+.boardList{
+  display:flex; flex-direction:column; gap:var(--lb-gap);
+  max-height: calc(var(--lb-row)*6 + var(--lb-gap)*5 + 4px);
+  overflow-y:auto;
+  padding-right:4px;
+}
+.boardList::-webkit-scrollbar{width:5px}
+.boardList::-webkit-scrollbar-thumb{background:rgba(0,229,255,.3); border-radius:4px}
+
+.boardRow{
+  display:flex; align-items:center; gap:10px;
+  padding:10px 12px;
+  border-radius:12px;
+  background:linear-gradient(90deg, rgba(20,26,52,.8), rgba(14,18,40,.8));
+  border:1px solid rgba(124,140,255,.12);
+  transition: transform .12s ease, border-color .2s ease, background .2s ease;
+}
+.boardRow:hover{
+  border-color:rgba(0,229,255,.35);
+  transform:translateX(2px);
+}
+.boardRow .rank{
+  width:28px; text-align:center;
+  font-weight:900; color:var(--text-dim);
+}
+.boardRow:nth-child(1) .rank{color:var(--neon-yellow); text-shadow:0 0 10px rgba(255,210,58,.7)}
+.boardRow:nth-child(2) .rank{color:#d6deea; text-shadow:0 0 8px rgba(214,222,234,.5)}
+.boardRow:nth-child(3) .rank{color:#ff9a63; text-shadow:0 0 8px rgba(255,154,99,.5)}
+.boardRow .who{flex:1; font-weight:700; color:#fff; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.boardRow .pts{
+  font-weight:900; color:var(--neon-cyan);
+  text-shadow:0 0 8px rgba(0,229,255,.4);
+  font-variant-numeric: tabular-nums;
 }
 
-.boardsNotice .rewardTxt{
-  color: rgba(238,248,255,.92);
+.copy{color:var(--text-dim); font-size:13px; line-height:1.6}
+
+/* ---------- Menu list items ---------- */
+.menuList{display:flex; flex-direction:column; gap:8px; margin-top:4px}
+.menuItem{
+  display:flex; align-items:center; gap:12px;
+  padding:13px 14px;
+  border:1px solid rgba(124,140,255,.16);
+  border-radius:14px;
+  background:linear-gradient(180deg, rgba(22,28,58,.7), rgba(12,16,34,.7));
+  color:var(--text);
+  cursor:pointer;
+  font-weight:700; letter-spacing:.4px;
+  transition: border-color .2s ease, transform .12s ease, background .2s ease;
+  text-align:left; width:100%;
+}
+.menuItem:hover{
+  border-color:rgba(0,229,255,.45);
+  background:linear-gradient(180deg, rgba(22,28,58,.9), rgba(12,16,34,.9));
+}
+.menuItem:active{transform:scale(.985)}
+.menuItem .mi-icon{
+  width:36px; height:36px; border-radius:10px;
+  display:inline-flex; align-items:center; justify-content:center;
+  background:linear-gradient(180deg, rgba(0,229,255,.14), rgba(138,92,255,.14));
+  border:1px solid rgba(0,229,255,.25);
+  font-size:18px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
 }
 
-@keyframes boardsNoticePop{
-  0% { opacity:0; transform: translateY(-10px) scale(.96); filter: blur(.6px); }
-  65% { opacity:1; transform: translateY(1px) scale(1.01); filter: blur(0); }
-  100% { opacity:1; transform: translateY(0) scale(1); }
+/* ---------- Segmented display helper ---------- */
+.segCanvas{image-rendering: pixelated}
+
+/* ---------- Status variants on badge ---------- */
+.badge.connected{
+  background:linear-gradient(135deg, rgba(25,240,154,.2), rgba(0,229,255,.22));
+  border-color:rgba(25,240,154,.55);
+  box-shadow: 0 0 14px rgba(25,240,154,.5);
+  color:#d8ffe9;
+}
+.badge.error{
+  background:linear-gradient(135deg, rgba(255,51,88,.22), rgba(255,43,214,.22));
+  border-color:rgba(255,51,88,.55);
+  box-shadow: 0 0 14px rgba(255,51,88,.45);
+  color:#ffd9e0;
 }
 
-.sharePill:hover{
-  border-color: rgba(56,211,111,.70);
-  box-shadow: 0 14px 34px rgba(0,0,0,.40), 0 0 0 2px rgba(56,211,111,.12), inset 0 0 0 1px rgba(0,0,0,.25);
-  transform: translateY(-1px);
-}
-.sharePill:active{
-  transform: translateY(0);
-  box-shadow: 0 10px 26px rgba(0,0,0,.28), inset 0 0 0 1px rgba(0,0,0,.25);
-}
-
-
-/* --- Leaderboards view: bigger text (no font changes) --- */
-#sheet[data-view="boards"] .sheetHeader h3{ font-size:18px; }
-
-#sheet[data-view="boards"] .boardTitle{ font-size:15px; }
-#sheet[data-view="boards"] .rankBadge{ font-size:13px; }
-#sheet[data-view="boards"] .entry{ font-size:14px; }
-#sheet[data-view="boards"] .addr{ font-size:14px; }
-#sheet[data-view="boards"] .addr.addrFull{ font-size:14px; }
-#sheet[data-view="boards"] .points{ font-size:14px; }
-
-#sheet[data-view="boards"] .subcopy{ font-size:13px; }
-#sheet[data-view="boards"] .copy{ font-size:13px; }
-#sheet[data-view="boards"] .shareMeta{ font-size:13px; }
-#sheet[data-view="boards"] .shareCooldown{ font-size:13px; }
-
-
-/* Tighter layout on small phones */
+/* ---------- Responsive tweaks ---------- */
 @media (max-width: 420px){
-  .shell{padding:6px 8px 8px; gap:8px;}
-  .gameCard{padding:6px;}
-  .canvasWrap{inset:6px; border-radius:16px;}
-  .hud{left:12px; top:12px;}
+  .title{font-size:15px; letter-spacing:1px}
+  .badge{font-size:11px; padding:8px 12px}
+  .hud{min-width:160px; padding:10px 12px}
+  .hudTitle{font-size:13px}
+  .ctrlBtn{padding:16px 10px; font-size:13px}
+  .gameCard::before, .gameCard::after{width:60px; height:60px}
 }
 
-/* Wallet connect chooser */
-.connectWalletSheet{display:grid; gap:12px;}
-.walletOptionList{display:grid; gap:10px;}
-.walletOption{
-  width:100%;
-  display:grid;
-  gap:4px;
-  text-align:left;
-  padding:14px 16px;
-  border-radius:18px;
-  border:1px solid rgba(224,168,104,.35);
-  background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(243,236,227,.94));
-  box-shadow:0 10px 24px rgba(26,24,20,.10), inset 0 0 0 1px rgba(255,255,255,.55);
+@media (max-height: 720px){
+  .hud{padding:9px 11px; min-width:158px}
+  .hudTitle{font-size:13px; margin-bottom:6px}
+  .hudRow{font-size:11px}
+  .ctrlBtn{padding:14px 12px}
 }
-.walletOption:active{transform:translateY(1px);}
-.walletOptionTitle{font-weight:800; letter-spacing:.2px; color:#1f2430;}
-.walletOptionSub{font-size:12px; color:#5f6674;}
-.walletHint{font-size:12px; line-height:1.45; color:#6b7280; padding:0 2px;}
+
+/* ---------- Ambient pulse on game card (very subtle) ---------- */
+@keyframes pulseGlow{
+  0%,100%{box-shadow: var(--shadow-deep), inset 0 1px 0 rgba(255,255,255,.06), 0 0 0 1px rgba(0,229,255,.06)}
+  50%    {box-shadow: var(--shadow-deep), inset 0 1px 0 rgba(255,255,255,.06), 0 0 0 1px rgba(255,43,214,.10)}
+}
+.gameCard{animation: pulseGlow 6s ease-in-out infinite}
