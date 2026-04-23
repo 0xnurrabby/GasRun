@@ -68,7 +68,7 @@ async function ensureAttribution() {
 // =====================================================
 // 👇👇👇 IMPORTANT: put your WalletConnect (Reown) Project ID here.
 // Get one free at https://cloud.reown.com  (takes 1 minute)
-const WALLETCONNECT_PROJECT_ID = "REPLACE_WITH_YOUR_PROJECT_ID";
+const WALLETCONNECT_PROJECT_ID = "ba001bb517511dfef37a6d2b8839d8eb";
 
 let _wcProviderPromise = null;
 let _wcProvider = null;
