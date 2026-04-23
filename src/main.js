@@ -811,9 +811,16 @@ async function cacheConnectedUserLabel() {
 async function connectWallet(source = "miniapp", walletLabel = null) {
   const p = await getProvider(source);
   if (!p) {
-    toast("No wallet found. Open in Base/Farcaster or use a browser wallet like MetaMask/Coinbase Wallet.", 2600);
+    const msg =
+      source === "miniapp"
+        ? "Base/Farcaster host not detected. Use WalletConnect or install MetaMask."
+        : source === "walletconnect"
+        ? "WalletConnect unavailable. Check your internet or try again."
+        : "No wallet found. Try WalletConnect or install a browser wallet.";
+    toast(msg, 2800);
     return null;
   }
+
 
   try {
     let accs;
@@ -858,7 +865,10 @@ async function connectWallet(source = "miniapp", walletLabel = null) {
 
 async function openWalletConnectFlow() {
   warmWeb3Deps();
-  const isMiniHost = !!(await getMiniAppProvider());
+
+  // Detect Mini App host FAST with a short timeout — so on a regular
+  // mobile browser we don't wait 12s for the SDK that will never arrive.
+  const isMiniHost = await detectMiniHostFast();
   const injected = listInjectedWalletOptions();
   const options = [];
 
@@ -866,7 +876,9 @@ async function openWalletConnectFlow() {
     options.push({
       id: "miniapp",
       label: "Base / Farcaster wallet",
-      sub: account && activeWalletId === "miniapp" ? "Already connected here" : "Uses the wallet provided by the host app"
+      sub: account && activeWalletId === "miniapp"
+        ? "Already connected here"
+        : "Uses the wallet provided by the host app"
     });
   }
 
@@ -874,24 +886,35 @@ async function openWalletConnectFlow() {
     options.push({
       id: `injected:${item.id}`,
       label: item.label,
-      sub: item.label === "MetaMask" ? "Browser extension / in-app browser" : "Injected browser wallet"
+      sub: item.label === "MetaMask"
+        ? "Browser extension / in-app browser"
+        : "Injected browser wallet"
     });
   }
 
-  // Always offer WalletConnect — works on mobile browser via QR / deep-link
-  // to MetaMask, Trust, Rainbow, OKX, Zerion, Coinbase Wallet, etc.
-  options.push({
-    id: "walletconnect",
-    label: "WalletConnect",
-    sub: "Scan QR or open your mobile wallet (MetaMask, Trust, Rainbow, OKX…)",
-    recommended: !isMiniHost && injected.length === 0
-  });
+  // Only offer WalletConnect if a Project ID is configured.
+  // Recommend it when user has no other wallet (typical mobile browser case).
+  const wcEnabled =
+    WALLETCONNECT_PROJECT_ID &&
+    WALLETCONNECT_PROJECT_ID !== "REPLACE_WITH_YOUR_PROJECT_ID";
 
-  if (!options.length) {
-    toast("No wallet detected. Install MetaMask/Coinbase Wallet or open inside Base/Farcaster.", 2600);
-    return;
+  if (wcEnabled) {
+    options.push({
+      id: "walletconnect",
+      label: "WalletConnect",
+      sub: "Scan QR or open your mobile wallet (MetaMask, Trust, Rainbow, OKX…)",
+      recommended: !isMiniHost && injected.length === 0
+    });
   }
 
+  if (!options.length) {
+    // No wallet at all — give clear actionable hint.
+    const installHint = wcEnabled
+      ? "No wallet detected. Use WalletConnect, install MetaMask/Coinbase Wallet, or open inside Base/Farcaster."
+      : "No wallet detected. Install MetaMask/Coinbase Wallet, or open inside Base/Farcaster.";
+    toast(installHint, 3200);
+    return;
+  }
 
   const iconFor = (id) => {
     if (id === "walletconnect") return "🔗";
@@ -911,7 +934,7 @@ async function openWalletConnectFlow() {
             <span class="walletOptionBody">
               <span class="walletOptionTitle">
                 ${opt.label}
-                ${opt.recommended ? '<span class="walletRecBadge">Recommended</span>' : ''}
+                ${opt.recommended ? '<span class="walletRecBadge">Recommended</span>' : ""}
               </span>
               <span class="walletOptionSub">${opt.sub}</span>
             </span>
@@ -938,18 +961,34 @@ async function openWalletConnectFlow() {
   });
 }
 
-async function ensureBase() {
-  const p = await getProvider();
-  if (!p) throw new Error("No provider");
-  const chainId = await p.request({ method: "eth_chainId", params: [] });
-  if (chainId === BASE_CHAIN_ID_HEX) return;
+// Fast mini-host detection: checks synchronously first, then waits only 300ms.
+// Prevents the 12s ensureSdk() stall on regular mobile browsers.
+async function detectMiniHostFast() {
+  // synchronous fast path — SDK already present?
+  const syncSdk = _getSdkSync();
+  if (syncSdk) {
+    try {
+      const p = await syncSdk.wallet.getEthereumProvider();
+      return !!p;
+    } catch { return false; }
+  }
+
+  // short async wait — if SDK shows up within 300ms, count it.
   try {
-    await p.request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: BASE_CHAIN_ID_HEX }]
+    const p = await new Promise((resolve) => {
+      const start = performance.now();
+      (function poll() {
+        const s = _getSdkSync();
+        if (s) return resolve(s);
+        if (performance.now() - start > 300) return resolve(null);
+        setTimeout(poll, 30);
+      })();
     });
+    if (!p) return false;
+    const pr = await p.wallet.getEthereumProvider();
+    return !!pr;
   } catch {
-    throw new Error("Please switch your wallet to Base Mainnet (0x2105).");
+    return false;
   }
 }
 
