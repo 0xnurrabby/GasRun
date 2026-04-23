@@ -894,6 +894,66 @@ canvas{
   border-radius:var(--radius-sharp);
 }
 
+/* ============================================================
+   WALLETCONNECT — enhanced wallet picker styles
+   ============================================================ */
+.walletOption{
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:center !important;
+  gap:12px !important;
+}
+.walletOption.recommended{
+  border-color: var(--race-orange);
+  box-shadow: var(--hs-sm), inset 0 0 0 2px var(--race-orange);
+}
+.walletOptionIcon{
+  width:44px; height:44px;
+  flex:0 0 44px;
+  display:inline-flex; align-items:center; justify-content:center;
+  background:var(--race-yellow);
+  border:2px solid var(--ink);
+  border-radius:var(--radius-sharp);
+  font-size:22px;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.walletOption:hover .walletOptionIcon{
+  background:var(--ink);
+  color:var(--race-yellow);
+}
+.walletOptionBody{
+  display:flex; flex-direction:column;
+  align-items:flex-start; gap:3px;
+  flex:1; min-width:0;
+}
+.walletOptionTitle{
+  display:inline-flex; align-items:center; gap:8px;
+  flex-wrap:wrap;
+}
+.walletRecBadge{
+  font-size:9.5px;
+  font-weight:900;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  padding:3px 8px;
+  background:var(--race-orange);
+  color:var(--ink);
+  border:2px solid var(--ink);
+  border-radius:3px;
+  line-height:1;
+}
+.walletOption:hover .walletRecBadge{
+  background:var(--ink);
+  color:var(--race-orange);
+  border-color:var(--race-orange);
+}
+
+/* WalletConnect modal — ensure it sits above our sheet */
+wcm-modal, w3m-modal{
+  --wcm-z-index: 99999 !important;
+  z-index: 99999 !important;
+}
+
 /* ---- Leaderboard Lock screen ---- */
 .lbLocked{
   display:flex; flex-direction:column; align-items:center;
