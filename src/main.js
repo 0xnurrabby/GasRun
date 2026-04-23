@@ -2012,6 +2012,51 @@ async function shareCurrentWeeklyStat() {
 
 
 async function openLeaderboardsView(forceRefresh = false) {
+  // ---- LOCK CHECK: require 10,000 deposited pts to view leaderboard ----
+  // Backend leaderboard continues to work for everyone; only the VIEW is gated.
+  if (!isLeaderboardUnlocked()) {
+    const total = getTotalDeposited();
+    const needed = getLbRemaining();
+    const pct = getLbProgressPct();
+    openSheet(
+      "Leaderboard Locked",
+      `
+      <div class="lbLocked">
+        <div class="lbLockedIcon">🔒</div>
+        <div class="lbLockedTitle">Leaderboard is Locked</div>
+        <div class="lbLockedDesc">
+          Deposit at least <b>${LEADERBOARD_UNLOCK_THRESHOLD.toLocaleString()}</b> points (total, on-chain) to unlock leaderboard access.
+        </div>
+
+        <div class="lbProgressWrap">
+          <div class="lbProgressBar"><div class="lbProgressFill" style="width:${pct}%"></div></div>
+          <div class="lbProgressTxt">
+            <span><b>${total.toLocaleString()}</b> / ${LEADERBOARD_UNLOCK_THRESHOLD.toLocaleString()} pts</span>
+            <span class="lbProgressPct">${pct}%</span>
+          </div>
+        </div>
+
+        <div class="lbLockedHint">
+          <b>${needed.toLocaleString()}</b> more points to go. Your deposits already count on the public leaderboard — you just need to reach the threshold to see rankings.
+        </div>
+
+        <div class="btnRow">
+          <button class="pill" id="lbBackMenu">Back to Menu</button>
+          <button class="pill primary" id="lbGoDeposit">Deposit now</button>
+        </div>
+      </div>
+      `,
+      "lblocked"
+    );
+    const backEl = $("#lbBackMenu");
+    const depEl = $("#lbGoDeposit");
+    if (backEl) backEl.addEventListener("click", openMainMenu);
+    if (depEl) depEl.addEventListener("click", () => {
+      commitWeeklyOnchain();
+    });
+    return;
+  }
+
   if (boardsInFlight) return;
   boardsInFlight = true;
 
