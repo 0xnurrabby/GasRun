@@ -1465,7 +1465,7 @@ function convertCoinsToBank() {
     toast("No coins to convert");
     return;
   }
-  const pts = profile.coins * 10;
+  const pts = profile.coins * 10000;
   profile.coins = 0;
   profile.bankPoints += pts;
   persistProfile();
