@@ -3382,22 +3382,20 @@ function render() {
     ctx.lineWidth = 4;
     ctx.strokeRect(bannerX, bannerY, bannerW, bannerH);
 
-    ctx.fillStyle = P.bannerTtl;
-    ctx.font = '900 34px "RebellionSquad","Akando",system-ui';
+        ctx.fillStyle = P.bannerTtl;
+    ctx.font = '800 28px "Akando", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif';
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText("CRASHED", g.w / 2, bannerY + 40);
+    ctx.fillText("CRASHED", g.w / 2, bannerY + 38);
 
     ctx.fillStyle = P.bannerTxt;
-    ctx.font = '800 13px "Akando",system-ui';
-    ctx.fillText(`SCORE: ${game.score | 0}`, g.w / 2, bannerY + 72);
+    ctx.font = '700 13px "Akando", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif';
+    ctx.fillText(`SCORE: ${game.score | 0}`, g.w / 2, bannerY + 70);
 
     ctx.fillStyle = P.bannerSub;
-    ctx.font = '900 12px "Akando",system-ui';
+    ctx.font = '700 12px "Akando", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif';
     ctx.fillText("TAP TO RESTART", g.w / 2, bannerY + 96);
-    ctx.restore();
   }
-
   ctx.restore(); // final (matches the very first ctx.save())
 }
 
@@ -3421,6 +3419,8 @@ function render() {
 
       if (typeof update === "function") update(dt);
       if (typeof render === "function") render();
+      if (typeof renderHud === "function") renderHud();
+
     } catch (e) {
       // Never let a render error stop the loop — log and continue.
       console.error("[gameLoop]", e);
