@@ -152,21 +152,17 @@ app.innerHTML = `
     <div class="gameCard">
       <div class="canvasWrap">
         <canvas id="c"></canvas>
-      </div>
 
-      <div class="hud" id="hud">
-        <div class="hudTitle">${HUD_TITLE}</div>
-        <div class="hudRow">
-          <div>Run: <b id="runScore">0</b></div>
-          <div>Coins: <b id="coins">0</b></div>
+        <!-- Compact floating HUD (transparent, minimal) -->
+        <div class="hudMini" id="hud">
+          <div class="hudMiniRow"><span class="hudK">RUN</span><b id="runScore">0</b></div>
+          <div class="hudMiniRow"><span class="hudK">COINS</span><b id="coins">0</b></div>
+          <div class="hudMiniRow"><span class="hudK">BANK</span><b id="bankPoints">0</b></div>
+          <div class="hudMiniRow"><span class="hudK">BOOST</span><b id="boost">—</b></div>
         </div>
-        <div class="hudRow" style="margin-top:8px">
-          <div>Bank: <b id="bankPoints">0</b></div>
-          <div>Boost: <b id="boost">—</b></div>
-        </div>
-      </div>
 
-      <div class="toast" id="toast"></div>
+        <div class="toast" id="toast"></div>
+      </div>
     </div>
 
     <div class="bottomBar">
@@ -958,6 +954,33 @@ function hoursToMs(h) {
 // =====================================================
 const DECAY_INTERVAL_MS = 10 * 60 * 1000;
 const DECAY_MULT = 0.75;
+// =====================================================
+// Leaderboard Access Lock (min 10,000 deposited points to view)
+// Deposits continue to be saved on-chain regardless of access.
+// The backend leaderboard keeps working — only the VIEW is gated.
+// =====================================================
+const LEADERBOARD_UNLOCK_THRESHOLD = 10000;
+const LS_TOTAL_DEPOSITED = "gasrun_total_deposited";
+
+function getTotalDeposited() {
+  return Math.max(0, Number(localStorage.getItem(LS_TOTAL_DEPOSITED) || "0") | 0);
+}
+function addToTotalDeposited(pts) {
+  const n = Math.max(0, Math.floor(Number(pts) || 0));
+  const cur = getTotalDeposited();
+  const next = cur + n;
+  localStorage.setItem(LS_TOTAL_DEPOSITED, String(next));
+  return next;
+}
+function isLeaderboardUnlocked() {
+  return getTotalDeposited() >= LEADERBOARD_UNLOCK_THRESHOLD;
+}
+function getLbProgressPct() {
+  return Math.min(100, Math.round((getTotalDeposited() / LEADERBOARD_UNLOCK_THRESHOLD) * 100));
+}
+function getLbRemaining() {
+  return Math.max(0, LEADERBOARD_UNLOCK_THRESHOLD - getTotalDeposited());
+}
 
 const profile = {
   bankPoints: Number(localStorage.getItem("w3r_bank") || "0"),
@@ -1292,10 +1315,21 @@ async function commitWeeklyOnchain() {
       }
     }
 
+    // Track total deposited points for leaderboard unlock (backend is untouched)
+    const wasLocked = !isLeaderboardUnlocked();
+    addToTotalDeposited(pts);
+    const nowUnlocked = isLeaderboardUnlocked();
+
     profile.bankPoints = 0;
 
     persistProfile();
-    toast("Committed on-chain! Updating leaderboard…", 2200);
+
+    if (wasLocked && nowUnlocked) {
+      toast("🏆 LEADERBOARD UNLOCKED! Welcome to the competition.", 3200);
+    } else {
+      toast("Committed on-chain! Updating leaderboard…", 2200);
+    }
+
 
     if (isSheetOpen()) await openLeaderboardsView();
   } catch (e) {
@@ -1571,10 +1605,27 @@ function openMainMenu() {
       <button class="pill primary" id="btnCommit">Deposit Saved points → Weekly leaderboard ( Important )</button>
     </div>
 
+    <div class="lbAccessCard ${isLeaderboardUnlocked() ? 'unlocked' : 'locked'}">
+      <div class="lbAccessHead">
+        <span class="lbAccessIcon">${isLeaderboardUnlocked() ? '🏆' : '🔒'}</span>
+        <span class="lbAccessTitle">Leaderboard Access</span>
+        <span class="lbAccessStatus">${isLeaderboardUnlocked() ? 'UNLOCKED' : 'LOCKED'}</span>
+      </div>
+      <div class="lbAccessBar"><div class="lbAccessFill" style="width:${getLbProgressPct()}%"></div></div>
+      <div class="lbAccessInfo">
+        <span><b>${getTotalDeposited().toLocaleString()}</b> / ${LEADERBOARD_UNLOCK_THRESHOLD.toLocaleString()} pts deposited</span>
+        ${isLeaderboardUnlocked()
+          ? '<span class="lbAccessNote good">✓ Full access</span>'
+          : `<span class="lbAccessNote">${getLbRemaining().toLocaleString()} more pts to unlock</span>`
+        }
+      </div>
+    </div>
+
     <div class="alertRed">
   ⚠️ Important: Please Deposit your Saved points within every 10 min. If you don't,  25% percent of your saved points will be deducted every 10 minutes!
 </div>
   `,
+
     "menu"
   );
 
