@@ -2534,6 +2534,12 @@ function update(dt) {
   game.coins = game.coins.filter((c) => c.y < g.safeBottom + 100);
 }
 
+// =====================================================
+// NEO-BRUTALISM RACING VISUALS (v3)
+// Gameplay logic untouched — pure render overhaul.
+// Warm, eye-friendly palette for long play sessions.
+// =====================================================
+
 function drawRoundedRect(x, y, w, h, r) {
   const rr = Math.min(r, w / 2, h / 2);
   ctx.beginPath();
@@ -2549,9 +2555,19 @@ function drawRoundedRect(x, y, w, h, r) {
   ctx.closePath();
 }
 
+// Sharp rect (brutalism — hard corners)
+function drawSharpRect(x, y, w, h) {
+  ctx.beginPath();
+  ctx.rect(x, y, w, h);
+  ctx.closePath();
+}
 
-function drawCarTopDown(x, y, w, h, bodyColor) {
-  // Premium top-down sports car render (visual only, no gameplay change).
+// =====================================================
+// PREMIUM TOP-DOWN CAR (Neo-Brutalism racing style)
+// Thick black outlines, flat panel colors with subtle gradient,
+// chunky mechanical details — top-notch design.
+// =====================================================
+function drawCarTopDown(x, y, w, h, bodyColor, opts = {}) {
   ctx.save();
 
   if (!isFinite(x) || !isFinite(y) || !isFinite(w) || !isFinite(h) || w <= 0 || h <= 0) {
@@ -2560,247 +2576,364 @@ function drawCarTopDown(x, y, w, h, bodyColor) {
   }
 
   const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+  const INK = "#0d0d14";
+  const CHROME = "#8a8578";
+  const CHROME_HI = "#c7c2b0";
+  const GLASS_DARK = "#16162a";
+  const GLASS_MID = "#1f1f38";
+  const accentColor = opts.accent || "#f7d046";
+  const isRival = !!opts.rival;
 
-  // ---------- Ground shadow (soft, offset) ----------
-  ctx.globalAlpha = 0.35;
-  ctx.fillStyle = "rgba(0,0,0,0.85)";
-  drawRoundedRect(x + w * 0.08, y + h * 0.10, w * 0.84, h * 0.90, Math.max(10, w * 0.36));
-  ctx.fill();
-  ctx.globalAlpha = 1;
-
-  // ---------- Wheel wells (dark strips on sides, behind body) ----------
-  ctx.fillStyle = "rgba(10,10,16,0.95)";
-  const wellW = w * 0.08;
-  const wellH = h * 0.22;
-  // front wheels
-  drawRoundedRect(x + w * 0.02, y + h * 0.14, wellW, wellH, 3);
-  ctx.fill();
-  drawRoundedRect(x + w - wellW - w * 0.02, y + h * 0.14, wellW, wellH, 3);
-  ctx.fill();
-  // rear wheels
-  drawRoundedRect(x + w * 0.02, y + h * 0.62, wellW, wellH, 3);
-  ctx.fill();
-  drawRoundedRect(x + w - wellW - w * 0.02, y + h * 0.62, wellW, wellH, 3);
+  // ---------- Ground shadow (hard offset — brutalism) ----------
+  ctx.fillStyle = "rgba(0,0,0,0.55)";
+  drawRoundedRect(x + w * 0.10, y + h * 0.12, w * 0.82, h * 0.88, Math.max(6, w * 0.18));
   ctx.fill();
 
-  // Tire rim highlights
-  ctx.fillStyle = "rgba(60,65,80,0.95)";
-  const rimW = wellW * 0.55, rimH = wellH * 0.45;
-  drawRoundedRect(x + w * 0.02 + (wellW - rimW) / 2, y + h * 0.14 + (wellH - rimH) / 2, rimW, rimH, 2);
-  ctx.fill();
-  drawRoundedRect(x + w - wellW - w * 0.02 + (wellW - rimW) / 2, y + h * 0.14 + (wellH - rimH) / 2, rimW, rimH, 2);
-  ctx.fill();
-  drawRoundedRect(x + w * 0.02 + (wellW - rimW) / 2, y + h * 0.62 + (wellH - rimH) / 2, rimW, rimH, 2);
-  ctx.fill();
-  drawRoundedRect(x + w - wellW - w * 0.02 + (wellW - rimW) / 2, y + h * 0.62 + (wellH - rimH) / 2, rimW, rimH, 2);
-  ctx.fill();
+  // ---------- Body geometry ----------
+  const bx = x + w * 0.11;
+  const bw = w * 0.78;
+  const by = y + h * 0.04;
+  const bh = h * 0.93;
 
-  // ---------- Main body (tapered nose + wide rear) ----------
-  // Build a car silhouette using paths: narrower front, wider middle, slight rear taper
-  const bx = x + w * 0.12;
-  const bw = w * 0.76;
-  const by = y + h * 0.05;
-  const bh = h * 0.92;
+  // Aggressive tapered silhouette
+  const noseInset = bw * 0.14;   // sharp pointed nose
+  const shoulderOut = w * 0.025; // muscular shoulders
+  const tailInset = bw * 0.06;
 
-  const noseInset = bw * 0.08;   // front narrows
-  const tailInset = bw * 0.04;   // rear narrows slightly
+  // ---------- Wheel arches (bold black fenders) ----------
+  const wellW = w * 0.095;
+  const wellH = h * 0.20;
+  ctx.fillStyle = INK;
+  // front-left, front-right, rear-left, rear-right arches
+  drawRoundedRect(x + w * 0.005, y + h * 0.15, wellW + 2, wellH, 3); ctx.fill();
+  drawRoundedRect(x + w - wellW - w * 0.005 - 2, y + h * 0.15, wellW + 2, wellH, 3); ctx.fill();
+  drawRoundedRect(x + w * 0.005, y + h * 0.62, wellW + 2, wellH, 3); ctx.fill();
+  drawRoundedRect(x + w - wellW - w * 0.005 - 2, y + h * 0.62, wellW + 2, wellH, 3); ctx.fill();
 
+  // Tire treads (chunky detailing)
+  ctx.fillStyle = "#1a1a24";
+  const tireInsetX = w * 0.018;
+  const tireInsetY = h * 0.018;
+  [[x + w * 0.005 + tireInsetX, y + h * 0.15 + tireInsetY],
+   [x + w - wellW - w * 0.005 - 2 + tireInsetX, y + h * 0.15 + tireInsetY],
+   [x + w * 0.005 + tireInsetX, y + h * 0.62 + tireInsetY],
+   [x + w - wellW - w * 0.005 - 2 + tireInsetX, y + h * 0.62 + tireInsetY]]
+  .forEach(([tx, ty]) => {
+    drawRoundedRect(tx, ty, wellW - tireInsetX * 2 + 2, wellH - tireInsetY * 2, 2);
+    ctx.fill();
+    // tread lines
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,255,255,0.07)";
+    ctx.lineWidth = 1;
+    for (let i = 1; i < 4; i++) {
+      const ly = ty + ((wellH - tireInsetY * 2) / 4) * i;
+      ctx.beginPath();
+      ctx.moveTo(tx + 2, ly);
+      ctx.lineTo(tx + wellW - tireInsetX * 2 - 2 + 2, ly);
+      ctx.stroke();
+    }
+    ctx.restore();
+  });
+
+  // Chrome rim highlight (subtle metallic)
+  ctx.fillStyle = CHROME;
+  const rimW = wellW * 0.42, rimH = wellH * 0.32;
+  [[x + w * 0.005 + (wellW - rimW) / 2, y + h * 0.15 + (wellH - rimH) / 2],
+   [x + w - wellW - w * 0.005 - 2 + (wellW - rimW) / 2, y + h * 0.15 + (wellH - rimH) / 2],
+   [x + w * 0.005 + (wellW - rimW) / 2, y + h * 0.62 + (wellH - rimH) / 2],
+   [x + w - wellW - w * 0.005 - 2 + (wellW - rimW) / 2, y + h * 0.62 + (wellH - rimH) / 2]]
+  .forEach(([rx, ry]) => {
+    drawRoundedRect(rx, ry, rimW, rimH, 1.5);
+    ctx.fill();
+  });
+
+  // ---------- Main body silhouette (aggressive muscle car) ----------
   ctx.beginPath();
-  // front-left
+  // sharp front nose
   ctx.moveTo(bx + noseInset, by);
-  // front-right
   ctx.lineTo(bx + bw - noseInset, by);
-  // right shoulder (widen)
-  ctx.quadraticCurveTo(bx + bw + w * 0.02, by + bh * 0.14, bx + bw, by + bh * 0.28);
-  // right side straight to rear
-  ctx.lineTo(bx + bw - tailInset * 0.2, by + bh * 0.82);
-  // rear-right corner
-  ctx.quadraticCurveTo(bx + bw, by + bh * 0.95, bx + bw - tailInset, by + bh);
-  // rear-left
+  // front shoulder bulge
+  ctx.quadraticCurveTo(bx + bw + shoulderOut, by + bh * 0.12, bx + bw, by + bh * 0.30);
+  // body side
+  ctx.lineTo(bx + bw - tailInset * 0.3, by + bh * 0.80);
+  // rear corner
+  ctx.quadraticCurveTo(bx + bw, by + bh * 0.94, bx + bw - tailInset, by + bh);
   ctx.lineTo(bx + tailInset, by + bh);
-  // rear-left corner
-  ctx.quadraticCurveTo(bx, by + bh * 0.95, bx + tailInset * 0.2, by + bh * 0.82);
-  // left side up
-  ctx.lineTo(bx, by + bh * 0.28);
-  // left shoulder
-  ctx.quadraticCurveTo(bx - w * 0.02, by + bh * 0.14, bx + noseInset, by);
+  ctx.quadraticCurveTo(bx, by + bh * 0.94, bx + tailInset * 0.3, by + bh * 0.80);
+  ctx.lineTo(bx, by + bh * 0.30);
+  ctx.quadraticCurveTo(bx - shoulderOut, by + bh * 0.12, bx + noseInset, by);
   ctx.closePath();
 
-  // Body gradient: subtle dark shading on edges, bright center
-  const bodyGrad = ctx.createLinearGradient(bx, 0, bx + bw, 0);
-  const base = String(bodyColor || "#ff3b5c");
-  bodyGrad.addColorStop(0.0, "rgba(0,0,0,0.35)");
-  bodyGrad.addColorStop(0.18, base);
+  // Flat body color with subtle panel shading
+  const base = String(bodyColor || "#ef476f");
+  const bodyGrad = ctx.createLinearGradient(bx, by, bx + bw, by + bh);
+  bodyGrad.addColorStop(0, _shade(base, -0.12));
   bodyGrad.addColorStop(0.5, base);
-  bodyGrad.addColorStop(0.82, base);
-  bodyGrad.addColorStop(1.0, "rgba(0,0,0,0.35)");
+  bodyGrad.addColorStop(1, _shade(base, -0.18));
   ctx.fillStyle = bodyGrad;
   ctx.fill();
 
-  // Top-to-bottom sheen (subtle)
-  const sheen = ctx.createLinearGradient(0, by, 0, by + bh);
-  sheen.addColorStop(0, "rgba(255,255,255,0.18)");
-  sheen.addColorStop(0.35, "rgba(255,255,255,0.04)");
-  sheen.addColorStop(1, "rgba(0,0,0,0.22)");
-  ctx.fillStyle = sheen;
-  ctx.fill();
-
-  // Dark outline
-  ctx.lineWidth = clamp(w * 0.05, 1.2, 3.2);
-  ctx.strokeStyle = "rgba(0,0,0,0.85)";
+  // BRUTAL thick black outline
+  ctx.lineWidth = clamp(w * 0.06, 2, 3.8);
+  ctx.strokeStyle = INK;
+  ctx.lineJoin = "miter";
   ctx.stroke();
 
-  // ---------- Hood (front half) vent lines ----------
+  // ---------- Racing stripes (twin stripes — iconic gaming) ----------
   ctx.save();
-  ctx.globalAlpha = 0.35;
-  ctx.strokeStyle = "rgba(0,0,0,0.9)";
-  ctx.lineWidth = Math.max(1, w * 0.02);
-  const hoodY = by + bh * 0.10;
-  for (let i = 0; i < 3; i++) {
-    const yy = hoodY + i * (bh * 0.04);
-    ctx.beginPath();
-    ctx.moveTo(bx + bw * 0.30, yy);
-    ctx.lineTo(bx + bw * 0.70, yy);
+  ctx.fillStyle = accentColor;
+  const stripeW = bw * 0.08;
+  const stripeGap = bw * 0.04;
+  // two stripes running length of body
+  ctx.fillRect(bx + bw * 0.5 - stripeW - stripeGap / 2, by + bh * 0.06, stripeW, bh * 0.88);
+  ctx.fillRect(bx + bw * 0.5 + stripeGap / 2, by + bh * 0.06, stripeW, bh * 0.88);
+  // black outlines on stripes
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = 1.2;
+  ctx.strokeRect(bx + bw * 0.5 - stripeW - stripeGap / 2, by + bh * 0.06, stripeW, bh * 0.88);
+  ctx.strokeRect(bx + bw * 0.5 + stripeGap / 2, by + bh * 0.06, stripeW, bh * 0.88);
+  ctx.restore();
+
+  // ---------- Hood scoop (aggressive detail) ----------
+  ctx.save();
+  ctx.fillStyle = INK;
+  const scoopW = bw * 0.28;
+  const scoopH = bh * 0.08;
+  drawRoundedRect(bx + (bw - scoopW) / 2, by + bh * 0.12, scoopW, scoopH, 3);
+  ctx.fill();
+  // inner scoop highlight (looks like air intake)
+  ctx.fillStyle = "#2a2a3a";
+  drawRoundedRect(bx + (bw - scoopW) / 2 + 3, by + bh * 0.12 + 2, scoopW - 6, scoopH - 4, 2);
+  ctx.fill();
+  // twin mini vents
+  ctx.fillStyle = accentColor;
+  ctx.fillRect(bx + (bw - scoopW) / 2 + scoopW * 0.18, by + bh * 0.12 + scoopH * 0.35, scoopW * 0.12, scoopH * 0.3);
+  ctx.fillRect(bx + (bw - scoopW) / 2 + scoopW * 0.70, by + bh * 0.12 + scoopH * 0.35, scoopW * 0.12, scoopH * 0.3);
+  ctx.restore();
+
+  // ---------- Windshield (chunky trapezoid — glossy dark) ----------
+  const fwY = by + bh * 0.26;
+  const fwH = bh * 0.20;
+  ctx.beginPath();
+  ctx.moveTo(bx + bw * 0.20, fwY);
+  ctx.lineTo(bx + bw * 0.80, fwY);
+  ctx.lineTo(bx + bw * 0.88, fwY + fwH);
+  ctx.lineTo(bx + bw * 0.12, fwY + fwH);
+  ctx.closePath();
+  const glassGrad = ctx.createLinearGradient(0, fwY, 0, fwY + fwH);
+  glassGrad.addColorStop(0, GLASS_DARK);
+  glassGrad.addColorStop(1, GLASS_MID);
+  ctx.fillStyle = glassGrad;
+  ctx.fill();
+  // hard black outline
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = Math.max(1.2, w * 0.022);
+  ctx.stroke();
+  // windshield reflection (diagonal gaming highlight)
+  ctx.save();
+  ctx.clip();
+  ctx.globalAlpha = 0.18;
+  ctx.fillStyle = accentColor;
+  ctx.fillRect(bx + bw * 0.15, fwY, bw * 0.25, fwH);
+  ctx.restore();
+
+  // ---------- Roof / cabin ----------
+  const roofY = fwY + fwH;
+  const roofH = bh * 0.18;
+  ctx.beginPath();
+  ctx.moveTo(bx + bw * 0.12, roofY);
+  ctx.lineTo(bx + bw * 0.88, roofY);
+  ctx.lineTo(bx + bw * 0.86, roofY + roofH);
+  ctx.lineTo(bx + bw * 0.14, roofY + roofH);
+  ctx.closePath();
+  ctx.fillStyle = _shade(base, -0.28);
+  ctx.fill();
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  // Side mirrors (small chunky blocks)
+  ctx.fillStyle = INK;
+  ctx.fillRect(bx - 2, roofY + roofH * 0.25, 4, 5);
+  ctx.fillRect(bx + bw - 2, roofY + roofH * 0.25, 4, 5);
+
+  // ---------- Rear windshield ----------
+  const rwY = roofY + roofH;
+  const rwH = bh * 0.14;
+  ctx.beginPath();
+  ctx.moveTo(bx + bw * 0.14, rwY);
+  ctx.lineTo(bx + bw * 0.86, rwY);
+  ctx.lineTo(bx + bw * 0.80, rwY + rwH);
+  ctx.lineTo(bx + bw * 0.20, rwY + rwH);
+  ctx.closePath();
+  ctx.fillStyle = GLASS_MID;
+  ctx.fill();
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  // ---------- Headlights (front — crisp squares, not blurry glow) ----------
+  ctx.save();
+  const hlW = bw * 0.14, hlH = bh * 0.045;
+  ctx.fillStyle = "#fff2a8";
+  drawRoundedRect(bx + bw * 0.13, by + bh * 0.04, hlW, hlH, 1.5);
+  ctx.fill();
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = 1.3;
+  ctx.stroke();
+  drawRoundedRect(bx + bw - bw * 0.13 - hlW, by + bh * 0.04, hlW, hlH, 1.5);
+  ctx.fill();
+  ctx.stroke();
+  // inner bright core
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(bx + bw * 0.13 + hlW * 0.25, by + bh * 0.04 + hlH * 0.3, hlW * 0.5, hlH * 0.35);
+  ctx.fillRect(bx + bw - bw * 0.13 - hlW + hlW * 0.25, by + bh * 0.04 + hlH * 0.3, hlW * 0.5, hlH * 0.35);
+  ctx.restore();
+
+  // ---------- Taillights (rear — bold red blocks) ----------
+  ctx.save();
+  const tlW = bw * 0.16, tlH = bh * 0.04;
+  ctx.fillStyle = "#ef476f";
+  drawRoundedRect(bx + bw * 0.11, by + bh * 0.92, tlW, tlH, 1.5);
+  ctx.fill();
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = 1.3;
+  ctx.stroke();
+  drawRoundedRect(bx + bw - bw * 0.11 - tlW, by + bh * 0.92, tlW, tlH, 1.5);
+  ctx.fill();
+  ctx.stroke();
+  // center brake light bar
+  ctx.fillStyle = "#ff8fa8";
+  ctx.fillRect(bx + bw * 0.38, by + bh * 0.955, bw * 0.24, bh * 0.012);
+  ctx.restore();
+
+  // ---------- Rear spoiler wing (chunky GT-style) ----------
+  ctx.save();
+  ctx.fillStyle = INK;
+  drawRoundedRect(bx + bw * 0.08, by + bh * 0.985, bw * 0.84, bh * 0.05, 2);
+  ctx.fill();
+  // spoiler supports
+  ctx.fillRect(bx + bw * 0.22, by + bh * 0.96, 4, bh * 0.045);
+  ctx.fillRect(bx + bw - bw * 0.22 - 4, by + bh * 0.96, 4, bh * 0.045);
+  ctx.restore();
+
+  // ---------- Exhaust tips (chrome dots on rear) ----------
+  ctx.save();
+  ctx.fillStyle = CHROME_HI;
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 2; i++) {
+    const ex = bx + bw * (0.40 + i * 0.18);
+    drawRoundedRect(ex, by + bh * 1.005, bw * 0.06, bh * 0.02, 1);
+    ctx.fill();
     ctx.stroke();
   }
   ctx.restore();
 
-  // ---------- Windshield (front, trapezoid, glossy dark) ----------
-  const fwY = by + bh * 0.24;
-  const fwH = bh * 0.22;
-  ctx.beginPath();
-  ctx.moveTo(bx + bw * 0.22, fwY);
-  ctx.lineTo(bx + bw * 0.78, fwY);
-  ctx.lineTo(bx + bw * 0.86, fwY + fwH);
-  ctx.lineTo(bx + bw * 0.14, fwY + fwH);
-  ctx.closePath();
-  const glassGrad = ctx.createLinearGradient(0, fwY, 0, fwY + fwH);
-  glassGrad.addColorStop(0, "rgba(18,26,52,0.98)");
-  glassGrad.addColorStop(1, "rgba(8,12,28,0.98)");
-  ctx.fillStyle = glassGrad;
-  ctx.fill();
-  // Windshield reflection highlight (diagonal)
-  ctx.globalAlpha = 0.22;
-  const wshine = ctx.createLinearGradient(bx + bw * 0.15, fwY, bx + bw * 0.55, fwY + fwH);
-  wshine.addColorStop(0, "rgba(180,220,255,0.9)");
-  wshine.addColorStop(1, "rgba(180,220,255,0)");
-  ctx.fillStyle = wshine;
-  ctx.fill();
-  ctx.globalAlpha = 1;
-
-  // ---------- Roof / cabin ----------
-  const roofY = fwY + fwH;
-  const roofH = bh * 0.22;
-  ctx.beginPath();
-  ctx.moveTo(bx + bw * 0.14, roofY);
-  ctx.lineTo(bx + bw * 0.86, roofY);
-  ctx.lineTo(bx + bw * 0.84, roofY + roofH);
-  ctx.lineTo(bx + bw * 0.16, roofY + roofH);
-  ctx.closePath();
-  const roofGrad = ctx.createLinearGradient(0, roofY, 0, roofY + roofH);
-  roofGrad.addColorStop(0, "rgba(0,0,0,0.35)");
-  roofGrad.addColorStop(1, "rgba(0,0,0,0.55)");
-  ctx.fillStyle = roofGrad;
-  ctx.fill();
-
-  // ---------- Rear windshield ----------
-  const rwY = roofY + roofH;
-  const rwH = bh * 0.16;
-  ctx.beginPath();
-  ctx.moveTo(bx + bw * 0.16, rwY);
-  ctx.lineTo(bx + bw * 0.84, rwY);
-  ctx.lineTo(bx + bw * 0.78, rwY + rwH);
-  ctx.lineTo(bx + bw * 0.22, rwY + rwH);
-  ctx.closePath();
-  const rglass = ctx.createLinearGradient(0, rwY, 0, rwY + rwH);
-  rglass.addColorStop(0, "rgba(8,12,28,0.96)");
-  rglass.addColorStop(1, "rgba(18,26,52,0.96)");
-  ctx.fillStyle = rglass;
-  ctx.fill();
-
-  // ---------- Headlights (front, bright) ----------
+  // ---------- Rivet/bolt details on hood (gaming detail) ----------
   ctx.save();
-  const hlW = bw * 0.16, hlH = bh * 0.05;
-  ctx.fillStyle = "rgba(255,250,210,0.98)";
-  ctx.shadowColor = "rgba(255,240,180,0.9)";
-  ctx.shadowBlur = Math.max(4, w * 0.2);
-  drawRoundedRect(bx + bw * 0.12, by + bh * 0.04, hlW, hlH, 2);
-  ctx.fill();
-  drawRoundedRect(bx + bw - bw * 0.12 - hlW, by + bh * 0.04, hlW, hlH, 2);
-  ctx.fill();
+  ctx.fillStyle = INK;
+  const rivY = by + bh * 0.22;
+  for (let i = 0; i < 4; i++) {
+    const rx = bx + bw * (0.22 + i * 0.19);
+    ctx.beginPath();
+    ctx.arc(rx, rivY, Math.max(1, w * 0.018), 0, Math.PI * 2);
+    ctx.fill();
+  }
   ctx.restore();
 
-  // ---------- Taillights (rear, red, glow) ----------
-  ctx.save();
-  const tlW = bw * 0.18, tlH = bh * 0.035;
-  ctx.fillStyle = "rgba(255,60,60,0.98)";
-  ctx.shadowColor = "rgba(255,60,60,0.85)";
-  ctx.shadowBlur = Math.max(4, w * 0.2);
-  drawRoundedRect(bx + bw * 0.10, by + bh * 0.93, tlW, tlH, 2);
-  ctx.fill();
-  drawRoundedRect(bx + bw - bw * 0.10 - tlW, by + bh * 0.93, tlW, tlH, 2);
-  ctx.fill();
-  ctx.restore();
-
-  // ---------- Center racing stripe (subtle, optional accent) ----------
-  ctx.save();
-  ctx.globalAlpha = 0.18;
-  ctx.fillStyle = "rgba(255,255,255,0.6)";
-  ctx.fillRect(bx + bw * 0.49, by + bh * 0.08, bw * 0.02, bh * 0.14);
-  ctx.fillRect(bx + bw * 0.49, by + bh * 0.76, bw * 0.02, bh * 0.14);
-  ctx.restore();
-
-  // ---------- Rear spoiler ----------
-  ctx.fillStyle = "rgba(0,0,0,0.65)";
-  drawRoundedRect(bx + bw * 0.12, by + bh * 0.97, bw * 0.76, bh * 0.035, 3);
-  ctx.fill();
+  // Rival car: add angry red accent stripe on sides
+  if (isRival) {
+    ctx.save();
+    ctx.fillStyle = "#ef476f";
+    ctx.fillRect(bx + bw * 0.02, by + bh * 0.48, bw * 0.08, bh * 0.12);
+    ctx.fillRect(bx + bw * 0.90, by + bh * 0.48, bw * 0.08, bh * 0.12);
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(bx + bw * 0.02, by + bh * 0.48, bw * 0.08, bh * 0.12);
+    ctx.strokeRect(bx + bw * 0.90, by + bh * 0.48, bw * 0.08, bh * 0.12);
+    ctx.restore();
+  }
 
   ctx.restore();
+}
+
+// Color shade helper — darken/lighten a hex color
+function _shade(hex, amt) {
+  const h = String(hex).replace("#", "");
+  if (h.length !== 6) return hex;
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  const adj = (c) => {
+    const n = Math.round(c + (amt < 0 ? c * amt : (255 - c) * amt));
+    return Math.max(0, Math.min(255, n));
+  };
+  const toHex = (n) => n.toString(16).padStart(2, "0");
+  return `#${toHex(adj(r))}${toHex(adj(g))}${toHex(adj(b))}`;
+}
+
+// Enemy palette — varied brutalist racing colors
+const ENEMY_PALETTE = [
+  "#ef476f", // coral red
+  "#8338ec", // electric purple
+  "#ff6b35", // race orange
+  "#06d6a0", // mint (rare)
+  "#4cc9f0", // soft cyan
+  "#e63946", // deep red
+  "#52b788", // forest
+  "#f77f00"  // amber
+];
+
+function pickEnemyColor(o) {
+  if (o && o.__brutColor) return o.__brutColor;
+  const seed = ((o?.id ?? 0) | 0) + ((o?.lane ?? 0) | 0) * 7 + ((o?.y | 0) % 997);
+  const c = ENEMY_PALETTE[Math.abs(seed) % ENEMY_PALETTE.length];
+  if (o) o.__brutColor = c;
+  return c;
 }
 
 function drawPlayerCarPremium(x, y, w, h) {
-  // Player car: aggressive sports car with neon cyan underglow.
+  // Player car: aggressive yellow/orange racing livery with orange underglow
   ctx.save();
 
-  // Neon underglow (soft bottom halo)
+  // Orange underglow (warm, eye-safe — brutalism uses hard offset not soft blur)
   ctx.save();
+  ctx.globalAlpha = 0.45;
   const glowGrad = ctx.createRadialGradient(
-    x + w / 2, y + h * 0.95, 0,
-    x + w / 2, y + h * 0.95, Math.max(w, h) * 0.7
+    x + w / 2, y + h * 0.98, 0,
+    x + w / 2, y + h * 0.98, Math.max(w, h) * 0.75
   );
-  glowGrad.addColorStop(0, "rgba(0,229,255,0.55)");
-  glowGrad.addColorStop(0.4, "rgba(0,229,255,0.18)");
-  glowGrad.addColorStop(1, "rgba(0,229,255,0)");
+  glowGrad.addColorStop(0, "rgba(255,107,53,0.6)");
+  glowGrad.addColorStop(0.4, "rgba(247,208,70,0.22)");
+  glowGrad.addColorStop(1, "rgba(0,0,0,0)");
   ctx.fillStyle = glowGrad;
-  ctx.fillRect(x - w * 0.5, y - h * 0.1, w * 2, h * 1.4);
+  ctx.fillRect(x - w * 0.5, y - h * 0.05, w * 2, h * 1.4);
   ctx.restore();
 
-  // Player body — premium silver/cyan metallic
-  const PLAYER_BODY = "#c8d4e6";
-  drawCarTopDown(x, y, w, h, PLAYER_BODY);
+  // Player body: champion yellow with orange racing stripes
+  const PLAYER_BODY = "#f7d046";
+  drawCarTopDown(x, y, w, h, PLAYER_BODY, { accent: "#ff6b35" });
 
-  // Extra cyan accent strip on hood
+  // Bright headlight glow (forward-pointing)
   ctx.save();
-  ctx.globalAlpha = 0.85;
-  ctx.fillStyle = "rgba(0,229,255,0.9)";
-  ctx.shadowColor = "rgba(0,229,255,0.9)";
-  ctx.shadowBlur = Math.max(3, w * 0.18);
-  const bx = x + w * 0.12, bw = w * 0.76;
-  ctx.fillRect(bx + bw * 0.44, y + h * 0.08, bw * 0.12, h * 0.14);
+  ctx.globalAlpha = 0.35;
+  const hlGrad = ctx.createRadialGradient(x + w / 2, y - 4, 0, x + w / 2, y - 4, w * 0.9);
+  hlGrad.addColorStop(0, "rgba(255,250,200,0.7)");
+  hlGrad.addColorStop(1, "rgba(255,250,200,0)");
+  ctx.fillStyle = hlGrad;
+  ctx.fillRect(x - w * 0.3, y - h * 0.25, w * 1.6, h * 0.4);
   ctx.restore();
 
   ctx.restore();
 }
 
-
 // =====================================================
-// Light scene rendering helpers (visual-only)
+// SCENE BACKGROUND (grass/city decor cache)
 // =====================================================
-// We keep these helpers fully independent from gameplay logic.
 let _grassDecor = { key: "", blobs: [] };
 
 function _hashSeed(str) {
-  // Small deterministic hash -> 32-bit seed
   let h = 2166136261;
   for (let i = 0; i < str.length; i++) {
     h ^= str.charCodeAt(i);
@@ -2827,73 +2960,87 @@ function ensureGrassDecor(g) {
   const rnd = _mulberry32(_hashSeed(key));
   const blobs = [];
 
-  // Only generate in the side areas (outside the road)
   const sideW = Math.max(0, (g.w - g.roadW) / 2);
-  const count = Math.max(18, Math.floor(g.h / 22));
+  const count = Math.max(16, Math.floor(g.h / 24));
 
   for (let i = 0; i < count; i++) {
     const left = rnd() < 0.5;
     const xBase = left ? 0 : g.roadX + g.roadW;
     const x = xBase + rnd() * sideW;
     const y = rnd() * g.h;
-    const r = 6 + rnd() * 16;
-    const a = 0.10 + rnd() * 0.18;
-    blobs.push({ x, y, r, a });
+    // rectangular "billboards" — neo-brutalist
+    const bw = 10 + rnd() * 22;
+    const bh = 14 + rnd() * 28;
+    const kind = rnd(); // 0..1
+    blobs.push({ x, y, bw, bh, kind });
   }
 
   _grassDecor.blobs = blobs;
 }
 
+// =====================================================
+// MAIN RENDER — Neo-Brutalism Racing Scene
+// =====================================================
 function render() {
   const g = laneGeometry();
 
   ctx.clearRect(0, 0, g.w, g.h);
 
-  // --- Background: dark cyberpunk city night ---
+  // ---------- Background: warm charcoal night (eye-friendly) ----------
   const sky = ctx.createLinearGradient(0, 0, 0, g.h);
-  sky.addColorStop(0, "#0a0d1f");
-  sky.addColorStop(0.5, "#0d1128");
-  sky.addColorStop(1, "#080a18");
+  sky.addColorStop(0, "#1a1a2e");
+  sky.addColorStop(0.5, "#20202f");
+  sky.addColorStop(1, "#16161f");
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, g.w, g.h);
 
-  // Ambient neon glow patches on sides (city vibe)
+  // ---------- Sideline decorations: brutalist billboards/blocks ----------
   ensureGrassDecor(g);
   ctx.save();
   for (const b of _grassDecor.blobs) {
     if (b.x > g.roadX - 8 && b.x < g.roadX + g.roadW + 8) continue;
     const isLeft = b.x < g.roadX;
-    ctx.globalAlpha = b.a * 0.6;
-    const rg = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r * 1.8);
-    rg.addColorStop(0, isLeft ? "rgba(0,229,255,0.9)" : "rgba(255,43,214,0.9)");
-    rg.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = rg;
-    ctx.beginPath();
-    ctx.arc(b.x, b.y, b.r * 1.8, 0, Math.PI * 2);
-    ctx.fill();
+    // chunky billboard — flat color + hard black outline (brutalism)
+    let fillCol;
+    if (b.kind < 0.25) fillCol = "#2d2d44";       // most = muted panels
+    else if (b.kind < 0.5) fillCol = isLeft ? "#3a3a55" : "#33334d";
+    else if (b.kind < 0.75) fillCol = "#242438";
+    else fillCol = isLeft ? "rgba(255,107,53,0.25)" : "rgba(247,208,70,0.20)";
+
+    ctx.fillStyle = fillCol;
+    ctx.fillRect(b.x, b.y, b.bw, b.bh);
+    ctx.strokeStyle = "rgba(13,13,20,0.9)";
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(b.x, b.y, b.bw, b.bh);
+
+    // accent stripe on some billboards
+    if (b.kind > 0.75) {
+      ctx.fillStyle = isLeft ? "#ff6b35" : "#f7d046";
+      ctx.fillRect(b.x, b.y + b.bh * 0.35, b.bw, Math.max(2, b.bh * 0.08));
+    }
   }
   ctx.restore();
 
-  // Vertical speed streaks on sides (parallax)
+  // ---------- Speed streaks on sides (parallax — subtle, warm) ----------
   ctx.save();
-  ctx.globalAlpha = 0.35;
+  ctx.globalAlpha = 0.28;
   const streakOff = (game.t * (140 + game.speed * 60)) % 60;
-  ctx.strokeStyle = "rgba(0,229,255,0.25)";
+  ctx.strokeStyle = "rgba(247,208,70,0.35)";
   ctx.lineWidth = 1.5;
   const sideW = Math.max(0, (g.w - g.roadW) / 2);
-  for (let i = 0; i < 6; i++) {
-    const lx = (i + 0.5) * (sideW / 6);
-    const rx = g.roadX + g.roadW + (i + 0.5) * (sideW / 6);
+  for (let i = 0; i < 5; i++) {
+    const lx = (i + 0.5) * (sideW / 5);
+    const rx = g.roadX + g.roadW + (i + 0.5) * (sideW / 5);
     for (let k = -1; k < Math.ceil(g.h / 60) + 1; k++) {
       const yy = k * 60 + streakOff;
       ctx.beginPath(); ctx.moveTo(lx, yy); ctx.lineTo(lx, yy + 30); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(rx, yy); ctx.lineTo(rx, yy + 30); ctx.stroke();
     }
   }
-  ctx.strokeStyle = "rgba(255,43,214,0.2)";
-  for (let i = 0; i < 4; i++) {
-    const lx = (i + 0.8) * (sideW / 5);
-    const rx = g.roadX + g.roadW + (i + 0.2) * (sideW / 5);
+  ctx.strokeStyle = "rgba(255,107,53,0.28)";
+  for (let i = 0; i < 3; i++) {
+    const lx = (i + 0.8) * (sideW / 4);
+    const rx = g.roadX + g.roadW + (i + 0.2) * (sideW / 4);
     for (let k = -1; k < Math.ceil(g.h / 80) + 1; k++) {
       const yy = k * 80 + (streakOff * 1.3) % 80;
       ctx.beginPath(); ctx.moveTo(lx, yy); ctx.lineTo(lx, yy + 24); ctx.stroke();
@@ -2902,34 +3049,32 @@ function render() {
   }
   ctx.restore();
 
-  // --- Road body ---
+  // ---------- Road body (brutalist asphalt) ----------
   ctx.save();
 
-  // Deep road shadow
-  ctx.globalAlpha = 0.45;
-  ctx.fillStyle = "rgba(0,0,0,0.95)";
-  drawRoundedRect(g.roadX + 2, g.roadY + 8, g.roadW, g.roadH, g.cornerR);
+  // Hard offset road shadow (brutalism signature)
+  ctx.fillStyle = "rgba(0,0,0,0.75)";
+  drawRoundedRect(g.roadX + 5, g.roadY + 6, g.roadW, g.roadH, g.cornerR);
   ctx.fill();
-  ctx.globalAlpha = 1;
 
-  // Asphalt — dark with vignette
+  // Asphalt — warm dark tone (not pure black — easier on eyes)
   const asphalt = ctx.createLinearGradient(g.roadX, 0, g.roadX + g.roadW, 0);
-  asphalt.addColorStop(0, "#161a28");
-  asphalt.addColorStop(0.5, "#1e2336");
-  asphalt.addColorStop(1, "#161a28");
+  asphalt.addColorStop(0, "#1e1e2d");
+  asphalt.addColorStop(0.5, "#262637");
+  asphalt.addColorStop(1, "#1e1e2d");
   ctx.fillStyle = asphalt;
   drawRoundedRect(g.roadX, g.roadY, g.roadW, g.roadH, g.cornerR);
   ctx.fill();
 
-  // Asphalt texture dots (deterministic per size)
+  // Asphalt texture dots (warm, subtle)
   ctx.save();
   drawRoundedRect(g.roadX, g.roadY, g.roadW, g.roadH, g.cornerR);
   ctx.clip();
-  ctx.globalAlpha = 0.18;
-  ctx.fillStyle = "#2a2f44";
+  ctx.globalAlpha = 0.14;
+  ctx.fillStyle = "#3a3a52";
   const seed = Math.round(g.w) * 131 + Math.round(g.h);
   const rnd = _mulberry32(seed);
-  const dotCount = Math.floor((g.roadW * g.roadH) / 900);
+  const dotCount = Math.floor((g.roadW * g.roadH) / 1000);
   for (let i = 0; i < dotCount; i++) {
     const dx = g.roadX + rnd() * g.roadW;
     const dy = g.roadY + rnd() * g.roadH;
@@ -2937,20 +3082,48 @@ function render() {
   }
   ctx.restore();
 
-  // Neon edge strips (cyan left, magenta right)
+  // Neo-brutalist road edges: thick yellow + black warning stripes
   ctx.save();
-  ctx.shadowBlur = 16;
-  ctx.shadowColor = "rgba(0,229,255,0.9)";
-  ctx.fillStyle = "rgba(0,229,255,0.95)";
-  ctx.fillRect(g.roadX + 3, g.safeTop, 3, g.safeBottom - g.safeTop);
-  ctx.shadowColor = "rgba(255,43,214,0.9)";
-  ctx.fillStyle = "rgba(255,43,214,0.95)";
-  ctx.fillRect(g.roadX + g.roadW - 6, g.safeTop, 3, g.safeBottom - g.safeTop);
+  // Left edge — solid yellow racing stripe
+  ctx.fillStyle = "#f7d046";
+  ctx.fillRect(g.roadX + 2, g.safeTop, 4, g.safeBottom - g.safeTop);
+  // Right edge — solid orange racing stripe
+  ctx.fillStyle = "#ff6b35";
+  ctx.fillRect(g.roadX + g.roadW - 6, g.safeTop, 4, g.safeBottom - g.safeTop);
+
+  // Diagonal warning hazard stripes at top/bottom (brutalism touch)
+  ctx.save();
+  ctx.globalAlpha = 0.6;
+  const hazardY1 = g.safeTop - 4;
+  const hazardY2 = g.safeBottom;
+  ctx.fillStyle = "#0d0d14";
+  ctx.fillRect(g.roadX + 8, hazardY1, g.roadW - 16, 4);
+  ctx.fillRect(g.roadX + 8, hazardY2, g.roadW - 16, 4);
+  // yellow stripes on top of black
+  const stripeSpace = 14;
+  ctx.fillStyle = "#f7d046";
+  for (let sx = g.roadX + 8; sx < g.roadX + g.roadW - 8; sx += stripeSpace) {
+    ctx.beginPath();
+    ctx.moveTo(sx, hazardY1);
+    ctx.lineTo(sx + 6, hazardY1);
+    ctx.lineTo(sx + 10, hazardY1 + 4);
+    ctx.lineTo(sx + 4, hazardY1 + 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(sx, hazardY2);
+    ctx.lineTo(sx + 6, hazardY2);
+    ctx.lineTo(sx + 10, hazardY2 + 4);
+    ctx.lineTo(sx + 4, hazardY2 + 4);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
   ctx.restore();
 
-  // Outer road stroke (subtle)
-  ctx.strokeStyle = "rgba(124,140,255,0.18)";
-  ctx.lineWidth = 1.5;
+  // Thick black outer road stroke (brutalism)
+  ctx.strokeStyle = "#0d0d14";
+  ctx.lineWidth = 2.5;
   drawRoundedRect(g.roadX, g.roadY, g.roadW, g.roadH, g.cornerR);
   ctx.stroke();
 
@@ -2959,16 +3132,25 @@ function render() {
   drawRoundedRect(g.roadX, g.roadY, g.roadW, g.roadH, g.cornerR);
   ctx.clip();
 
-  // Lane separators — glowing white dashes (animated)
+  // ---------- Lane separators — chunky yellow dashes ----------
   const dashSpeed = (220 + game.speed * 90) * (isSlowOn() ? 0.55 : 1.0);
   ctx.save();
-  ctx.shadowBlur = 8;
-  ctx.shadowColor = "rgba(255,255,255,0.6)";
-  ctx.strokeStyle = "rgba(255,255,255,0.88)";
-  ctx.lineWidth = 3.5;
-  ctx.lineCap = "round";
-  ctx.setLineDash([28, 26]);
+  // black outline behind
+  ctx.strokeStyle = "rgba(13,13,20,0.9)";
+  ctx.lineWidth = 6;
+  ctx.lineCap = "butt";
+  ctx.setLineDash([30, 24]);
   ctx.lineDashOffset = -(game.t * dashSpeed);
+  for (let i = 1; i < g.lanes; i++) {
+    const x = g.lanesX + g.laneW * i;
+    ctx.beginPath();
+    ctx.moveTo(x, g.safeTop);
+    ctx.lineTo(x, g.safeBottom);
+    ctx.stroke();
+  }
+  // bright yellow dashes on top
+  ctx.strokeStyle = "#f7d046";
+  ctx.lineWidth = 3.5;
   for (let i = 1; i < g.lanes; i++) {
     const x = g.lanesX + g.laneW * i;
     ctx.beginPath();
@@ -2979,201 +3161,146 @@ function render() {
   ctx.setLineDash([]);
   ctx.restore();
 
+  // ---------- Enemy cars ----------
   for (const o of game.obstacles) {
     const ow = o.w ?? o.size;
     const oh = o.h ?? o.size;
     const x = laneCenterX(g, o.lane) - ow / 2;
     const y = o.y;
-    drawCarTopDown(x, y, ow, oh, o.color ?? "rgba(255,80,120,0.95)");
+    const col = o.color && typeof o.color === "string" && o.color.startsWith("#")
+      ? o.color
+      : pickEnemyColor(o);
+    drawCarTopDown(x, y, ow, oh, col, { rival: true, accent: "#0d0d14" });
   }
 
+  // ---------- Coins & power-ups (brutalist badges — flat + outlined) ----------
   for (const c of game.coins) {
     const x = c.x ?? laneCenterX(g, c.lane);
     const y = c.y;
+    const r = c.r;
 
+    ctx.save();
+
+    // shadow under badge
+    ctx.fillStyle = "rgba(0,0,0,0.5)";
     ctx.beginPath();
-
-    // Visual styles per kind
-    if (c.kind === "coin") ctx.fillStyle = "rgba(255,214,86,0.95)";
-    else if (c.kind === "bonus") ctx.fillStyle = "rgba(187,115,255,0.95)";
-    else if (c.kind === "magnet") ctx.fillStyle = "rgba(90,190,255,0.95)";
-    else if (c.kind === "slow") ctx.fillStyle = "rgba(120,255,210,0.95)";
-    else if (c.kind === "shield") ctx.fillStyle = "rgba(110,255,140,0.95)";
-    else if (c.kind === "dbl") ctx.fillStyle = "rgba(255,170,70,0.95)";
-    else ctx.fillStyle = "rgba(255,214,86,0.95)";
-
-    ctx.arc(x, y, c.r, 0, Math.PI * 2);
+    ctx.arc(x + 2, y + 3, r, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.strokeStyle = "rgba(255,255,255,0.25)";
-    ctx.lineWidth = 2;
+    // badge colors (warm, eye-safe)
+    let fill, label, labelCol = "#0d0d14";
+    if (c.kind === "coin")       { fill = "#f7d046"; label = ""; }
+    else if (c.kind === "bonus") { fill = "#8338ec"; label = `${c.value}x`; labelCol = "#fff"; }
+    else if (c.kind === "magnet"){ fill = "#4cc9f0"; label = "M"; }
+    else if (c.kind === "slow")  { fill = "#06d6a0"; label = "S"; }
+    else if (c.kind === "shield"){ fill = "#c7f464"; label = "L"; }
+    else if (c.kind === "dbl")   { fill = "#ff6b35"; label = "2"; }
+    else                         { fill = "#f7d046"; label = ""; }
+
+    ctx.fillStyle = fill;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+
+    // BRUTAL thick black outline
+    ctx.strokeStyle = "#0d0d14";
+    ctx.lineWidth = 2.5;
     ctx.stroke();
 
-    if (c.kind !== "coin") {
-      ctx.fillStyle = "rgba(0,0,0,0.65)";
-      ctx.font = `bold ${Math.max(10, c.r + 2)}px "Akando", ui-sans-serif, system-ui`;
+    // inner highlight (subtle — simulates metal coin)
+    if (c.kind === "coin") {
+      ctx.fillStyle = "rgba(255,255,255,0.35)";
+      ctx.beginPath();
+      ctx.arc(x - r * 0.25, y - r * 0.25, r * 0.35, 0, Math.PI * 2);
+      ctx.fill();
+      // dollar-style $ symbol for coin
+      ctx.fillStyle = "#0d0d14";
+      ctx.font = `900 ${Math.max(11, r + 3)}px "Akando", ui-sans-serif, system-ui`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      let label = "";
-      if (c.kind === "bonus") label = `${c.value}x`;
-      else if (c.kind === "magnet") label = "M";
-      else if (c.kind === "slow") label = "S";
-      else if (c.kind === "shield") label = "L";
-      else if (c.kind === "dbl") label = "2";
+      ctx.fillText("$", x, y + 0.5);
+    } else if (label) {
+      ctx.fillStyle = labelCol;
+      ctx.font = `900 ${Math.max(11, r + 2)}px "Akando", ui-sans-serif, system-ui`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
       ctx.fillText(label, x, y + 0.5);
     }
+
+    ctx.restore();
   }
 
+  // ---------- Player car ----------
   const carW = Math.max(36, Math.min(60, g.laneW * 0.62));
   const carH = carW * 1.30;
   const carX = (game.playerX ?? laneCenterX(g, game.lane)) - carW / 2;
   const carY = g.safeBottom - carH - 14;
+
   drawPlayerCarPremium(carX, carY, carW, carH);
 
-  // Live shield ball/aura on the player's car
-  if (isShieldOn()) {
+  // ---------- Shield effect (if active) ----------
+  if (typeof isShieldOn === "function" && isShieldOn()) {
     ctx.save();
-    ctx.globalAlpha = 0.35;
+    ctx.strokeStyle = "#c7f464";
+    ctx.lineWidth = 3;
+    ctx.setLineDash([8, 6]);
+    ctx.lineDashOffset = -(game.t * 40);
     ctx.beginPath();
-    ctx.strokeStyle = "rgba(110,255,140,0.85)";
-    ctx.lineWidth = 6;
-    ctx.arc(carX + carW / 2, carY + carH / 2, Math.max(carW, carH) * 0.62, 0, Math.PI * 2);
+    ctx.arc(carX + carW / 2, carY + carH / 2, Math.max(carW, carH) * 0.75, 0, Math.PI * 2);
     ctx.stroke();
-
-    ctx.globalAlpha = 0.20;
-    ctx.fillStyle = "rgba(110,255,140,0.85)";
+    ctx.setLineDash([]);
+    // inner soft fill (very subtle)
+    ctx.globalAlpha = 0.08;
+    ctx.fillStyle = "#c7f464";
     ctx.beginPath();
-    ctx.arc(carX + carW / 2, carY + carH / 2, Math.max(carW, carH) * 0.60, 0, Math.PI * 2);
+    ctx.arc(carX + carW / 2, carY + carH / 2, Math.max(carW, carH) * 0.7, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   }
 
-  // Magnet aura (subtle)
-  if (isMagnetOn()) {
+  ctx.restore(); // unclip road
+
+  // ---------- Game Over overlay (neo-brutalist banner) ----------
+  if (typeof game !== "undefined" && game.over) {
     ctx.save();
-    ctx.globalAlpha = 0.22;
-    ctx.strokeStyle = "rgba(90,190,255,0.85)";
+    // full dim
+    ctx.fillStyle = "rgba(10,10,15,0.75)";
+    ctx.fillRect(0, 0, g.w, g.h);
+
+    // centered brutalist banner
+    const bannerW = Math.min(g.w * 0.82, 360);
+    const bannerH = 120;
+    const bannerX = (g.w - bannerW) / 2;
+    const bannerY = (g.h - bannerH) / 2;
+
+    // shadow
+    ctx.fillStyle = "#ff6b35";
+    ctx.fillRect(bannerX + 7, bannerY + 7, bannerW, bannerH);
+
+    // main
+    ctx.fillStyle = "#242438";
+    ctx.fillRect(bannerX, bannerY, bannerW, bannerH);
+    ctx.strokeStyle = "#0d0d14";
     ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.arc(carX + carW / 2, carY + carH / 2, Math.max(carW, carH) * 0.72, 0, Math.PI * 2);
-    ctx.stroke();
+    ctx.strokeRect(bannerX, bannerY, bannerW, bannerH);
+
+    // title
+    ctx.fillStyle = "#ef476f";
+    ctx.font = '900 34px "RebellionSquad","Akando",system-ui';
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("CRASHED", g.w / 2, bannerY + 40);
+
+    // subtitle
+    ctx.fillStyle = "#f5f0e1";
+    ctx.font = '700 13px "Akando",system-ui';
+    ctx.fillText(`SCORE: ${game.score | 0}`, g.w / 2, bannerY + 72);
+
+    ctx.fillStyle = "#f7d046";
+    ctx.font = '900 12px "Akando",system-ui';
+    ctx.fillText("TAP TO RESTART", g.w / 2, bannerY + 96);
     ctx.restore();
   }
 
-  // ✅ Premium crash overlay (2-line + animation)
-if (game.over) {
-  // detect first frame of game-over to start animation
-  if (!wasGameOver) crashAnimStart = performance.now();
-  wasGameOver = true;
-
-  const now = performance.now();
-  const t = (now - crashAnimStart) / 1000;
-
-  // appear (0->1), then gentle pulse
-  const appear = Math.min(1, t / 0.28);
-  const ease = 1 - Math.pow(1 - appear, 3);           // easeOutCubic
-  const pulse = 0.5 + 0.5 * Math.sin((t - 0.3) * 2.2);
-  const glow = 0.10 + pulse * 0.18;
-
-  const boxW = g.roadW - 32;
-  const boxH = 100;
-  const boxX = g.roadX + 16;
-  const boxY = g.roadY + g.roadH * 0.38;
-
-  // slight slide-up + tiny scale
-  const yOff = (1 - ease) * 14;
-  const scale = 0.985 + ease * 0.015;
-
-  ctx.save();
-
-  const cx = boxX + boxW / 2;
-  const cy = boxY + boxH / 2;
-  ctx.translate(cx, cy);
-  ctx.scale(scale, scale);
-  ctx.translate(-cx, -cy);
-
-  ctx.globalAlpha = 0.10 + ease * 0.90;
-  ctx.fillStyle = "rgba(0,0,0,0.55)";
-  drawRoundedRect(boxX, boxY + yOff, boxW, boxH, 18);
-  ctx.fill();
-
-  // premium border glow
-  ctx.globalAlpha = ease;
-  ctx.lineWidth = 1.25;
-  ctx.strokeStyle = `rgba(255,255,255,${0.08 + glow})`;
-  ctx.shadowBlur = 18;
-  ctx.shadowColor = `rgba(255,77,109,${0.18 + glow})`;
-  ctx.stroke();
-  ctx.shadowBlur = 0;
-
-  // centered 2-line text
-  ctx.textAlign = "center";
-  ctx.textBaseline = "alphabetic";
-
-  ctx.globalAlpha = ease;
-  ctx.fillStyle = "rgba(255,255,255,0.94)";
-  ctx.font = "800 20px \"Akando\", system-ui, -apple-system, Segoe UI, Roboto";
-  ctx.fillText("Crash!", boxX + boxW / 2, boxY + yOff + 40);
-
-  ctx.globalAlpha = 0.85 * ease;
-  ctx.fillStyle = "rgba(255,255,255,0.78)";
-  ctx.font = "600 13px \"Akando\", system-ui, -apple-system, Segoe UI, Roboto";
-  ctx.fillText("Tap 💾Save to Saved points", boxX + boxW / 2, boxY + yOff + 64);
-  ctx.fillText("Tap the panel to restart", boxX + boxW / 2, boxY + yOff + 82);
-
-  ctx.restore();
-
-  els.c.style.cursor = "pointer";
-} else {
-  wasGameOver = false;          // reset animation state
-  els.c.style.cursor = "default";
+  ctx.restore(); // final
 }
-
-
-  ctx.restore();
-
-  // end road clip
-  ctx.restore();
-  renderHud();
-}
-
-// Restart on tap when over
-els.c.addEventListener(
-  "pointerdown",
-  (e) => {
-    ensureAudioUnlocked();
-    if (!game.over) return;
-    e.preventDefault();
-    e.stopPropagation();
-    resetRun();
-  },
-  { passive: false }
-);
-
-// Main loop
-// Fixed-step update loop for smoother, more consistent gameplay on low-end devices.
-let _acc = 0;
-const _STEP = 1 / 60; // 60hz sim
-function tick(ts) {
-  const frameDt = Math.min(0.25, (ts - game.lastFrame) / 1000);
-  game.lastFrame = ts;
-
-  _acc += frameDt;
-
-  let loops = 0;
-  while (_acc >= _STEP && loops++ < 5) {
-    update(_STEP);
-    _acc -= _STEP;
-  }
-
-  // If we're too far behind, drop the remainder to avoid a "spiral of death".
-  if (loops >= 5) _acc = 0;
-
-  render();
-  requestAnimationFrame(tick);
-}
-requestAnimationFrame(tick);
-
-// Initial status
-renderStatus();
-renderHud();
