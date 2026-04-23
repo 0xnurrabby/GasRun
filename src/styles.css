@@ -651,14 +651,56 @@ canvas{
   border-bottom:2px solid var(--ink);
 }
 .weekCountdownWrap{
-  font-weight:800; color:#fff;
-  padding:3px 8px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-weight:800;
+  color:#fff;
+  padding:4px 8px;
   background:var(--race-red);
   border:2px solid var(--ink);
   border-radius:3px;
   font-size:12px;
+  line-height:1;
+  max-width:100%;
+  flex-wrap:nowrap;
+  overflow:hidden;
+  white-space:nowrap;
+  vertical-align:middle;
 }
-.segCanvas{height:16px; vertical-align:middle; image-rendering:pixelated}
+.weekCountdownWrap canvas,
+.weekCountdownWrap .segCanvas{
+  display:inline-block;
+  height:14px;
+  width:auto;
+  max-width:100%;
+  vertical-align:middle;
+  image-rendering:pixelated;
+  flex:0 0 auto;
+}
+.segCanvas{
+  display:inline-block;
+  height:14px;
+  width:auto;
+  vertical-align:middle;
+  image-rendering:pixelated;
+}
+
+/* Week row in Menu — prevent overflow on small screens */
+.kv:has(.weekCountdownWrap){
+  flex-wrap:wrap;
+  gap:8px;
+}
+.kv .v:has(.weekCountdownWrap){
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  max-width:100%;
+  overflow:hidden;
+}
+
 
 .boardList{
   display:flex; flex-direction:column; gap:var(--lb-gap);
