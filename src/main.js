@@ -2596,7 +2596,7 @@ function drawRoundedRect(x, y, w, h, r) {
 
 
 function drawCarTopDown(x, y, w, h, bodyColor) {
-  // Premium top-down sports car render (visual only, no gameplay change).
+  // DARK NEO-BRUTALIST TOP-DOWN CAR
   ctx.save();
 
   if (!isFinite(x) || !isFinite(y) || !isFinite(w) || !isFinite(h) || w <= 0 || h <= 0) {
@@ -2604,201 +2604,127 @@ function drawCarTopDown(x, y, w, h, bodyColor) {
     return;
   }
 
-  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+  const INK = "#0a0a0f";
+  const LINE_W = Math.max(1.8, w * 0.06);
 
-  // ---------- Ground shadow (soft, offset) ----------
-  ctx.globalAlpha = 0.35;
-  ctx.fillStyle = "rgba(0,0,0,0.85)";
-  drawRoundedRect(x + w * 0.08, y + h * 0.10, w * 0.84, h * 0.90, Math.max(10, w * 0.36));
-  ctx.fill();
-  ctx.globalAlpha = 1;
-
-  // ---------- Wheel wells (dark strips on sides, behind body) ----------
-  ctx.fillStyle = "rgba(10,10,16,0.95)";
-  const wellW = w * 0.08;
-  const wellH = h * 0.22;
-  // front wheels
-  drawRoundedRect(x + w * 0.02, y + h * 0.14, wellW, wellH, 3);
-  ctx.fill();
-  drawRoundedRect(x + w - wellW - w * 0.02, y + h * 0.14, wellW, wellH, 3);
-  ctx.fill();
-  // rear wheels
-  drawRoundedRect(x + w * 0.02, y + h * 0.62, wellW, wellH, 3);
-  ctx.fill();
-  drawRoundedRect(x + w - wellW - w * 0.02, y + h * 0.62, wellW, wellH, 3);
+  // Hard offset shadow
+  ctx.fillStyle = INK;
+  const shadowOff = Math.max(2, w * 0.09);
+  drawRoundedRect(x + shadowOff, y + shadowOff, w, h, 2);
   ctx.fill();
 
-  // Tire rim highlights
-  ctx.fillStyle = "rgba(60,65,80,0.95)";
-  const rimW = wellW * 0.55, rimH = wellH * 0.45;
-  drawRoundedRect(x + w * 0.02 + (wellW - rimW) / 2, y + h * 0.14 + (wellH - rimH) / 2, rimW, rimH, 2);
-  ctx.fill();
-  drawRoundedRect(x + w - wellW - w * 0.02 + (wellW - rimW) / 2, y + h * 0.14 + (wellH - rimH) / 2, rimW, rimH, 2);
-  ctx.fill();
-  drawRoundedRect(x + w * 0.02 + (wellW - rimW) / 2, y + h * 0.62 + (wellH - rimH) / 2, rimW, rimH, 2);
-  ctx.fill();
-  drawRoundedRect(x + w - wellW - w * 0.02 + (wellW - rimW) / 2, y + h * 0.62 + (wellH - rimH) / 2, rimW, rimH, 2);
-  ctx.fill();
+  // 4 chunky tires
+  const tireW = w * 0.13;
+  const tireH = h * 0.18;
+  ctx.fillStyle = INK;
+  drawRoundedRect(x - tireW * 0.18, y + h * 0.15, tireW, tireH, 2); ctx.fill();
+  drawRoundedRect(x + w - tireW * 0.82, y + h * 0.15, tireW, tireH, 2); ctx.fill();
+  drawRoundedRect(x - tireW * 0.18, y + h * 0.67, tireW, tireH, 2); ctx.fill();
+  drawRoundedRect(x + w - tireW * 0.82, y + h * 0.67, tireW, tireH, 2); ctx.fill();
 
-  // ---------- Main body (tapered nose + wide rear) ----------
-  // Build a car silhouette using paths: narrower front, wider middle, slight rear taper
-  const bx = x + w * 0.12;
-  const bw = w * 0.76;
-  const by = y + h * 0.05;
+  // Tire highlights
+  ctx.fillStyle = "#2a2a35";
+  drawRoundedRect(x - tireW * 0.18 + 2, y + h * 0.15 + tireH * 0.35, tireW - 4, tireH * 0.16, 1); ctx.fill();
+  drawRoundedRect(x + w - tireW * 0.82 + 2, y + h * 0.15 + tireH * 0.35, tireW - 4, tireH * 0.16, 1); ctx.fill();
+  drawRoundedRect(x - tireW * 0.18 + 2, y + h * 0.67 + tireH * 0.35, tireW - 4, tireH * 0.16, 1); ctx.fill();
+  drawRoundedRect(x + w - tireW * 0.82 + 2, y + h * 0.67 + tireH * 0.35, tireW - 4, tireH * 0.16, 1); ctx.fill();
+
+  // Main body
+  const bx = x + w * 0.05;
+  const bw = w * 0.90;
+  const by = y + h * 0.04;
   const bh = h * 0.92;
 
-  const noseInset = bw * 0.08;   // front narrows
-  const tailInset = bw * 0.04;   // rear narrows slightly
-
-  ctx.beginPath();
-  // front-left
-  ctx.moveTo(bx + noseInset, by);
-  // front-right
-  ctx.lineTo(bx + bw - noseInset, by);
-  // right shoulder (widen)
-  ctx.quadraticCurveTo(bx + bw + w * 0.02, by + bh * 0.14, bx + bw, by + bh * 0.28);
-  // right side straight to rear
-  ctx.lineTo(bx + bw - tailInset * 0.2, by + bh * 0.82);
-  // rear-right corner
-  ctx.quadraticCurveTo(bx + bw, by + bh * 0.95, bx + bw - tailInset, by + bh);
-  // rear-left
-  ctx.lineTo(bx + tailInset, by + bh);
-  // rear-left corner
-  ctx.quadraticCurveTo(bx, by + bh * 0.95, bx + tailInset * 0.2, by + bh * 0.82);
-  // left side up
-  ctx.lineTo(bx, by + bh * 0.28);
-  // left shoulder
-  ctx.quadraticCurveTo(bx - w * 0.02, by + bh * 0.14, bx + noseInset, by);
-  ctx.closePath();
-
-  // Body gradient: subtle dark shading on edges, bright center
-  const bodyGrad = ctx.createLinearGradient(bx, 0, bx + bw, 0);
-  const base = String(bodyColor || "#ff3b5c");
-  bodyGrad.addColorStop(0.0, "rgba(0,0,0,0.35)");
-  bodyGrad.addColorStop(0.18, base);
-  bodyGrad.addColorStop(0.5, base);
-  bodyGrad.addColorStop(0.82, base);
-  bodyGrad.addColorStop(1.0, "rgba(0,0,0,0.35)");
-  ctx.fillStyle = bodyGrad;
+  ctx.fillStyle = bodyColor || "#ff4d8d";
+  drawRoundedRect(bx, by, bw, bh, Math.max(3, w * 0.09));
   ctx.fill();
 
-  // Top-to-bottom sheen (subtle)
-  const sheen = ctx.createLinearGradient(0, by, 0, by + bh);
-  sheen.addColorStop(0, "rgba(255,255,255,0.18)");
-  sheen.addColorStop(0.35, "rgba(255,255,255,0.04)");
-  sheen.addColorStop(1, "rgba(0,0,0,0.22)");
-  ctx.fillStyle = sheen;
-  ctx.fill();
-
-  // Dark outline
-  ctx.lineWidth = clamp(w * 0.05, 1.2, 3.2);
-  ctx.strokeStyle = "rgba(0,0,0,0.85)";
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = LINE_W;
   ctx.stroke();
 
-  // ---------- Hood (front half) vent lines ----------
-  ctx.save();
-  ctx.globalAlpha = 0.35;
-  ctx.strokeStyle = "rgba(0,0,0,0.9)";
-  ctx.lineWidth = Math.max(1, w * 0.02);
-  const hoodY = by + bh * 0.10;
-  for (let i = 0; i < 3; i++) {
-    const yy = hoodY + i * (bh * 0.04);
-    ctx.beginPath();
-    ctx.moveTo(bx + bw * 0.30, yy);
-    ctx.lineTo(bx + bw * 0.70, yy);
-    ctx.stroke();
-  }
-  ctx.restore();
+  // Hood dark chunk
+  ctx.fillStyle = "rgba(0,0,0,0.18)";
+  drawRoundedRect(bx + bw * 0.12, by + bh * 0.06, bw * 0.76, bh * 0.14, 2);
+  ctx.fill();
 
-  // ---------- Windshield (front, trapezoid, glossy dark) ----------
+  // Windshield
+  const fwX = bx + bw * 0.15;
   const fwY = by + bh * 0.24;
+  const fwW = bw * 0.70;
   const fwH = bh * 0.22;
-  ctx.beginPath();
-  ctx.moveTo(bx + bw * 0.22, fwY);
-  ctx.lineTo(bx + bw * 0.78, fwY);
-  ctx.lineTo(bx + bw * 0.86, fwY + fwH);
-  ctx.lineTo(bx + bw * 0.14, fwY + fwH);
-  ctx.closePath();
-  const glassGrad = ctx.createLinearGradient(0, fwY, 0, fwY + fwH);
-  glassGrad.addColorStop(0, "rgba(18,26,52,0.98)");
-  glassGrad.addColorStop(1, "rgba(8,12,28,0.98)");
-  ctx.fillStyle = glassGrad;
+  ctx.fillStyle = "#1a1a28";
+  drawRoundedRect(fwX, fwY, fwW, fwH, 2);
   ctx.fill();
-  // Windshield reflection highlight (diagonal)
-  ctx.globalAlpha = 0.22;
-  const wshine = ctx.createLinearGradient(bx + bw * 0.15, fwY, bx + bw * 0.55, fwY + fwH);
-  wshine.addColorStop(0, "rgba(180,220,255,0.9)");
-  wshine.addColorStop(1, "rgba(180,220,255,0)");
-  ctx.fillStyle = wshine;
-  ctx.fill();
-  ctx.globalAlpha = 1;
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = Math.max(1.2, LINE_W * 0.6);
+  ctx.stroke();
 
-  // ---------- Roof / cabin ----------
-  const roofY = fwY + fwH;
-  const roofH = bh * 0.22;
-  ctx.beginPath();
-  ctx.moveTo(bx + bw * 0.14, roofY);
-  ctx.lineTo(bx + bw * 0.86, roofY);
-  ctx.lineTo(bx + bw * 0.84, roofY + roofH);
-  ctx.lineTo(bx + bw * 0.16, roofY + roofH);
-  ctx.closePath();
-  const roofGrad = ctx.createLinearGradient(0, roofY, 0, roofY + roofH);
-  roofGrad.addColorStop(0, "rgba(0,0,0,0.35)");
-  roofGrad.addColorStop(1, "rgba(0,0,0,0.55)");
-  ctx.fillStyle = roofGrad;
+  ctx.fillStyle = "rgba(255,255,255,0.14)";
+  ctx.fillRect(fwX + fwW * 0.12, fwY + fwH * 0.15, fwW * 0.28, fwH * 0.18);
+
+  // Roof
+  const roofX = bx + bw * 0.12;
+  const roofY = fwY + fwH + 2;
+  const roofW = bw * 0.76;
+  const roofH = bh * 0.20;
+  ctx.fillStyle = "rgba(0,0,0,0.28)";
+  drawRoundedRect(roofX, roofY, roofW, roofH, 2);
   ctx.fill();
 
-  // ---------- Rear windshield ----------
-  const rwY = roofY + roofH;
-  const rwH = bh * 0.16;
-  ctx.beginPath();
-  ctx.moveTo(bx + bw * 0.16, rwY);
-  ctx.lineTo(bx + bw * 0.84, rwY);
-  ctx.lineTo(bx + bw * 0.78, rwY + rwH);
-  ctx.lineTo(bx + bw * 0.22, rwY + rwH);
-  ctx.closePath();
-  const rglass = ctx.createLinearGradient(0, rwY, 0, rwY + rwH);
-  rglass.addColorStop(0, "rgba(8,12,28,0.96)");
-  rglass.addColorStop(1, "rgba(18,26,52,0.96)");
-  ctx.fillStyle = rglass;
+  // Rear windshield
+  const rwX = bx + bw * 0.18;
+  const rwY = roofY + roofH + 2;
+  const rwW = bw * 0.64;
+  const rwH = bh * 0.13;
+  ctx.fillStyle = "#1a1a28";
+  drawRoundedRect(rwX, rwY, rwW, rwH, 2);
   ctx.fill();
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = Math.max(1.2, LINE_W * 0.6);
+  ctx.stroke();
 
-  // ---------- Headlights (front, bright) ----------
-  ctx.save();
-  const hlW = bw * 0.16, hlH = bh * 0.05;
-  ctx.fillStyle = "rgba(255,250,210,0.98)";
-  ctx.shadowColor = "rgba(255,240,180,0.9)";
-  ctx.shadowBlur = Math.max(4, w * 0.2);
-  drawRoundedRect(bx + bw * 0.12, by + bh * 0.04, hlW, hlH, 2);
-  ctx.fill();
-  drawRoundedRect(bx + bw - bw * 0.12 - hlW, by + bh * 0.04, hlW, hlH, 2);
-  ctx.fill();
-  ctx.restore();
+  // Racing stripes
+  ctx.fillStyle = INK;
+  ctx.fillRect(bx + bw * 0.46, by + bh * 0.08, bw * 0.03, bh * 0.14);
+  ctx.fillRect(bx + bw * 0.51, by + bh * 0.08, bw * 0.03, bh * 0.14);
+  ctx.fillRect(bx + bw * 0.46, by + bh * 0.82, bw * 0.03, bh * 0.12);
+  ctx.fillRect(bx + bw * 0.51, by + bh * 0.82, bw * 0.03, bh * 0.12);
 
-  // ---------- Taillights (rear, red, glow) ----------
-  ctx.save();
-  const tlW = bw * 0.18, tlH = bh * 0.035;
-  ctx.fillStyle = "rgba(255,60,60,0.98)";
-  ctx.shadowColor = "rgba(255,60,60,0.85)";
-  ctx.shadowBlur = Math.max(4, w * 0.2);
-  drawRoundedRect(bx + bw * 0.10, by + bh * 0.93, tlW, tlH, 2);
+  // Headlights
+  const hlW = bw * 0.16;
+  const hlH = bh * 0.05;
+  ctx.fillStyle = "#fff8d6";
+  drawRoundedRect(bx + bw * 0.10, by + bh * 0.03, hlW, hlH, 1);
   ctx.fill();
-  drawRoundedRect(bx + bw - bw * 0.10 - tlW, by + bh * 0.93, tlW, tlH, 2);
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = Math.max(1, LINE_W * 0.5);
+  ctx.stroke();
+  drawRoundedRect(bx + bw - bw * 0.10 - hlW, by + bh * 0.03, hlW, hlH, 1);
   ctx.fill();
-  ctx.restore();
+  ctx.stroke();
 
-  // ---------- Center racing stripe (subtle, optional accent) ----------
-  ctx.save();
-  ctx.globalAlpha = 0.18;
-  ctx.fillStyle = "rgba(255,255,255,0.6)";
-  ctx.fillRect(bx + bw * 0.49, by + bh * 0.08, bw * 0.02, bh * 0.14);
-  ctx.fillRect(bx + bw * 0.49, by + bh * 0.76, bw * 0.02, bh * 0.14);
-  ctx.restore();
-
-  // ---------- Rear spoiler ----------
-  ctx.fillStyle = "rgba(0,0,0,0.65)";
-  drawRoundedRect(bx + bw * 0.12, by + bh * 0.97, bw * 0.76, bh * 0.035, 3);
+  // Taillights
+  const tlW = bw * 0.20;
+  const tlH = bh * 0.04;
+  ctx.fillStyle = "#ff3d57";
+  drawRoundedRect(bx + bw * 0.08, by + bh * 0.92, tlW, tlH, 1);
   ctx.fill();
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = Math.max(1, LINE_W * 0.5);
+  ctx.stroke();
+  drawRoundedRect(bx + bw - bw * 0.08 - tlW, by + bh * 0.92, tlW, tlH, 1);
+  ctx.fill();
+  ctx.stroke();
+
+  // Rear spoiler
+  ctx.fillStyle = INK;
+  ctx.fillRect(bx + bw * 0.08, by + bh * 0.99, bw * 0.84, Math.max(2, bh * 0.03));
+
+  // Side mirrors
+  ctx.fillStyle = INK;
+  ctx.fillRect(bx - 2, by + bh * 0.28, 4, 5);
+  ctx.fillRect(bx + bw - 2, by + bh * 0.28, 4, 5);
 
   ctx.restore();
 }
