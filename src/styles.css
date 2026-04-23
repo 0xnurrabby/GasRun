@@ -1,52 +1,141 @@
 /* ============================================================
-   GasRun — NEO-BRUTALISM RACING UI (v3)
-   Aggressive gaming theme with eye-friendly warm palette.
-   Gameplay logic untouched — pure visual overhaul.
-   Design: Thick borders, hard shadows, flat colors, bold type.
+   GasRun — NEO-BRUTALISM RACING UI (v4)
+   Day (Light) + Night (Dark) themes.
+   Default = LIGHT (day mode, like user requested).
+   Toggle via 3-dot menu — stored in localStorage.
    ============================================================ */
 
-:root{
-  /* ---------- Core palette — warm racing brutalism ---------- */
-  --bg-0:#16161f;           /* deep charcoal (not pure black — eye-friendly) */
-  --bg-1:#1a1a2e;
-  --bg-2:#20202f;
-  --panel:#242438;
-  --panel-2:#2d2d44;
-  --ink:#0d0d14;            /* hard black border ink */
+/* ============================================================
+   DEFAULT THEME = LIGHT (warm daytime racing)
+   ============================================================ */
+:root,
+:root[data-theme="light"]{
+  /* UI surfaces */
+  --bg-0:#fef6e4;         /* warm cream sky */
+  --bg-1:#fce7b5;         /* warm peach */
+  --bg-2:#fdd79a;         /* warm sunset */
+  --panel:#fff8ea;        /* soft panel */
+  --panel-2:#fff1d2;      /* secondary panel */
+  --ink:#0d0d14;          /* hard black border */
   --ink-2:#05050a;
 
-  --text:#f5f0e1;           /* warm off-white cream — NO pure white */
-  --text-dim:#b8b2a0;
-  --muted:#8a8578;
+  --text:#1a1a28;         /* near-black text on light bg */
+  --text-dim:#4a4a5a;
+  --muted:#6a6a7a;
 
-  /* ---------- Aggressive racing accents (eye-safe) ---------- */
-  --race-orange:#ff6b35;    /* primary action — warm, high contrast, low fatigue */
+  /* Aggressive racing accents */
+  --race-orange:#ff6b35;
   --race-orange-2:#ff8c42;
-  --race-yellow:#f7d046;    /* racing stripe yellow */
-  --race-red:#ef476f;       /* rival/danger — coral, not harsh */
-  --race-mint:#06d6a0;      /* success/coins — easy green */
-  --race-cyan:#4cc9f0;      /* secondary info */
-  --race-purple:#8338ec;    /* power-up accent */
-  --race-lime:#c7f464;      /* rare highlight */
+  --race-yellow:#f7d046;
+  --race-red:#ef476f;
+  --race-mint:#06d6a0;
+  --race-cyan:#4cc9f0;
+  --race-purple:#8338ec;
+  --race-lime:#c7f464;
 
-  /* ---------- Hard brutalism shadows (no blur) ---------- */
+  /* Hard brutalism shadows */
   --hs-sm: 3px 3px 0 var(--ink);
   --hs-md: 5px 5px 0 var(--ink);
   --hs-lg: 7px 7px 0 var(--ink);
   --hs-xl: 9px 9px 0 var(--ink);
-  --hs-orange: 5px 5px 0 var(--race-orange);
-  --hs-yellow: 5px 5px 0 var(--race-yellow);
 
-  /* ---------- Border widths ---------- */
   --bw: 3px;
   --bw-thick: 4px;
-
-  --radius-sharp: 4px;      /* barely rounded — brutalism loves hard edges */
+  --radius-sharp: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
 
   --lb-row:56px;
   --lb-gap:10px;
+
+  /* =========================================================
+     CANVAS PALETTE VARS (read by JS getCanvasPalette())
+     Light theme — daytime racing
+     ========================================================= */
+  --cv-sky-top:    #bfe8ff;   /* bright blue sky */
+  --cv-sky-mid:    #e8f4ff;
+  --cv-sky-bot:    #fde3b9;   /* warm horizon */
+
+  --cv-asphalt-1:  #4a4a5c;   /* mid-gray asphalt */
+  --cv-asphalt-2:  #5a5a70;
+  --cv-asphalt-dot:#8a8a9e;
+
+  --cv-road-shadow:rgba(30,20,10,0.22);
+  --cv-road-stroke:#0d0d14;
+
+  --cv-lane-outline:rgba(13,13,20,0.85);
+  --cv-lane-dash:  #ffffff;
+
+  --cv-edge-left:  #f7d046;
+  --cv-edge-right: #ff6b35;
+
+  --cv-streak-a:   rgba(255,107,53,0.35);
+  --cv-streak-b:   rgba(247,208,70,0.55);
+
+  --cv-side-1:     #a8d888;   /* green grass */
+  --cv-side-2:     #8cc66e;
+  --cv-side-3:     #78b05a;
+  --cv-side-accent:#ff6b35;
+
+  --cv-hazard:     #f7d046;
+
+  --cv-overlay:    rgba(20,10,5,0.45);
+  --cv-banner-bg:  #fff8ea;
+  --cv-banner-sh:  #ff6b35;
+  --cv-banner-ttl: #ef476f;
+  --cv-banner-txt: #1a1a28;
+  --cv-banner-sub: #ff6b35;
+}
+
+/* ============================================================
+   DARK THEME = NIGHT (charcoal nocturnal racing)
+   ============================================================ */
+:root[data-theme="dark"]{
+  --bg-0:#16161f;
+  --bg-1:#1a1a2e;
+  --bg-2:#20202f;
+  --panel:#242438;
+  --panel-2:#2d2d44;
+  --ink:#0d0d14;
+  --ink-2:#05050a;
+
+  --text:#f5f0e1;
+  --text-dim:#b8b2a0;
+  --muted:#8a8578;
+
+  --cv-sky-top:    #1a1a2e;
+  --cv-sky-mid:    #20202f;
+  --cv-sky-bot:    #16161f;
+
+  --cv-asphalt-1:  #1e1e2d;
+  --cv-asphalt-2:  #262637;
+  --cv-asphalt-dot:#3a3a52;
+
+  --cv-road-shadow:rgba(0,0,0,0.75);
+  --cv-road-stroke:#0d0d14;
+
+  --cv-lane-outline:rgba(13,13,20,0.9);
+  --cv-lane-dash:  #f7d046;
+
+  --cv-edge-left:  #f7d046;
+  --cv-edge-right: #ff6b35;
+
+  --cv-streak-a:   rgba(255,107,53,0.35);
+  --cv-streak-b:   rgba(247,208,70,0.45);
+
+  --cv-side-1:     #2d2d44;
+  --cv-side-2:     #33334d;
+  --cv-side-3:     #3a3a55;
+  --cv-side-accent:#ff6b35;
+
+  --cv-hazard:     #f7d046;
+
+  --cv-overlay:    rgba(10,10,15,0.65);
+  --cv-banner-bg:  #242438;
+  --cv-banner-sh:  #ff6b35;
+  --cv-banner-ttl: #ef476f;
+  --cv-banner-txt: #f5f0e1;
+  --cv-banner-sub: #f7d046;
 }
 
 *{box-sizing:border-box}
@@ -78,40 +167,45 @@
 html,body{
   height:100%; margin:0;
   background:
-    /* subtle warm radial to break flatness without hurting eyes */
-    radial-gradient(1200px 700px at 50% -10%, rgba(255,107,53,.08), transparent 60%),
-    radial-gradient(900px 600px at 10% 110%, rgba(247,208,70,.06), transparent 55%),
+    radial-gradient(1200px 700px at 50% -10%, rgba(255,107,53,.10), transparent 60%),
+    radial-gradient(900px 600px at 10% 110%, rgba(247,208,70,.08), transparent 55%),
     linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 60%, var(--bg-2) 100%);
   color:var(--text);
   font-family:"Akando", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
   min-height:100dvh;
   overflow-x:hidden;
   letter-spacing:.3px;
+  transition: background .4s ease, color .3s ease;
 }
 
-/* Brutalist grid pattern — static, very subtle (no strobing animation) */
+/* Subtle grid pattern */
 body::before{
   content:"";
   position:fixed; inset:0; z-index:0; pointer-events:none;
   background-image:
+    linear-gradient(rgba(13,13,20,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13,13,20,.04) 1px, transparent 1px);
+  background-size: 48px 48px, 48px 48px;
+  opacity:.7;
+}
+:root[data-theme="dark"] body::before{
+  background-image:
     linear-gradient(rgba(247,208,70,.025) 1px, transparent 1px),
     linear-gradient(90deg, rgba(247,208,70,.025) 1px, transparent 1px);
-  background-size: 48px 48px, 48px 48px;
-  opacity:.6;
 }
 
-/* Diagonal warning stripes on corners (gaming vibe) */
+/* Diagonal warning stripes corner */
 body::after{
   content:"";
   position:fixed; top:0; right:0; width:120px; height:120px;
   z-index:0; pointer-events:none;
   background: repeating-linear-gradient(
     45deg,
-    rgba(247,208,70,.04) 0 10px,
-    rgba(239,71,111,.04) 10px 20px
+    rgba(247,208,70,.06) 0 10px,
+    rgba(239,71,111,.06) 10px 20px
   );
   clip-path: polygon(100% 0, 100% 100%, 0 0);
-  opacity:.7;
+  opacity:.8;
 }
 
 #app{
@@ -144,7 +238,7 @@ body::after{
   border-radius:var(--radius-sharp);
   display:flex; align-items:center; justify-content:center;
   box-shadow: var(--hs-sm);
-  transition: transform .08s ease, box-shadow .08s ease, background .15s;
+  transition: transform .08s ease, box-shadow .08s ease, background .15s, color .15s;
   cursor:pointer;
 }
 .iconBtn:hover{
@@ -165,11 +259,9 @@ body::after{
   color:var(--text);
   text-transform:uppercase;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  /* hard text shadow instead of glow — brutalism */
   text-shadow: 2px 2px 0 var(--ink), 3px 3px 0 var(--race-orange);
 }
 .mcFont{font-family:"RebellionSquad","AmericanCaptainPatrius","Akando",system-ui}
-/* numbers/symbols in title get bright racing accent */
 .title .mcRed{color:var(--race-yellow); text-shadow: 2px 2px 0 var(--ink)}
 
 .badge{
@@ -194,18 +286,17 @@ body::after{
   transform:translate(3px,3px);
   box-shadow: 0 0 0 var(--ink);
 }
-
 .badge.connected{
   background:var(--race-mint);
   color:var(--ink);
 }
 .badge.error{
   background:var(--race-red);
-  color:var(--text);
+  color:#fff;
 }
 
 /* ============================================================
-   GAME CARD (main canvas frame)
+   GAME CARD
    ============================================================ */
 .gameCard{
   flex:1;
@@ -215,10 +306,8 @@ body::after{
   box-shadow: var(--hs-xl), var(--hs-lg) var(--race-orange);
   padding:8px;
   position:relative; overflow:hidden;
-  /* subtle inner highlight */
 }
 
-/* Neo-brutalist corner tags (labels in corners) */
 .gameCard::before{
   content:"GAS // RUN";
   position:absolute;
@@ -242,7 +331,7 @@ body::after{
   font-size:10px; font-weight:900; letter-spacing:1.5px;
   padding:4px 10px 3px;
   background:var(--race-red);
-  color:var(--text);
+  color:#fff;
   border:var(--bw) solid var(--ink);
   border-top:0;
   border-radius:0 0 4px 4px;
@@ -252,10 +341,10 @@ body::after{
 
 .canvasWrap{
   position:absolute; inset:8px;
-  top:18px;  /* leave room for corner tags */
+  top:18px;
   border-radius:var(--radius-sharp);
   overflow:hidden;
-  background:#0f0f1a;
+  background:var(--panel-2);
   border:var(--bw) solid var(--ink);
   box-shadow: inset 0 0 0 2px rgba(247,208,70,.08);
 }
@@ -266,7 +355,7 @@ canvas{
 }
 
 /* ============================================================
-   COMPACT FLOATING HUD (in-game stats)
+   HUD (in-game stats)
    ============================================================ */
 .hudMini{
   position:absolute;
@@ -298,7 +387,7 @@ canvas{
   letter-spacing:1px;
 }
 .hudMini b{
-  color:var(--text);
+  color:#fff;
   font-weight:900;
   font-variant-numeric: tabular-nums;
   font-size:13px;
@@ -308,7 +397,6 @@ canvas{
 .hudMiniRow:nth-child(3) b{color:var(--race-cyan)}
 .hudMiniRow:nth-child(4) b{color:var(--race-yellow)}
 
-/* hide any legacy bulky HUD */
 .hud{display:none !important}
 
 @media (max-width: 420px){
@@ -318,7 +406,7 @@ canvas{
 }
 
 /* ============================================================
-   BOTTOM CONTROLS (Left / Save / Right)
+   BOTTOM CONTROLS
    ============================================================ */
 .bottomBar{
   display:flex; align-items:center; justify-content:center; gap:10px;
@@ -329,7 +417,6 @@ canvas{
   display:flex; gap:12px;
   width:100%; max-width:480px; margin:0 auto;
 }
-
 .ctrlBtn{
   flex:1; padding:18px 14px;
   border-radius:var(--radius-sharp);
@@ -342,7 +429,7 @@ canvas{
   touch-action:none; user-select:none; -webkit-user-select:none;
   display:inline-flex; align-items:center; justify-content:center; gap:8px;
   box-shadow: var(--hs-md);
-  transition: transform .06s ease, box-shadow .06s ease, background .12s;
+  transition: transform .06s ease, box-shadow .06s ease, background .12s, color .12s;
   position:relative; overflow:hidden;
   cursor:pointer;
 }
@@ -356,7 +443,6 @@ canvas{
   transform: translate(4px,4px);
   box-shadow: 0 0 0 var(--ink);
 }
-
 .ctrlBtn.primary{
   background:var(--race-orange);
   color:var(--ink);
@@ -373,15 +459,18 @@ canvas{
 }
 
 /* ============================================================
-   BOTTOM SHEET (dialogs/menu)
+   BOTTOM SHEET
    ============================================================ */
 .sheet{
   position:absolute; inset:0;
-  background:rgba(10,10,15,.78);
+  background:rgba(10,10,15,.62);
   display:none;
   padding:18px 18px calc(18px + env(safe-area-inset-bottom));
   align-items:flex-end; justify-content:center;
   z-index:40;
+}
+:root[data-theme="light"] .sheet{
+  background:rgba(30,20,10,.45);
 }
 .sheet.open{display:flex; animation: fadeIn .15s ease}
 @keyframes fadeIn{from{opacity:0} to{opacity:1}}
@@ -418,7 +507,7 @@ canvas{
 }
 .sheetHeader .iconBtn:hover{
   background:var(--race-red);
-  color:var(--text);
+  color:#fff;
 }
 
 .sheetBody{
@@ -439,8 +528,11 @@ canvas{
 .kv{
   display:flex; align-items:center; justify-content:space-between;
   gap:10px; padding:12px 2px;
-  border-bottom:2px dashed rgba(247,208,70,.25);
+  border-bottom:2px dashed rgba(13,13,20,.18);
   font-size:13px;
+}
+:root[data-theme="dark"] .kv{
+  border-bottom-color: rgba(247,208,70,.25);
 }
 .kv:last-child{border-bottom:0}
 .kv .k{color:var(--text-dim); font-weight:700; letter-spacing:.4px; text-transform:uppercase; font-size:11px}
@@ -459,7 +551,7 @@ canvas{
   text-transform:uppercase;
   font-family:"Akando",system-ui;
   box-shadow: var(--hs-sm);
-  transition: transform .06s ease, box-shadow .06s ease, background .12s;
+  transition: transform .06s ease, box-shadow .06s ease, background .12s, color .12s;
   cursor:pointer;
   display:inline-flex; align-items:center; justify-content:center; gap:8px;
 }
@@ -473,7 +565,6 @@ canvas{
   transform:translate(3px,3px);
   box-shadow: 0 0 0 var(--ink);
 }
-
 .btn.accent, .pill.primary{
   background:var(--race-orange);
   color:var(--ink);
@@ -483,19 +574,17 @@ canvas{
 }
 .btn.danger{
   background:var(--race-red);
-  color:var(--text);
+  color:#fff;
 }
 .btn.danger:hover{
   background:#ff5a7d;
-  color:var(--text);
+  color:#fff;
 }
-
 .pillHow{
   background:var(--race-mint);
   color:var(--ink);
 }
 .pillHow:hover{background:#1aeab0; color:var(--ink)}
-
 .pill .pillIcon{width:18px; height:18px; object-fit:contain}
 
 .mono{
@@ -508,7 +597,7 @@ canvas{
 }
 
 /* ============================================================
-   TOAST (notifications)
+   TOAST
    ============================================================ */
 .toast{
   position:absolute; left:50%;
@@ -516,7 +605,7 @@ canvas{
   bottom:110px;
   background:var(--ink);
   border:var(--bw) solid var(--race-yellow);
-  color:var(--text);
+  color:#fff;
   padding:12px 18px;
   border-radius:var(--radius-sharp);
   font-size:13px; font-weight:900; letter-spacing:.5px;
@@ -533,9 +622,6 @@ canvas{
   transform:translateX(-50%) translateY(0);
 }
 
-/* ============================================================
-   REWARD POPUP
-   ============================================================ */
 .rewardPlus{
   color:var(--race-mint);
   font-weight:900;
@@ -557,7 +643,7 @@ canvas{
 .boardTitle{
   display:flex; align-items:center; justify-content:space-between;
   gap:10px;
-  font-weight:900; color:var(--race-yellow);
+  font-weight:900; color:var(--race-orange);
   text-transform:uppercase; letter-spacing:1.5px; font-size:13px;
   margin-bottom:12px;
   font-family:"Akando",system-ui;
@@ -565,13 +651,14 @@ canvas{
   border-bottom:2px solid var(--ink);
 }
 .weekCountdownWrap{
-  font-weight:800; color:var(--race-red);
+  font-weight:800; color:#fff;
   padding:3px 8px;
-  background:var(--ink);
+  background:var(--race-red);
+  border:2px solid var(--ink);
   border-radius:3px;
   font-size:12px;
 }
-.segCanvas{height:16px; vertical-align:middle}
+.segCanvas{height:16px; vertical-align:middle; image-rendering:pixelated}
 
 .boardList{
   display:flex; flex-direction:column; gap:var(--lb-gap);
@@ -590,12 +677,11 @@ canvas{
   background:var(--panel);
   border:2px solid var(--ink);
   box-shadow: 2px 2px 0 var(--ink);
-  transition: transform .08s ease, background .15s;
+  transition: transform .08s ease, background .15s, box-shadow .08s;
 }
 .boardRow:hover{
   transform:translate(-1px,-1px);
   box-shadow: 4px 4px 0 var(--race-orange);
-  background:var(--panel-2);
 }
 .boardRow .rank{
   width:32px; text-align:center;
@@ -603,28 +689,28 @@ canvas{
   font-size:14px;
   font-family:"Akando",system-ui;
 }
-/* Podium — flat bold colors, no glow */
 .boardRow:nth-child(1) .rank{color:var(--race-yellow)}
-.boardRow:nth-child(1){background:linear-gradient(90deg, rgba(247,208,70,.15), var(--panel))}
-.boardRow:nth-child(2) .rank{color:#c8cdd4}
-.boardRow:nth-child(2){background:linear-gradient(90deg, rgba(200,205,212,.1), var(--panel))}
+.boardRow:nth-child(2) .rank{color:#6a7a85}
 .boardRow:nth-child(3) .rank{color:var(--race-orange)}
-.boardRow:nth-child(3){background:linear-gradient(90deg, rgba(255,107,53,.12), var(--panel))}
 
 .boardRow .who{
   flex:1; font-weight:800; color:var(--text);
   font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
 .boardRow .pts{
-  font-weight:900; color:var(--race-mint);
+  font-weight:900;
+  color:var(--race-mint);
   font-variant-numeric: tabular-nums;
   font-size:14px;
+}
+:root[data-theme="light"] .boardRow .pts{
+  color:#058c6a;
 }
 
 .copy{color:var(--text-dim); font-size:13px; line-height:1.6}
 
 /* ============================================================
-   MENU LIST ITEMS
+   MENU ITEMS
    ============================================================ */
 .menuList{display:flex; flex-direction:column; gap:10px; margin-top:4px}
 .menuItem{
@@ -670,20 +756,17 @@ canvas{
 /* ============================================================
    RESPONSIVE
    ============================================================ */
-.segCanvas{image-rendering: pixelated}
-
 @media (max-width: 420px){
   .title{font-size:16px; letter-spacing:1.5px}
   .badge{font-size:11px; padding:8px 12px}
   .ctrlBtn{padding:16px 10px; font-size:13px}
   :root{ --bw: 2.5px; --bw-thick: 3px; }
 }
-
 @media (max-height: 720px){
   .ctrlBtn{padding:14px 12px}
 }
 
-/* Ambient subtle pulse on game card border color (NO flashing — just color cycle) */
+/* Subtle border-color pulse */
 @keyframes brutPulse{
   0%,100%{box-shadow: var(--hs-xl), var(--hs-lg) var(--race-orange)}
   50%    {box-shadow: var(--hs-xl), var(--hs-lg) var(--race-yellow)}
@@ -691,7 +774,7 @@ canvas{
 .gameCard{animation: brutPulse 5s ease-in-out infinite}
 
 /* ============================================================
-   SHEET BODY POLISH (menu/wallet)
+   SHEET BODY POLISH
    ============================================================ */
 .menuGrid{display:flex; flex-direction:column; gap:0; margin-bottom:8px}
 
@@ -707,7 +790,7 @@ canvas{
   border-radius:var(--radius-sharp);
   background:var(--race-red);
   border:var(--bw) solid var(--ink);
-  color:var(--text);
+  color:#fff;
   font-size:12.5px; line-height:1.5; font-weight:700;
   box-shadow: var(--hs-sm);
 }
@@ -726,7 +809,7 @@ canvas{
   color:var(--text);
   cursor:pointer;
   box-shadow: var(--hs-sm);
-  transition: transform .06s ease, box-shadow .06s ease, background .12s;
+  transition: transform .06s ease, box-shadow .06s ease, background .12s, color .12s;
 }
 .walletOption:hover{
   background:var(--race-cyan);
@@ -750,12 +833,12 @@ canvas{
 }
 
 .walletHint{
-  font-size:12.5px; color:var(--text-dim); line-height:1.55;
+  font-size:12.5px; line-height:1.55;
   padding:12px 14px;
   border:var(--bw) solid var(--race-yellow);
   border-left-width:6px;
   background:var(--ink);
-  color:var(--text);
+  color:#fff;
   border-radius:var(--radius-sharp);
 }
 
@@ -781,7 +864,7 @@ canvas{
 .lbLockedTitle{
   font-family:"RebellionSquad","AmericanCaptainPatrius",Akando,system-ui;
   font-size:22px; letter-spacing:2.5px; font-weight:900;
-  color:var(--race-yellow);
+  color:var(--race-orange);
   text-shadow: 3px 3px 0 var(--ink);
   text-transform:uppercase;
 }
@@ -796,6 +879,7 @@ canvas{
   background:var(--ink);
   padding:1px 6px;
   border-radius:3px;
+  color:var(--race-yellow);
 }
 
 .lbProgressWrap{
@@ -838,23 +922,24 @@ canvas{
   font-variant-numeric: tabular-nums;
   text-transform:uppercase; letter-spacing:.8px;
 }
-.lbProgressTxt b{color:var(--race-yellow)}
+.lbProgressTxt b{color:var(--race-orange)}
 .lbProgressPct{color:var(--race-mint)}
+:root[data-theme="light"] .lbProgressPct{color:#058c6a}
 
 .lbLockedHint{
   font-size:12.5px; line-height:1.55;
-  color:var(--text);
   padding:12px 14px;
   border:var(--bw) solid var(--race-orange);
   border-left-width:6px;
   background:var(--ink);
+  color:#fff;
   border-radius:var(--radius-sharp);
   max-width:440px;
   font-weight:600;
 }
 .lbLockedHint b{color:var(--race-yellow)}
 
-/* ---- Leaderboard access card inside Menu ---- */
+/* ---- Leaderboard access card ---- */
 .lbAccessCard{
   margin-top:14px;
   padding:14px;
@@ -864,11 +949,9 @@ canvas{
   box-shadow: var(--hs-sm);
 }
 .lbAccessCard.unlocked{
-  border-color: var(--ink);
   box-shadow: var(--hs-sm), inset 0 0 0 2px var(--race-mint);
 }
 .lbAccessCard.locked{
-  border-color: var(--ink);
   box-shadow: var(--hs-sm), inset 0 0 0 2px var(--race-red);
 }
 .lbAccessHead{
@@ -892,7 +975,7 @@ canvas{
   color:var(--ink); background:var(--race-mint);
 }
 .lbAccessCard.locked .lbAccessStatus{
-  color:var(--text); background:var(--race-red);
+  color:#fff; background:var(--race-red);
 }
 .lbAccessBar{
   width:100%; height:10px;
@@ -921,6 +1004,7 @@ canvas{
 .lbAccessInfo b{color:var(--text); font-weight:900; font-variant-numeric:tabular-nums}
 .lbAccessNote{font-weight:800}
 .lbAccessNote.good{color:var(--race-mint)}
+:root[data-theme="light"] .lbAccessNote.good{color:#058c6a}
 
 .boardsNotice{
   min-height:0; font-size:12.5px; color:var(--race-mint);
@@ -928,4 +1012,76 @@ canvas{
   text-transform:uppercase;
   letter-spacing:.5px;
 }
+:root[data-theme="light"] .boardsNotice{color:#058c6a}
 .boardsNotice:empty{display:none}
+
+/* ============================================================
+   THEME SWITCHER CARD (inside Menu sheet)
+   ============================================================ */
+.themeSwitchCard{
+  margin-top:14px;
+  padding:14px;
+  border-radius:var(--radius-sharp);
+  border:var(--bw) solid var(--ink);
+  background:var(--panel-2);
+  box-shadow: var(--hs-sm);
+}
+.themeSwitchHead{
+  display:flex; align-items:center; gap:10px;
+  margin-bottom:12px;
+}
+.themeSwitchIcon{
+  font-size:18px;
+  width:30px; height:30px;
+  display:inline-flex; align-items:center; justify-content:center;
+  background:var(--race-yellow);
+  border:2px solid var(--ink);
+  border-radius:3px;
+}
+.themeSwitchTitle{
+  flex:1;
+  font-weight:900; letter-spacing:1.2px; text-transform:uppercase;
+  font-size:13px; color:var(--text);
+  font-family:"Akando",system-ui;
+}
+.themeSwitchOpts{
+  display:flex; gap:10px;
+}
+.themeOpt{
+  flex:1;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:12px 14px;
+  border:var(--bw) solid var(--ink);
+  border-radius:var(--radius-sharp);
+  background:var(--panel);
+  color:var(--text);
+  font-weight:900; font-size:13px; letter-spacing:1px;
+  text-transform:uppercase;
+  font-family:"Akando",system-ui;
+  box-shadow: var(--hs-sm);
+  cursor:pointer;
+  transition: transform .06s ease, box-shadow .06s ease, background .15s, color .15s;
+}
+.themeOpt:hover{
+  transform:translate(-1px,-1px);
+  box-shadow: var(--hs-md);
+}
+.themeOpt:active{
+  transform:translate(3px,3px);
+  box-shadow: 0 0 0 var(--ink);
+}
+.themeOpt.active{
+  background:var(--race-orange);
+  color:var(--ink);
+  box-shadow: var(--hs-md);
+}
+.themeOpt[data-theme="light"].active{
+  background:var(--race-yellow);
+  color:var(--ink);
+}
+.themeOpt[data-theme="dark"].active{
+  background:var(--ink);
+  color:var(--race-yellow);
+}
+.themeOptIcon{font-size:16px}
+.themeOptLbl{letter-spacing:1.2px}
