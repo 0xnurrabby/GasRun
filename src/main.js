@@ -992,6 +992,87 @@ async function detectMiniHostFast() {
   }
 }
 
+
+// =====================================================
+// ensureBase — make sure the wallet is on Base Mainnet (0x2105 / 8453)
+// Works for all providers: miniapp, injected (MetaMask/Coinbase/etc),
+// and WalletConnect v2 (Trust, Rainbow, OKX, etc.).
+// =====================================================
+async function ensureBase() {
+  const p = await getProvider();
+  if (!p) throw new Error("No wallet provider. Please reconnect your wallet.");
+
+  // 1) Read current chain
+  let chainId;
+  try {
+    chainId = await p.request({ method: "eth_chainId", params: [] });
+  } catch (e) {
+    // Some mobile wallets block eth_chainId when session is stale — try reconnect once.
+    throw new Error("Wallet session expired. Please reconnect and try again.");
+  }
+
+  if (chainId === BASE_CHAIN_ID_HEX) return; // already on Base ✅
+
+  // 2) Try wallet_switchEthereumChain (standard path — MetaMask, Rabby, Coinbase Wallet)
+  try {
+    await p.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: BASE_CHAIN_ID_HEX }]
+    });
+    return;
+  } catch (switchErr) {
+    const code = switchErr?.code;
+    // 4902 = chain not added; 4001 = user rejected
+    if (code === 4001) {
+      throw new Error("Please switch to Base Mainnet to deposit.");
+    }
+    // For WalletConnect / Trust / Rainbow / any wallet that doesn't know Base yet → try adding.
+    if (code === 4902 || code === -32602 || code === -32603 || !code) {
+      try {
+        await p.request({
+          method: "wallet_addEthereumChain",
+          params: [{
+            chainId: BASE_CHAIN_ID_HEX,
+            chainName: "Base",
+            nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+            rpcUrls: ["https://mainnet.base.org"],
+            blockExplorerUrls: ["https://basescan.org"]
+          }]
+        });
+        // After adding, some wallets auto-switch; others need another switch call.
+        try {
+          await p.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: BASE_CHAIN_ID_HEX }]
+          });
+        } catch {}
+      } catch (addErr) {
+        if (addErr?.code === 4001) {
+          throw new Error("Please approve adding Base network to continue.");
+        }
+        throw new Error(
+          "Could not switch to Base. Open your wallet app and switch network to Base Mainnet, then try again."
+        );
+      }
+    } else {
+      throw new Error(
+        "Network switch failed. Please switch to Base Mainnet in your wallet app manually."
+      );
+    }
+  }
+
+  // 3) Final verification — confirm we really are on Base now.
+  try {
+    const verify = await p.request({ method: "eth_chainId", params: [] });
+    if (verify !== BASE_CHAIN_ID_HEX) {
+      throw new Error("Please switch to Base Mainnet in your wallet, then try again.");
+    }
+  } catch (e) {
+    if (String(e?.message || "").includes("Please switch")) throw e;
+    // Non-fatal — proceed; the downstream send will catch chain mismatches.
+  }
+}
+
 // =====================================================
 // Time windows (Weekly reset) + Boost rhythm
 // =====================================================
