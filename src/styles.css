@@ -2,42 +2,39 @@
    GasRun — DARK NEO-BRUTALISM (v4)
    - Flat bold colors, thick black borders, hard offset shadows
    - Dark charcoal base for long-session eye comfort
-   - Chunky monospace/display typography
+   - No glow, no blur on gameplay. Chunky display typography.
    - Gameplay logic untouched.
    ============================================================ */
 
 :root{
-  /* --- Dark brutalist palette (eye-safe for long play) --- */
-  --bg:#1a1a24;              /* charcoal, not pure black */
-  --bg-elev:#22222e;         /* slightly lifted */
-  --panel:#2a2a38;           /* cards */
-  --panel-2:#32323f;         /* kv row bg */
-  --ink:#0a0a0f;             /* near-black for thick borders */
-  --text:#f4f4f0;            /* warm off-white (not harsh) */
+  --bg:#1a1a24;
+  --bg-elev:#22222e;
+  --panel:#2a2a38;
+  --panel-2:#32323f;
+  --ink:#0a0a0f;
+  --text:#f4f4f0;
   --text-dim:#a8a8b8;
   --muted:#7a7a8a;
 
-  /* Brutalist accents (muted, not neon) */
-  --yellow:#ffd400;          /* primary brutalist yellow */
+  /* Brutalist accents (muted, eye-safe for long play) */
+  --yellow:#ffd400;
   --yellow-2:#f5b800;
   --cyan:#00d9ff;
   --pink:#ff4d8d;
-  --coral:#ff3d57;           /* danger */
-  --mint:#4ade80;            /* success */
+  --coral:#ff3d57;
+  --mint:#4ade80;
   --violet:#a78bfa;
   --orange:#ff8c42;
 
-  /* Brutalist structure */
   --border: 3px solid var(--ink);
   --border-2: 2px solid var(--ink);
   --shadow: 6px 6px 0 var(--ink);
   --shadow-sm: 4px 4px 0 var(--ink);
   --shadow-xs: 3px 3px 0 var(--ink);
   --shadow-lift: 8px 8px 0 var(--ink);
-  --radius: 0px;             /* brutalism = sharp corners */
-  --radius-sm: 4px;          /* minor softening for touch targets */
+  --radius: 0px;
+  --radius-sm: 4px;
 
-  /* Leaderboard layout tuning */
   --lb-row:56px;
   --lb-gap:10px;
 }
@@ -77,15 +74,11 @@ html,body{
   overflow-x:hidden;
   letter-spacing:.2px;
 }
-
-/* Subtle dotted grid bg (brutalist paper texture, but dark) */
 body::before{
   content:"";
   position:fixed; inset:0; z-index:0; pointer-events:none;
-  background-image:
-    radial-gradient(rgba(255,255,255,.04) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(255,255,255,.04) 1px, transparent 1px);
   background-size: 18px 18px;
-  background-position: 0 0;
   opacity:.6;
 }
 
@@ -108,8 +101,6 @@ body::before{
   display:flex; align-items:center; justify-content:space-between;
   gap:10px; padding:2px 0;
 }
-
-/* All iconBtn = brutalist hard-edge button */
 .iconBtn{
   border:var(--border);
   background:var(--yellow);
@@ -121,14 +112,8 @@ body::before{
   transition: transform .08s linear, box-shadow .08s linear;
   cursor:pointer;
 }
-.iconBtn:hover{
-  transform: translate(-1px,-1px);
-  box-shadow: 5px 5px 0 var(--ink);
-}
-.iconBtn:active{
-  transform: translate(3px,3px);
-  box-shadow: 1px 1px 0 var(--ink);
-}
+.iconBtn:hover{ transform: translate(-1px,-1px); box-shadow: 5px 5px 0 var(--ink); }
+.iconBtn:active{ transform: translate(3px,3px); box-shadow: 1px 1px 0 var(--ink); }
 
 .title{
   flex:1; text-align:center;
@@ -156,14 +141,8 @@ body::before{
   text-transform:uppercase;
   font-family:"Akando","RebellionSquad", system-ui;
 }
-.badge:hover{
-  transform: translate(-1px,-1px);
-  box-shadow: 5px 5px 0 var(--ink);
-}
-.badge:active{
-  transform: translate(3px,3px);
-  box-shadow: 1px 1px 0 var(--ink);
-}
+.badge:hover{ transform: translate(-1px,-1px); box-shadow: 5px 5px 0 var(--ink); }
+.badge:active{ transform: translate(3px,3px); box-shadow: 1px 1px 0 var(--ink); }
 .badge.connected{background:var(--mint)}
 .badge.error{background:var(--coral); color:#fff}
 
@@ -177,7 +156,6 @@ body::before{
   padding:8px;
   position:relative; overflow:hidden;
 }
-
 .canvasWrap{
   position:absolute; inset:8px;
   border:var(--border-2);
@@ -191,7 +169,7 @@ canvas{
   -webkit-user-select:none; -webkit-touch-callout:none;
 }
 
-/* ---------- Compact HUD (top-left of canvas) ---------- */
+/* ---------- Compact HUD ---------- */
 .hudMini{
   position:absolute;
   top:10px; left:10px;
@@ -229,7 +207,7 @@ canvas{
   font-variant-numeric: tabular-nums;
   font-size:13px;
 }
-.hud{display:none !important} /* hide legacy */
+.hud{display:none !important}
 
 @media (max-width: 420px){
   .hudMini{top:8px; left:8px; padding:5px 7px; min-width:104px}
@@ -244,7 +222,6 @@ canvas{
   padding-top:4px;
 }
 .controls{display:flex; gap:10px; width:100%; max-width:460px; margin:0 auto}
-
 .ctrlBtn{
   flex:1; padding:16px 10px;
   border:var(--border);
@@ -261,22 +238,12 @@ canvas{
   cursor:pointer;
 }
 .ctrlBtn .ctrlIcon{font-size:14px; line-height:1}
-.ctrlBtn:hover{
-  transform: translate(-1px,-1px);
-  box-shadow: 5px 5px 0 var(--ink);
-  background:#353545;
-}
-.ctrlBtn:active{
-  transform: translate(3px,3px);
-  box-shadow: 1px 1px 0 var(--ink);
-}
-.ctrlBtn.primary{
-  background:var(--yellow);
-  color:var(--ink);
-}
+.ctrlBtn:hover{ transform: translate(-1px,-1px); box-shadow: 5px 5px 0 var(--ink); background:#353545; }
+.ctrlBtn:active{ transform: translate(3px,3px); box-shadow: 1px 1px 0 var(--ink); }
+.ctrlBtn.primary{ background:var(--yellow); color:var(--ink); }
 .ctrlBtn.primary:hover{background:var(--yellow-2)}
 
-/* ---------- Bottom sheet (menu/dialogs) ---------- */
+/* ---------- Bottom sheet ---------- */
 .sheet{
   position:absolute; inset:0;
   background:rgba(10,10,15,.75);
@@ -287,7 +254,6 @@ canvas{
 }
 .sheet.open{display:flex; animation: fadeIn .16s linear}
 @keyframes fadeIn{from{opacity:0} to{opacity:1}}
-
 .sheetPanel{
   width:100%; max-width:540px;
   background:var(--panel);
@@ -297,10 +263,7 @@ canvas{
   overflow:hidden;
   animation: slamUp .2s cubic-bezier(.3,.1,.1,1);
 }
-@keyframes slamUp{
-  from{transform:translateY(30px); opacity:0}
-  to{transform:translateY(0); opacity:1}
-}
+@keyframes slamUp{ from{transform:translateY(30px); opacity:0} to{transform:translateY(0); opacity:1} }
 
 .sheetHeader{
   display:flex; align-items:center; justify-content:space-between;
@@ -316,19 +279,12 @@ canvas{
   color:var(--ink);
 }
 .sheetHeader .iconBtn{
-  background:var(--ink);
-  color:var(--yellow);
+  background:var(--ink); color:var(--yellow);
   border-color:var(--ink);
   box-shadow: 3px 3px 0 rgba(255,255,255,.15);
 }
-.sheetHeader .iconBtn:hover{
-  background:#000;
-  box-shadow: 2px 2px 0 rgba(255,255,255,.2);
-}
-.sheetHeader .iconBtn:active{
-  box-shadow: 0 0 0 rgba(255,255,255,.2);
-  transform: translate(3px,3px);
-}
+.sheetHeader .iconBtn:hover{ background:#000; box-shadow: 2px 2px 0 rgba(255,255,255,.2); }
+.sheetHeader .iconBtn:active{ box-shadow: 0 0 0 rgba(255,255,255,.2); transform: translate(3px,3px); }
 
 .sheetBody{
   padding:14px 16px 18px;
@@ -341,7 +297,7 @@ canvas{
 .sheetBody::-webkit-scrollbar-track{background:var(--bg)}
 .sheetBody::-webkit-scrollbar-thumb{background:var(--yellow); border:1px solid var(--ink)}
 
-/* ---------- KV rows in Menu ---------- */
+/* ---------- KV rows ---------- */
 .menuGrid{
   display:flex; flex-direction:column; gap:0;
   margin-bottom:10px;
@@ -378,33 +334,16 @@ canvas{
   transition: transform .08s linear, box-shadow .08s linear, background .1s linear;
   display:inline-flex; align-items:center; justify-content:center; gap:8px;
 }
-.pill:hover{
-  transform: translate(-1px,-1px);
-  box-shadow: 4px 4px 0 var(--ink);
-  background:#3a3a48;
-}
-.pill:active{
-  transform: translate(2px,2px);
-  box-shadow: 1px 1px 0 var(--ink);
-}
-.pill.primary{
-  background:var(--yellow);
-  color:var(--ink);
-}
+.pill:hover{ transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--ink); background:#3a3a48; }
+.pill:active{ transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--ink); }
+.pill.primary{ background:var(--yellow); color:var(--ink); }
 .pill.primary:hover{background:var(--yellow-2)}
-.pill.pillHow{
-  background:var(--mint);
-  color:var(--ink);
-}
+.pill.pillHow{ background:var(--mint); color:var(--ink); }
 .pill.pillHow:hover{background:#6ee89a}
-.pill .pillIcon{
-  width:20px; height:20px; object-fit:contain;
-  filter:drop-shadow(1px 1px 0 var(--ink));
-}
+.pill .pillIcon{ width:20px; height:20px; object-fit:contain; filter:drop-shadow(1px 1px 0 var(--ink)); }
 
 .commitWrap{margin-top:12px}
 
-/* Warning box */
 .alertRed{
   margin-top:14px;
   padding:11px 13px;
@@ -433,7 +372,6 @@ canvas{
   transition: transform .08s linear, box-shadow .08s linear, background .1s linear;
   font-family:"Akando",system-ui;
 }
-.walletOption:nth-child(4n+1){background:var(--panel-2)}
 .walletOption:nth-child(4n+2){background:#3a3344}
 .walletOption:nth-child(4n+3){background:#3d3838}
 .walletOption:nth-child(4n+4){background:#343d3b}
@@ -444,19 +382,10 @@ canvas{
   color:var(--ink);
 }
 .walletOption:hover .walletOptionSub{color:rgba(10,10,15,.75)}
-.walletOption:active{
-  transform: translate(2px,2px);
-  box-shadow: 1px 1px 0 var(--ink);
-}
+.walletOption:active{ transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--ink); }
 .walletOption:disabled{opacity:.5; cursor:wait}
-.walletOptionTitle{
-  font-weight:900; font-size:14px; letter-spacing:.5px;
-  text-transform:uppercase;
-}
-.walletOptionSub{
-  font-weight:600; font-size:11.5px; color:var(--text-dim);
-  letter-spacing:.2px;
-}
+.walletOptionTitle{ font-weight:900; font-size:14px; letter-spacing:.5px; text-transform:uppercase; }
+.walletOptionSub{ font-weight:600; font-size:11.5px; color:var(--text-dim); letter-spacing:.2px; }
 .walletHint{
   font-size:12px; line-height:1.5; font-weight:600;
   padding:10px 12px;
@@ -466,22 +395,21 @@ canvas{
   color:var(--text-dim);
 }
 
-/* ---------- Week countdown badge ---------- */
+/* ---------- Week countdown ---------- */
 .weekCountdownWrap{
   display:inline-flex; align-items:center; gap:4px;
-  color:var(--coral);
-  font-weight:900;
+  color:var(--coral); font-weight:900;
 }
 .segCanvas{height:16px; vertical-align:middle}
 
-/* ---------- Leaderboard Lock screen ---------- */
+/* ---------- Leaderboard Lock ---------- */
 .lbLocked{
   display:flex; flex-direction:column; align-items:center;
   gap:14px; padding:4px 0;
   text-align:center;
 }
 .lbLockedIcon{
-  font-size:56px; line-height:1;
+  font-size:48px; line-height:1;
   padding:14px 18px;
   background:var(--coral);
   border:var(--border);
@@ -491,8 +419,7 @@ canvas{
   transform-origin:center;
 }
 @keyframes shake{
-  0%,100%{transform:rotate(0deg)}
-  92%{transform:rotate(0deg)}
+  0%,92%,100%{transform:rotate(0deg)}
   94%{transform:rotate(-4deg)}
   96%{transform:rotate(4deg)}
   98%{transform:rotate(-2deg)}
@@ -538,10 +465,8 @@ canvas{
   );
   animation: stripeMove 1.1s linear infinite;
 }
-@keyframes stripeMove{
-  from{background-position: 0 0}
-  to  {background-position: 28px 0}
-}
+@keyframes stripeMove{ from{background-position: 0 0} to{background-position: 28px 0} }
+
 .lbProgressTxt{
   display:flex; justify-content:space-between; align-items:center;
   margin-top:8px; font-size:12.5px; font-weight:900; color:#fff;
@@ -563,7 +488,7 @@ canvas{
 }
 .lbLockedHint b{color:var(--yellow)}
 
-/* ---------- Leaderboard access card inside Menu ---------- */
+/* ---------- Leaderboard access card in Menu ---------- */
 .lbAccessCard{
   margin-top:14px;
   padding:12px;
@@ -593,7 +518,6 @@ canvas{
 }
 .lbAccessCard.unlocked .lbAccessStatus{background:var(--mint)}
 .lbAccessCard.locked .lbAccessStatus{background:var(--coral); color:#fff}
-
 .lbAccessBar{
   width:100%; height:12px;
   background:var(--bg);
@@ -608,7 +532,6 @@ canvas{
   transition: width .5s cubic-bezier(.2,.8,.2,1);
 }
 .lbAccessCard.unlocked .lbAccessFill{background:var(--mint)}
-
 .lbAccessInfo{
   display:flex; align-items:center; justify-content:space-between;
   gap:8px; margin-top:8px;
@@ -619,7 +542,7 @@ canvas{
 .lbAccessInfo b{color:#fff; font-weight:900; font-variant-numeric:tabular-nums}
 .lbAccessNote.good{color:var(--mint)}
 
-/* ---------- Leaderboards board/rows ---------- */
+/* ---------- Leaderboard boards/rows ---------- */
 #boards{display:flex; flex-direction:column; gap:14px}
 .boardsWrap{margin-top:8px}
 .board{
@@ -698,16 +621,16 @@ canvas{
 
 /* Share block */
 .shareBlock{display:flex; flex-direction:column; gap:4px; min-width:160px; flex:1}
-.sharePill{background:var(--violet)!important; color:var(--ink)!important}
-.sharePill:hover{background:#bfa5ff!important}
-.sharePill.disabled,.sharePill:disabled{opacity:.55; cursor:not-allowed}
+.sharePill{background:var(--violet) !important; color:var(--ink) !important}
+.sharePill:hover{background:#bfa5ff !important}
+.sharePill.disabled, .sharePill:disabled{opacity:.55; cursor:not-allowed}
 .shareMeta, .shareCooldown{
   font-size:11px; color:var(--text-dim); text-align:center; font-weight:700;
 }
 .shareCooldown{color:var(--coral)}
 .shareUsed, .shareMax{color:#fff}
 
-/* Notice/reward banners */
+/* Boards notice */
 .boardsNotice{
   min-height:0; padding:0; font-size:12.5px;
   color:var(--mint); font-weight:900; letter-spacing:.5px;
@@ -751,14 +674,12 @@ canvas{
   transform:translateX(-50%) translateY(0);
 }
 
-/* Responsive */
 @media (max-width: 420px){
   .title{font-size:16px; letter-spacing:1px}
   .badge{font-size:11px; padding:9px 12px}
   .ctrlBtn{padding:14px 8px; font-size:13px; letter-spacing:1px}
   .sheetHeader h3{font-size:16px}
 }
-
 @media (max-height: 720px){
   .hudMini{padding:6px 8px; min-width:108px}
   .ctrlBtn{padding:13px 10px}
