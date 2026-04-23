@@ -99,6 +99,75 @@ const TOP_TITLE = "👈🏻Click for m0re Dear";
 const HUD_TITLE = "Live Statistics";
 const HOME_URL = "https://www.gasrun.online/";
 
+// =====================================================
+// THEME SWITCHER (Light / Dark) — persists in localStorage
+// =====================================================
+const THEME_KEY = "gasrun_theme_v1";
+
+function getTheme() {
+  try {
+    const t = localStorage.getItem(THEME_KEY);
+    if (t === "light" || t === "dark") return t;
+  } catch {}
+  return "light"; // default = LIGHT (day mode) as user requested
+}
+
+function setTheme(theme) {
+  const t = theme === "dark" ? "dark" : "light";
+  try { localStorage.setItem(THEME_KEY, t); } catch {}
+  document.documentElement.setAttribute("data-theme", t);
+  // Force a single repaint so canvas picks up new palette instantly
+  if (typeof window !== "undefined") {
+    requestAnimationFrame(() => {
+      try { if (typeof render === "function") render(); } catch {}
+    });
+  }
+}
+
+// Apply saved theme ASAP (before first paint)
+(function _applySavedThemeEarly() {
+  try {
+    const t = getTheme();
+    document.documentElement.setAttribute("data-theme", t);
+  } catch {
+    document.documentElement.setAttribute("data-theme", "light");
+  }
+})();
+
+// Read current canvas palette from CSS variables (keeps JS & CSS in sync)
+function getCanvasPalette() {
+  const cs = getComputedStyle(document.documentElement);
+  const get = (name, fallback) => (cs.getPropertyValue(name).trim() || fallback);
+  return {
+    skyTop:    get("--cv-sky-top",    "#fef6e4"),
+    skyMid:    get("--cv-sky-mid",    "#f8e9c1"),
+    skyBot:    get("--cv-sky-bot",    "#ffd59b"),
+    asphalt1:  get("--cv-asphalt-1",  "#3a3a4a"),
+    asphalt2:  get("--cv-asphalt-2",  "#4a4a5c"),
+    asphaltDot:get("--cv-asphalt-dot","#5d5d72"),
+    roadShadow:get("--cv-road-shadow","rgba(30,20,10,0.25)"),
+    roadStroke:get("--cv-road-stroke","#0d0d14"),
+    laneOutl:  get("--cv-lane-outline","rgba(13,13,20,0.9)"),
+    laneDash:  get("--cv-lane-dash",  "#f7d046"),
+    edgeLeft:  get("--cv-edge-left",  "#f7d046"),
+    edgeRight: get("--cv-edge-right", "#ff6b35"),
+    streakA:   get("--cv-streak-a",   "rgba(255,107,53,0.35)"),
+    streakB:   get("--cv-streak-b",   "rgba(247,208,70,0.45)"),
+    sideFill1: get("--cv-side-1",     "#e8dcb5"),
+    sideFill2: get("--cv-side-2",     "#d4c489"),
+    sideFill3: get("--cv-side-3",     "#bfaf73"),
+    sideAccent:get("--cv-side-accent","#ff6b35"),
+    ink:       get("--ink",           "#0d0d14"),
+    hazardYel: get("--cv-hazard",     "#f7d046"),
+    overlay:   get("--cv-overlay",    "rgba(10,10,15,0.55)"),
+    bannerBg:  get("--cv-banner-bg",  "#fef6e4"),
+    bannerSh:  get("--cv-banner-sh",  "#ff6b35"),
+    bannerTtl: get("--cv-banner-ttl", "#ef476f"),
+    bannerTxt: get("--cv-banner-txt", "#0d0d14"),
+    bannerSub: get("--cv-banner-sub", "#ff6b35"),
+  };
+}
+
 function colorizeMinecraftText(str) {
   // digits + common symbols => red
   const re = /[0-9$+*\-%=]/g;
@@ -1624,7 +1693,25 @@ function openMainMenu() {
     <div class="alertRed">
   ⚠️ Important: Please Deposit your Saved points within every 10 min. If you don't,  25% percent of your saved points will be deducted every 10 minutes!
 </div>
+
+    <div class="themeSwitchCard">
+      <div class="themeSwitchHead">
+        <span class="themeSwitchIcon">🎨</span>
+        <span class="themeSwitchTitle">Theme</span>
+      </div>
+      <div class="themeSwitchOpts">
+        <button class="themeOpt" data-theme="light" id="themeLight">
+          <span class="themeOptIcon">☀️</span>
+          <span class="themeOptLbl">Light</span>
+        </button>
+        <button class="themeOpt" data-theme="dark" id="themeDark">
+          <span class="themeOptIcon">🌙</span>
+          <span class="themeOptLbl">Dark</span>
+        </button>
+      </div>
+    </div>
   `,
+
 
     "menu"
   );
@@ -1657,7 +1744,21 @@ function openMainMenu() {
     e.stopPropagation();
     commitWeeklyOnchain();
   });
+
+  // Theme switcher wiring
+  try {
+    const current = getTheme();
+    const btnL = $("#themeLight");
+    const btnD = $("#themeDark");
+    if (btnL && btnD) {
+      if (current === "light") btnL.classList.add("active");
+      else btnD.classList.add("active");
+      btnL.addEventListener("click", () => { setTheme("light"); btnL.classList.add("active"); btnD.classList.remove("active"); });
+      btnD.addEventListener("click", () => { setTheme("dark");  btnD.classList.add("active"); btnL.classList.remove("active"); });
+    }
+  } catch {}
 }
+
 
 function openHowView() {
   openSheet(
@@ -2979,18 +3080,27 @@ function ensureGrassDecor(g) {
 }
 
 // =====================================================
-// MAIN RENDER — Neo-Brutalism Racing Scene
+// MAIN RENDER — Neo-Brutalism Racing Scene (theme-aware)
+// Reads colors from CSS variables via getCanvasPalette()
+// so Light/Dark switcher works instantly.
 // =====================================================
 function render() {
   const g = laneGeometry();
+  if (!g || !isFinite(g.w) || !isFinite(g.h) || g.w <= 0 || g.h <= 0) return;
 
+  const P = getCanvasPalette();
+
+  // Single top-level save so restore-balance is guaranteed.
+  ctx.save();
+
+  // Start with a clean canvas
   ctx.clearRect(0, 0, g.w, g.h);
 
-  // ---------- Background: warm charcoal night (eye-friendly) ----------
+  // ---------- Background: sky gradient (light day / dark night) ----------
   const sky = ctx.createLinearGradient(0, 0, 0, g.h);
-  sky.addColorStop(0, "#1a1a2e");
-  sky.addColorStop(0.5, "#20202f");
-  sky.addColorStop(1, "#16161f");
+  sky.addColorStop(0, P.skyTop);
+  sky.addColorStop(0.5, P.skyMid);
+  sky.addColorStop(1, P.skyBot);
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, g.w, g.h);
 
@@ -3000,32 +3110,31 @@ function render() {
   for (const b of _grassDecor.blobs) {
     if (b.x > g.roadX - 8 && b.x < g.roadX + g.roadW + 8) continue;
     const isLeft = b.x < g.roadX;
-    // chunky billboard — flat color + hard black outline (brutalism)
     let fillCol;
-    if (b.kind < 0.25) fillCol = "#2d2d44";       // most = muted panels
-    else if (b.kind < 0.5) fillCol = isLeft ? "#3a3a55" : "#33334d";
-    else if (b.kind < 0.75) fillCol = "#242438";
-    else fillCol = isLeft ? "rgba(255,107,53,0.25)" : "rgba(247,208,70,0.20)";
+    if (b.kind < 0.25) fillCol = P.sideFill1;
+    else if (b.kind < 0.5) fillCol = isLeft ? P.sideFill2 : P.sideFill3;
+    else if (b.kind < 0.75) fillCol = P.sideFill1;
+    else fillCol = P.sideAccent;
 
     ctx.fillStyle = fillCol;
     ctx.fillRect(b.x, b.y, b.bw, b.bh);
-    ctx.strokeStyle = "rgba(13,13,20,0.9)";
+    ctx.strokeStyle = P.ink;
     ctx.lineWidth = 1.5;
     ctx.strokeRect(b.x, b.y, b.bw, b.bh);
 
     // accent stripe on some billboards
     if (b.kind > 0.75) {
-      ctx.fillStyle = isLeft ? "#ff6b35" : "#f7d046";
+      ctx.fillStyle = P.edgeLeft;
       ctx.fillRect(b.x, b.y + b.bh * 0.35, b.bw, Math.max(2, b.bh * 0.08));
     }
   }
   ctx.restore();
 
-  // ---------- Speed streaks on sides (parallax — subtle, warm) ----------
+  // ---------- Speed streaks on sides (parallax) ----------
   ctx.save();
-  ctx.globalAlpha = 0.28;
+  ctx.globalAlpha = 0.35;
   const streakOff = (game.t * (140 + game.speed * 60)) % 60;
-  ctx.strokeStyle = "rgba(247,208,70,0.35)";
+  ctx.strokeStyle = P.streakA;
   ctx.lineWidth = 1.5;
   const sideW = Math.max(0, (g.w - g.roadW) / 2);
   for (let i = 0; i < 5; i++) {
@@ -3037,7 +3146,7 @@ function render() {
       ctx.beginPath(); ctx.moveTo(rx, yy); ctx.lineTo(rx, yy + 30); ctx.stroke();
     }
   }
-  ctx.strokeStyle = "rgba(255,107,53,0.28)";
+  ctx.strokeStyle = P.streakB;
   for (let i = 0; i < 3; i++) {
     const lx = (i + 0.8) * (sideW / 4);
     const rx = g.roadX + g.roadW + (i + 0.2) * (sideW / 4);
@@ -3049,29 +3158,29 @@ function render() {
   }
   ctx.restore();
 
-  // ---------- Road body (brutalist asphalt) ----------
-  ctx.save();
-
+  // ---------- Road body ----------
   // Hard offset road shadow (brutalism signature)
-  ctx.fillStyle = "rgba(0,0,0,0.75)";
-  drawRoundedRect(g.roadX + 5, g.roadY + 6, g.roadW, g.roadH, g.cornerR);
+  ctx.save();
+  ctx.fillStyle = P.roadShadow;
+  drawRoundedRect(g.roadX + 5, g.roadY + 7, g.roadW, g.roadH, g.cornerR);
   ctx.fill();
+  ctx.restore();
 
-  // Asphalt — warm dark tone (not pure black — easier on eyes)
+  // Asphalt
   const asphalt = ctx.createLinearGradient(g.roadX, 0, g.roadX + g.roadW, 0);
-  asphalt.addColorStop(0, "#1e1e2d");
-  asphalt.addColorStop(0.5, "#262637");
-  asphalt.addColorStop(1, "#1e1e2d");
+  asphalt.addColorStop(0, P.asphalt1);
+  asphalt.addColorStop(0.5, P.asphalt2);
+  asphalt.addColorStop(1, P.asphalt1);
   ctx.fillStyle = asphalt;
   drawRoundedRect(g.roadX, g.roadY, g.roadW, g.roadH, g.cornerR);
   ctx.fill();
 
-  // Asphalt texture dots (warm, subtle)
+  // Asphalt texture dots
   ctx.save();
   drawRoundedRect(g.roadX, g.roadY, g.roadW, g.roadH, g.cornerR);
   ctx.clip();
-  ctx.globalAlpha = 0.14;
-  ctx.fillStyle = "#3a3a52";
+  ctx.globalAlpha = 0.18;
+  ctx.fillStyle = P.asphaltDot;
   const seed = Math.round(g.w) * 131 + Math.round(g.h);
   const rnd = _mulberry32(seed);
   const dotCount = Math.floor((g.roadW * g.roadH) / 1000);
@@ -3082,26 +3191,23 @@ function render() {
   }
   ctx.restore();
 
-  // Neo-brutalist road edges: thick yellow + black warning stripes
+  // Neo-brutalist road edges: racing stripes
   ctx.save();
-  // Left edge — solid yellow racing stripe
-  ctx.fillStyle = "#f7d046";
+  ctx.fillStyle = P.edgeLeft;
   ctx.fillRect(g.roadX + 2, g.safeTop, 4, g.safeBottom - g.safeTop);
-  // Right edge — solid orange racing stripe
-  ctx.fillStyle = "#ff6b35";
+  ctx.fillStyle = P.edgeRight;
   ctx.fillRect(g.roadX + g.roadW - 6, g.safeTop, 4, g.safeBottom - g.safeTop);
 
-  // Diagonal warning hazard stripes at top/bottom (brutalism touch)
+  // Diagonal warning hazard stripes at top/bottom
   ctx.save();
-  ctx.globalAlpha = 0.6;
+  ctx.globalAlpha = 0.7;
   const hazardY1 = g.safeTop - 4;
   const hazardY2 = g.safeBottom;
-  ctx.fillStyle = "#0d0d14";
+  ctx.fillStyle = P.ink;
   ctx.fillRect(g.roadX + 8, hazardY1, g.roadW - 16, 4);
   ctx.fillRect(g.roadX + 8, hazardY2, g.roadW - 16, 4);
-  // yellow stripes on top of black
   const stripeSpace = 14;
-  ctx.fillStyle = "#f7d046";
+  ctx.fillStyle = P.hazardYel;
   for (let sx = g.roadX + 8; sx < g.roadX + g.roadW - 8; sx += stripeSpace) {
     ctx.beginPath();
     ctx.moveTo(sx, hazardY1);
@@ -3121,8 +3227,8 @@ function render() {
   ctx.restore();
   ctx.restore();
 
-  // Thick black outer road stroke (brutalism)
-  ctx.strokeStyle = "#0d0d14";
+  // Thick black outer road stroke
+  ctx.strokeStyle = P.roadStroke;
   ctx.lineWidth = 2.5;
   drawRoundedRect(g.roadX, g.roadY, g.roadW, g.roadH, g.cornerR);
   ctx.stroke();
@@ -3132,11 +3238,10 @@ function render() {
   drawRoundedRect(g.roadX, g.roadY, g.roadW, g.roadH, g.cornerR);
   ctx.clip();
 
-  // ---------- Lane separators — chunky yellow dashes ----------
+  // ---------- Lane separators — chunky dashes ----------
   const dashSpeed = (220 + game.speed * 90) * (isSlowOn() ? 0.55 : 1.0);
   ctx.save();
-  // black outline behind
-  ctx.strokeStyle = "rgba(13,13,20,0.9)";
+  ctx.strokeStyle = P.laneOutl;
   ctx.lineWidth = 6;
   ctx.lineCap = "butt";
   ctx.setLineDash([30, 24]);
@@ -3148,8 +3253,7 @@ function render() {
     ctx.lineTo(x, g.safeBottom);
     ctx.stroke();
   }
-  // bright yellow dashes on top
-  ctx.strokeStyle = "#f7d046";
+  ctx.strokeStyle = P.laneDash;
   ctx.lineWidth = 3.5;
   for (let i = 1; i < g.lanes; i++) {
     const x = g.lanesX + g.laneW * i;
@@ -3173,7 +3277,7 @@ function render() {
     drawCarTopDown(x, y, ow, oh, col, { rival: true, accent: "#0d0d14" });
   }
 
-  // ---------- Coins & power-ups (brutalist badges — flat + outlined) ----------
+  // ---------- Coins & power-ups (brutalist badges) ----------
   for (const c of game.coins) {
     const x = c.x ?? laneCenterX(g, c.lane);
     const y = c.y;
@@ -3181,13 +3285,13 @@ function render() {
 
     ctx.save();
 
-    // shadow under badge
-    ctx.fillStyle = "rgba(0,0,0,0.5)";
+    // shadow
+    ctx.fillStyle = "rgba(0,0,0,0.35)";
     ctx.beginPath();
     ctx.arc(x + 2, y + 3, r, 0, Math.PI * 2);
     ctx.fill();
 
-    // badge colors (warm, eye-safe)
+    // badge colors
     let fill, label, labelCol = "#0d0d14";
     if (c.kind === "coin")       { fill = "#f7d046"; label = ""; }
     else if (c.kind === "bonus") { fill = "#8338ec"; label = `${c.value}x`; labelCol = "#fff"; }
@@ -3202,18 +3306,15 @@ function render() {
     ctx.arc(x, y, r, 0, Math.PI * 2);
     ctx.fill();
 
-    // BRUTAL thick black outline
     ctx.strokeStyle = "#0d0d14";
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
-    // inner highlight (subtle — simulates metal coin)
     if (c.kind === "coin") {
-      ctx.fillStyle = "rgba(255,255,255,0.35)";
+      ctx.fillStyle = "rgba(255,255,255,0.45)";
       ctx.beginPath();
       ctx.arc(x - r * 0.25, y - r * 0.25, r * 0.35, 0, Math.PI * 2);
       ctx.fill();
-      // dollar-style $ symbol for coin
       ctx.fillStyle = "#0d0d14";
       ctx.font = `900 ${Math.max(11, r + 3)}px "Akando", ui-sans-serif, system-ui`;
       ctx.textAlign = "center";
@@ -3249,8 +3350,7 @@ function render() {
     ctx.arc(carX + carW / 2, carY + carH / 2, Math.max(carW, carH) * 0.75, 0, Math.PI * 2);
     ctx.stroke();
     ctx.setLineDash([]);
-    // inner soft fill (very subtle)
-    ctx.globalAlpha = 0.08;
+    ctx.globalAlpha = 0.10;
     ctx.fillStyle = "#c7f464";
     ctx.beginPath();
     ctx.arc(carX + carW / 2, carY + carH / 2, Math.max(carW, carH) * 0.7, 0, Math.PI * 2);
@@ -3260,47 +3360,43 @@ function render() {
 
   ctx.restore(); // unclip road
 
-  // ---------- Game Over overlay (neo-brutalist banner) ----------
+  // ---------- Game Over overlay ----------
   if (typeof game !== "undefined" && game.over) {
     ctx.save();
-    // full dim
-    ctx.fillStyle = "rgba(10,10,15,0.75)";
+    ctx.fillStyle = P.overlay;
     ctx.fillRect(0, 0, g.w, g.h);
 
-    // centered brutalist banner
     const bannerW = Math.min(g.w * 0.82, 360);
     const bannerH = 120;
     const bannerX = (g.w - bannerW) / 2;
     const bannerY = (g.h - bannerH) / 2;
 
-    // shadow
-    ctx.fillStyle = "#ff6b35";
+    // hard-offset shadow
+    ctx.fillStyle = P.bannerSh;
     ctx.fillRect(bannerX + 7, bannerY + 7, bannerW, bannerH);
 
     // main
-    ctx.fillStyle = "#242438";
+    ctx.fillStyle = P.bannerBg;
     ctx.fillRect(bannerX, bannerY, bannerW, bannerH);
-    ctx.strokeStyle = "#0d0d14";
+    ctx.strokeStyle = P.ink;
     ctx.lineWidth = 4;
     ctx.strokeRect(bannerX, bannerY, bannerW, bannerH);
 
-    // title
-    ctx.fillStyle = "#ef476f";
+    ctx.fillStyle = P.bannerTtl;
     ctx.font = '900 34px "RebellionSquad","Akando",system-ui';
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText("CRASHED", g.w / 2, bannerY + 40);
 
-    // subtitle
-    ctx.fillStyle = "#f5f0e1";
-    ctx.font = '700 13px "Akando",system-ui';
+    ctx.fillStyle = P.bannerTxt;
+    ctx.font = '800 13px "Akando",system-ui';
     ctx.fillText(`SCORE: ${game.score | 0}`, g.w / 2, bannerY + 72);
 
-    ctx.fillStyle = "#f7d046";
+    ctx.fillStyle = P.bannerSub;
     ctx.font = '900 12px "Akando",system-ui';
     ctx.fillText("TAP TO RESTART", g.w / 2, bannerY + 96);
     ctx.restore();
   }
 
-  ctx.restore(); // final
+  ctx.restore(); // final (matches the very first ctx.save())
 }
